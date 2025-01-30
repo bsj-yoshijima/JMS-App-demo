@@ -4,11 +4,9 @@ frontend:
     build:
       commands:
         - echo "Build starting"
-        - cp index.html /
   artifacts:
     baseDirectory: .
     files:
       - '**/*'
-      - index.html
   cache:
     paths: []
