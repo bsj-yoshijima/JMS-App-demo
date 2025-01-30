@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    /* ... 前回のベーススタイル ... */
+
+    .view-toggle {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #007AFF;
+      color: white;
+      border-radius: 28px;
+      padding: 12px 24px;
+      font-size: 14px;
+      font-weight: 500;
+      border: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: transform 0.2s;
+      z-index: 1000;
+    }
+
+    .view-toggle:active {
+      transform: scale(0.98);
+    }
+
+    .view-toggle svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .header-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      padding: 0 4px;
+    }
+
+    .view-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #666;
+      font-size: 14px;
+    }
+
+    .view-indicator svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    /* タブレット以上のサイズでの表示調整 */
+    @media (min-width: 768px) {
+      .view-toggle {
+        bottom: 32px;
+        right: 32px;
+        padding: 16px 32px;
+        font-size: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- 現在の表示モードを示すヘッダー -->
+    <div class="header-nav">
+      <div class="view-indicator">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+          <line x1="16" y1="2" x2="16" y2="6"></line>
+          <line x1="8" y1="2" x2="8" y2="6"></line>
+          <line x1="3" y1="10" x2="21" y2="10"></line>
+        </svg>
+        <span>タイムスケジュール表示</span>
+      </div>
+    </div>
+
+    <!-- 既存のタイムスケジュールコンテンツ -->
+    <div class="date-tabs">
+      <!-- ... 既存のタブコンテンツ ... -->
+    </div>
+
+    <div class="schedule-container">
+      <!-- ... 既存のスケジュールコンテンツ ... -->
+    </div>
+
+    <!-- 一覧表示への切り替えボタン -->
+    <button class="view-toggle" onclick="location.href='events-list.html'">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="8" y1="6" x2="21" y2="6"></line>
+        <line x1="8" y1="12" x2="21" y2="12"></line>
+        <line x1="8" y1="18" x2="21" y2="18"></line>
+        <line x1="3" y1="6" x2="3.01" y2="6"></line>
+        <line x1="3" y1="12" x2="3.01" y2="12"></line>
+        <line x1="3" y1="18" x2="3.01" y2="18"></line>
+      </svg>
+      一覧表示に切り替え
+    </button>
+  </div>
+
+  <!-- 既存のスクリプト -->
+  <script>
+    // ... 既存のスクリプト ...
+  </script>
+</body>
+</html>

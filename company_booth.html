@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f5f5f5;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+
+    .search-container {
+      margin-bottom: 16px;
+      position: sticky;
+      top: 0;
+      background: #f5f5f5;
+      padding: 8px 0;
+      z-index: 100;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 16px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .search-input:focus {
+      border-color: #007AFF;
+    }
+
+    .tab-container {
+      margin-bottom: 16px;
+      overflow-x: auto;
+      white-space: nowrap;
+      -webkit-overflow-scrolling: touch;
+      position: sticky;
+      top: 76px;
+      background: #f5f5f5;
+      padding: 8px 0;
+      z-index: 99;
+    }
+
+    .tab-list {
+      display: inline-flex;
+      gap: 8px;
+      padding: 0 4px;
+    }
+
+    .tab-button {
+      padding: 8px 16px;
+      border: none;
+      background: white;
+      border-radius: 20px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid #ddd;
+    }
+
+    .tab-button.active {
+      background: #007AFF;
+      color: white;
+      border-color: #007AFF;
+    }
+
+    .exhibitor-list {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .exhibitor-item {
+      display: flex;
+      padding: 12px;
+      border-bottom: 1px solid #eee;
+      align-items: center;
+    }
+
+    .exhibitor-item:last-child {
+      border-bottom: none;
+    }
+
+    .exhibitor-image {
+      width: 60px;
+      height: 60px;
+      border-radius: 8px;
+      margin-right: 16px;
+      object-fit: cover;
+    }
+
+    .exhibitor-info {
+      flex: 1;
+    }
+
+    .exhibitor-name {
+      font-size: 16px;
+      font-weight: 500;
+      color: #333;
+      margin-bottom: 4px;
+    }
+
+    .exhibitor-booth {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 2px;
+    }
+
+    .exhibitor-category {
+      font-size: 14px;
+      color: #666;
+    }
+
+    .star-button {
+      width: 24px;
+      height: 24px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      padding: 0;
+      margin-left: 12px;
+      color: #ccc;
+      font-size: 24px;
+      line-height: 1;
+      transition: color 0.2s;
+    }
+
+    .star-button.active {
+      color: #FFD700;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="search-container">
+      <input type="text" class="search-input" placeholder="ブース名を検索..." id="searchInput">
+    </div>
+    
+    <div class="tab-container">
+      <div class="tab-list">
+        <button class="tab-button active" data-company="all">すべて</button>
+        <button class="tab-button" data-company="universal">会社名A</button>
+        <button class="tab-button" data-company="disney">会社名B</button>
+        <button class="tab-button" data-company="sony">会社名C</button>
+      </div>
+    </div>
+
+    <div class="exhibitor-list">
+      <div class="exhibitor-item" data-company="universal">
+        <img src="./images.jpeg" alt="アビーのマジカル" class="exhibitor-image">
+        <div class="exhibitor-info">
+          <div class="exhibitor-name">ブース1</div>
+          <div class="exhibitor-booth">説明文</div>
+          <div class="exhibitor-category">カテゴリ</div>
+        </div>
+        <button class="star-button">★</button>
+      </div>
+
+      <div class="exhibitor-item" data-company="universal">
+        <img src="./images.jpeg" alt="アビーのマジカル" class="exhibitor-image">
+        <div class="exhibitor-info">
+            <div class="exhibitor-name">ブース2</div>
+            <div class="exhibitor-booth">説明文</div>
+            <div class="exhibitor-category">カテゴリ</div>
+        </div>
+        <button class="star-button">★</button>
+      </div>
+
+      <div class="exhibitor-item" data-company="sony">
+        <img src="./images.jpeg" alt="ウォーター" class="exhibitor-image">
+        <div class="exhibitor-info">
+            <div class="exhibitor-name">ブース3</div>
+            <div class="exhibitor-booth">説明文</div>
+            <div class="exhibitor-category">カテゴリ</div>
+        </div>
+        <button class="star-button">★</button>
+      </div>
+      <div class="exhibitor-item" data-company="sony">
+        <img src="./images.jpeg" alt="ウォーター" class="exhibitor-image">
+        <div class="exhibitor-info">
+            <div class="exhibitor-name">ブース4</div>
+            <div class="exhibitor-booth">説明文</div>
+            <div class="exhibitor-category">カテゴリ</div>
+        </div>
+        <button class="star-button">★</button>
+      </div>
+      <div class="exhibitor-item" data-company="sony">
+        <img src="./images.jpeg" alt="ウォーター" class="exhibitor-image">
+        <div class="exhibitor-info">
+            <div class="exhibitor-name">ブース5</div>
+            <div class="exhibitor-booth">説明文</div>
+            <div class="exhibitor-category">カテゴリ</div>
+        </div>
+        <button class="star-button">★</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 検索機能
+    const searchInput = document.getElementById('searchInput');
+    const exhibitorItems = document.querySelectorAll('.exhibitor-item');
+    const tabButtons = document.querySelectorAll('.tab-button');
+    let currentCompany = 'all';
+
+    const filterExhibitors = () => {
+      const searchText = searchInput.value.toLowerCase();
+      
+      exhibitorItems.forEach(item => {
+        const companyName = item.querySelector('.exhibitor-name').textContent.toLowerCase();
+        const companyType = item.dataset.company;
+        const matchesSearch = companyName.includes(searchText);
+        const matchesTab = currentCompany === 'all' || companyType === currentCompany;
+        
+        item.style.display = matchesSearch && matchesTab ? 'flex' : 'none';
+      });
+    };
+
+    searchInput.addEventListener('input', filterExhibitors);
+
+    // タブ切り替え機能
+    tabButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        tabButtons.forEach(btn => btn.classList.remove('active'));
+        button.classList.add('active');
+        currentCompany = button.dataset.company;
+        filterExhibitors();
+      });
+    });
+
+    // お気に入り機能
+    const starButtons = document.querySelectorAll('.star-button');
+    
+    const loadFavorites = () => {
+      const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+      starButtons.forEach(button => {
+        const company = button.closest('.exhibitor-item').querySelector('.exhibitor-name').textContent;
+        if (favorites.includes(company)) {
+          button.classList.add('active');
+        }
+      });
+    };
+
+    const saveFavorites = () => {
+      const favorites = [];
+      starButtons.forEach(button => {
+        if (button.classList.contains('active')) {
+          const company = button.closest('.exhibitor-item').querySelector('.exhibitor-name').textContent;
+          favorites.push(company);
+        }
+      });
+      localStorage.setItem('favorites', JSON.stringify(favorites));
+    };
+
+    starButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        button.classList.toggle('active');
+        saveFavorites();
+      });
+    });
+
+    loadFavorites();
+  </script>
+</body>
+</html>
