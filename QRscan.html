@@ -526,31 +526,59 @@
                 html5QrcodeScanner.clear();
             }
 
-            // カメラ権限をリクエスト
-            navigator.mediaDevices.getUserMedia({
-                    video: true
-                })
-                .then(function(stream) {
-                    // カメラストリームを取得できたら、QRスキャナーを初期化
-                    html5QrcodeScanner = new Html5QrcodeScanner(
-                        "reader", {
+            // モバイルデバイスの背面カメラを優先的に使用
+            navigator.mediaDevices.enumerateDevices()
+                .then(devices => {
+                    const cameras = devices.filter(device => device.kind === 'videoinput');
+                    // 背面カメラを探す（通常、最初のカメラが背面カメラ）
+                    const rearCamera = cameras[0];
+
+                    if (rearCamera) {
+                        const html5Qrcode = new Html5Qrcode("reader");
+                        const config = {
                             fps: 10,
                             qrbox: 250,
-                            rememberLastUsedCamera: true,
-                            showTorchButtonIfSupported: true,
-                            aspectRatio: 1.0
-                        }
-                    );
+                            aspectRatio: 1.0,
+                            videoConstraints: {
+                                deviceId: rearCamera.deviceId,
+                                facingMode: "environment",
+                                width: {
+                                    min: 640,
+                                    ideal: 1280,
+                                    max: 1920
+                                },
+                                height: {
+                                    min: 480,
+                                    ideal: 720,
+                                    max: 1080
+                                }
+                            }
+                        };
 
-                    html5QrcodeScanner.render((decodedText) => {
-                        // QRコードが読み取られたときの処理
-                        html5QrcodeScanner.clear();
-                        processQRCode(decodedText);
-                    });
+                        html5Qrcode.start(
+                            rearCamera.deviceId,
+                            config,
+                            (decodedText) => {
+                                html5Qrcode.stop().then(() => {
+                                    processQRCode(decodedText);
+                                });
+                            },
+                            (errorMessage) => {
+                                // QRコードが見つからない時は何もしない
+                            }
+                        ).catch((err) => {
+                            console.error("カメラの起動に失敗しました:", err);
+                            alert('カメラの起動に失敗しました。設定を確認してください。');
+                            showScanOptions();
+                        });
+                    } else {
+                        alert('カメラが見つかりません。');
+                        showScanOptions();
+                    }
                 })
-                .catch(function(err) {
-                    alert('カメラへのアクセスが許可されていません。設定からカメラへのアクセスを許可してください。');
-                    console.error(err);
+                .catch(error => {
+                    console.error("デバイスの列挙に失敗:", error);
+                    alert('カメラへのアクセスが許可されていません。');
                     showScanOptions();
                 });
         }
