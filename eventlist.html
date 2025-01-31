@@ -4,44 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    /* 前回のスタイルを継承し、サムネイル関連のスタイルを追加 */
-    /* ... 前回のベーススタイル ... */
-
-    .event-card {
-      display: flex;
-      gap: 16px;
-      background: white;
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 16px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    }
-
-    .event-thumbnail {
-      width: 120px;
-      height: 120px;
-      flex-shrink: 0;
-      border-radius: 8px;
-      object-fit: cover;
-      background-color: #f0f0f0;
-    }
-
-    .event-content {
-      flex: 1;
-      min-width: 0; /* flexboxでの文字列切れ対策 */
-    }
-
-    @media (max-width: 480px) {
-      .event-card {
-        flex-direction: column;
-      }
-
-      .event-thumbnail {
-        width: 100%;
-        height: 160px;
-      }
-    }
-    /* ... 他のスタイルは前回と同じ ... */
     * {
       margin: 0;
       padding: 0;
@@ -104,11 +66,33 @@
     }
 
     .event-card {
+      display: flex;
+      gap: 16px;
       background: white;
       border-radius: 12px;
       padding: 16px;
       margin-bottom: 16px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .event-card:hover {
+      transform: translateY(-2px);
+    }
+
+    .event-thumbnail {
+      width: 120px;
+      height: 120px;
+      flex-shrink: 0;
+      border-radius: 8px;
+      object-fit: cover;
+      background-color: #f0f0f0;
+    }
+
+    .event-content {
+      flex: 1;
+      min-width: 0;
     }
 
     .event-header {
@@ -191,6 +175,105 @@
     .event-time {
       display: flex;
       align-items: center;
+    }
+
+    /* 詳細ページのスタイル */
+    .event-detail-page {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: white;
+      z-index: 1000;
+      overflow-y: auto;
+    }
+
+    .detail-header {
+      position: sticky;
+      top: 0;
+      background: white;
+      padding: 16px;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .back-button {
+      padding: 8px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      font-size: 24px;
+    }
+
+    .detail-content {
+      padding: 24px 16px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .detail-image {
+      width: 100%;
+      height: 300px;
+      object-fit: cover;
+      border-radius: 12px;
+      margin-bottom: 24px;
+    }
+
+    .detail-title {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .detail-meta {
+      margin-bottom: 24px;
+    }
+
+    .detail-description {
+      font-size: 16px;
+      line-height: 1.6;
+      color: #333;
+      margin-bottom: 24px;
+    }
+
+    .detail-info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .detail-info-item {
+      padding: 16px;
+      background: #f5f5f5;
+      border-radius: 8px;
+    }
+
+    .detail-info-label {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 4px;
+    }
+
+    .detail-info-value {
+      font-size: 16px;
+      font-weight: 500;
+      color: #333;
+    }
+
+    @media (max-width: 480px) {
+      .event-card {
+        flex-direction: column;
+      }
+
+      .event-thumbnail {
+        width: 100%;
+        height: 160px;
+      }
     }
   </style>
 </head>
@@ -275,7 +358,34 @@
     </div>
   </div>
 
-  <!-- スクリプトは前回と同じ -->
+  <div class="event-detail-page" id="eventDetailPage">
+    <div class="detail-header">
+      <button class="back-button" onclick="hideEventDetail()">←</button>
+      <h1 class="detail-title"></h1>
+    </div>
+    <div class="detail-content">
+      <img class="detail-image" alt="イベント画像">
+      <div class="detail-meta">
+        <div class="event-labels">
+          <span class="event-label label-date"></span>
+          <span class="event-label label-category"></span>
+          <span class="event-label label-type"></span>
+        </div>
+      </div>
+      <p class="detail-description"></p>
+      <div class="detail-info-grid">
+        <div class="detail-info-item">
+          <div class="detail-info-label">日時</div>
+          <div class="detail-info-value event-time"></div>
+        </div>
+        <div class="detail-info-item">
+          <div class="detail-info-label">場所</div>
+          <div class="detail-info-value event-location"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
     // 検索とフィルター機能
     const searchInput = document.getElementById('searchInput');
@@ -294,7 +404,7 @@
         const matchesSearch = title.includes(searchText) || description.includes(searchText);
         const matchesFilter = currentFilter === 'all' || type === currentFilter;
         
-        card.style.display = matchesSearch && matchesFilter ? 'block' : 'none';
+        card.style.display = matchesSearch && matchesFilter ? 'flex' : 'none';
       });
     };
 
@@ -334,12 +444,75 @@
     };
 
     starButtons.forEach(button => {
-      button.addEventListener('click', () => {
+      button.addEventListener('click', (e) => {
+        e.stopPropagation();
         button.classList.toggle('active');
         saveFavorites();
       });
     });
 
+    // 詳細ページ機能
+    const eventDetailPage = document.getElementById('eventDetailPage');
+
+    function showEventDetail(card) {
+      const content = card.querySelector('.event-content');
+      const thumbnail = card.querySelector('.event-thumbnail');
+      
+      // 詳細ページの要素を更新
+      eventDetailPage.querySelector('.detail-title').textContent = 
+        content.querySelector('.event-title').textContent;
+      
+      eventDetailPage.querySelector('.detail-image').src = thumbnail.src;
+      eventDetailPage.querySelector('.detail-image').alt = thumbnail.alt;
+      
+      eventDetailPage.querySelector('.label-date').textContent = 
+        content.querySelector('.label-date').textContent;
+      eventDetailPage.querySelector('.label-category').textContent = 
+        content.querySelector('.label-category').textContent;
+      eventDetailPage.querySelector('.label-type').textContent = 
+        content.querySelector('.label-type').textContent;
+      
+      eventDetailPage.querySelector('.detail-description').textContent = 
+        content.querySelector('.event-description').textContent;
+      
+      eventDetailPage.querySelector('.event-time').textContent = 
+        content.querySelector('.event-time').textContent;
+      eventDetailPage.querySelector('.event-location').textContent = 
+        content.querySelector('.event-location').textContent;
+      
+      // 詳細ページを表示
+      eventDetailPage.style.display = 'block';
+      document.body.style.overflow = 'hidden';
+
+      // 履歴に追加（ブラウザの戻るボタンで戻れるように）
+      const eventTitle = content.querySelector('.event-title').textContent;
+      history.pushState({ eventTitle }, '', `#${encodeURIComponent(eventTitle)}`);
+    }
+
+    function hideEventDetail() {
+      eventDetailPage.style.display = 'none';
+      document.body.style.overflow = '';
+      history.back();
+    }
+
+    // イベントカードにクリックイベントを追加
+    document.querySelectorAll('.event-card').forEach(card => {
+      card.addEventListener('click', (e) => {
+        // スターボタンをクリックした場合は詳細ページを開かない
+        if (!e.target.classList.contains('star-button')) {
+          showEventDetail(card);
+        }
+      });
+    });
+
+    // ブラウザの戻るボタンでイベント詳細を閉じる
+    window.addEventListener('popstate', () => {
+      if (eventDetailPage.style.display === 'block') {
+        hideEventDetail();
+      }
+    });
+
+    // お気に入りの初期読み込み
     loadFavorites();
   </script>
 </body>
