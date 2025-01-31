@@ -4,21 +4,181 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    /* 既存のスタイルを継承 */
-    /* ... 前述のスタイル ... */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f5f5f5;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+
+    .search-section {
+      position: sticky;
+      top: 0;
+      background: #f5f5f5;
+      padding: 16px 0;
+      z-index: 100;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 16px;
+      margin-bottom: 12px;
+    }
+
+    .filter-buttons {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+    }
+
+    .filter-button {
+      padding: 8px 16px;
+      border: 1px solid #ddd;
+      border-radius: 20px;
+      background: white;
+      font-size: 14px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .filter-button.active {
+      background: #007AFF;
+      color: white;
+      border-color: #007AFF;
+    }
+
+    .event-list {
+      margin-top: 16px;
+    }
 
     .event-card {
+      display: flex;
+      gap: 16px;
+      background: white;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
       cursor: pointer;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      transition: transform 0.2s ease;
     }
 
     .event-card:hover {
       transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .event-thumbnail {
+      width: 120px;
+      height: 120px;
+      flex-shrink: 0;
+      border-radius: 8px;
+      object-fit: cover;
+      background-color: #f0f0f0;
+    }
+
+    .event-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .event-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .event-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #333;
+      margin-right: 12px;
+    }
+
+    .star-button {
+      width: 24px;
+      height: 24px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      padding: 0;
+      color: #ccc;
+      font-size: 24px;
+      line-height: 1;
+    }
+
+    .star-button.active {
+      color: #FFD700;
+    }
+
+    .event-labels {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .event-label {
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .label-date {
+      background: #E3F2FD;
+      color: #1976D2;
+    }
+
+    .label-category {
+      background: #F3E5F5;
+      color: #7B1FA2;
+    }
+
+    .label-type {
+      background: #E8F5E9;
+      color: #388E3C;
+    }
+
+    .event-description {
+      font-size: 14px;
+      color: #666;
+      line-height: 1.5;
+      margin-bottom: 12px;
+    }
+
+    .event-info {
+      display: flex;
+      gap: 16px;
+      font-size: 13px;
+      color: #666;
+    }
+
+    .event-location {
+      color: #007AFF;
+    }
+
+    .event-time {
+      display: flex;
+      align-items: center;
     }
 
     /* 詳細ページのスタイル */
-    .event-detail {
+    .event-detail-page {
       display: none;
       position: fixed;
       top: 0;
@@ -30,10 +190,6 @@
       overflow-y: auto;
     }
 
-    .event-detail.active {
-      display: block;
-    }
-
     .detail-header {
       position: sticky;
       top: 0;
@@ -41,21 +197,20 @@
       padding: 16px;
       border-bottom: 1px solid #eee;
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      gap: 16px;
     }
 
     .back-button {
-      padding: 8px 16px;
+      padding: 8px;
       border: none;
       background: none;
       cursor: pointer;
-      font-size: 16px;
-      color: #007AFF;
+      font-size: 24px;
     }
 
     .detail-content {
-      padding: 16px;
+      padding: 24px 16px;
       max-width: 800px;
       margin: 0 auto;
     }
@@ -68,7 +223,13 @@
       margin-bottom: 24px;
     }
 
-    .detail-info {
+    .detail-title {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .detail-meta {
       margin-bottom: 24px;
     }
 
@@ -78,114 +239,281 @@
       color: #333;
       margin-bottom: 24px;
     }
+
+    .detail-info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .detail-info-item {
+      padding: 16px;
+      background: #f5f5f5;
+      border-radius: 8px;
+    }
+
+    .detail-info-label {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 4px;
+    }
+
+    .detail-info-value {
+      font-size: 16px;
+      font-weight: 500;
+      color: #333;
+    }
+
+    @media (max-width: 480px) {
+      .event-card {
+        flex-direction: column;
+      }
+
+      .event-thumbnail {
+        width: 100%;
+        height: 160px;
+      }
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <!-- 既存の検索セクションとイベントリスト -->
     <div class="search-section">
-      <!-- ... 既存の検索部分 ... -->
+      <input type="text" class="search-input" placeholder="イベントを検索..." id="searchInput">
+      <div class="filter-buttons">
+        <button class="filter-button active" data-type="all">すべて</button>
+        <button class="filter-button" data-type="official">主催イベント</button>
+        <button class="filter-button" data-type="private">民間イベント</button>
+        <button class="filter-button" data-type="other">その他</button>
+      </div>
     </div>
 
     <div class="event-list">
-      <!-- イベントカードの構造を少し修正 -->
-      <div class="event-card" data-type="official" data-category="セレモニー" data-id="1">
-        <!-- ... 既存のイベントカード内容 ... -->
+      <div class="event-card" data-type="official" data-category="セレモニー">
+        <img src="./archax3.jpg" alt="開会式" class="event-thumbnail">
+        <div class="event-content">
+          <div class="event-header">
+            <div class="event-title">開会式</div>
+            <button class="star-button">★</button>
+          </div>
+          <div class="event-labels">
+            <span class="event-label label-date">10/25（水）</span>
+            <span class="event-label label-category">セレモニー</span>
+            <span class="event-label label-type">主催イベント</span>
+          </div>
+          <div class="event-description">
+            Japan Mobility Show 2023の開会式を執り行います。主催者挨拶と来賓祝辞を予定しています。
+          </div>
+          <div class="event-info">
+            <div class="event-time">9:00 - 10:00</div>
+            <div class="event-location">メインステージ</div>
+          </div>
+        </div>
       </div>
-      <!-- ... 他のイベントカード ... -->
+
+      <div class="event-card" data-type="private" data-category="技術展示">
+        <img src="./archax3.jpg" alt="次世代EV技術展示" class="event-thumbnail">
+        <div class="event-content">
+          <div class="event-header">
+            <div class="event-title">次世代EV技術展示</div>
+            <button class="star-button">★</button>
+          </div>
+          <div class="event-labels">
+            <span class="event-label label-date">10/26（木）</span>
+            <span class="event-label label-category">技術展示</span>
+            <span class="event-label label-type">民間イベント</span>
+          </div>
+          <div class="event-description">
+            主要自動車メーカーによる次世代EVの技術展示。最新のバッテリー技術や自動運転システムをご覧いただけます。
+          </div>
+          <div class="event-info">
+            <div class="event-time">10:00 - 16:00</div>
+            <div class="event-location">展示ホールA</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="event-card" data-type="other" data-category="ワークショップ">
+        <img src="./archax3.jpg" alt="子供向けモビリティ工作教室" class="event-thumbnail">
+        <div class="event-content">
+          <div class="event-header">
+            <div class="event-title">子供向けモビリティ工作教室</div>
+            <button class="star-button">★</button>
+          </div>
+          <div class="event-labels">
+            <span class="event-label label-date">10/28（土）</span>
+            <span class="event-label label-category">ワークショップ</span>
+            <span class="event-label label-type">その他</span>
+          </div>
+          <div class="event-description">
+            未来のモビリティをテーマにした子供向けワークショップ。簡単な工作を通じて、モビリティの仕組みを学びます。
+          </div>
+          <div class="event-info">
+            <div class="event-time">13:00 - 15:00</div>
+            <div class="event-location">ワークショップルーム</div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- 詳細ページのテンプレート -->
-  <div class="event-detail" id="eventDetail">
+  <div class="event-detail-page" id="eventDetailPage">
     <div class="detail-header">
-      <button class="back-button">← 戻る</button>
-      <button class="star-button">★</button>
+      <button class="back-button" onclick="hideEventDetail()">←</button>
+      <h1 class="detail-title"></h1>
     </div>
     <div class="detail-content">
-      <img class="detail-image" src="" alt="">
-      <div class="detail-info">
-        <h1 class="event-title"></h1>
-        <div class="event-labels"></div>
-        <p class="detail-description"></p>
-        <div class="event-info"></div>
+      <img class="detail-image" alt="イベント画像">
+      <div class="detail-meta">
+        <div class="event-labels">
+          <span class="event-label label-date"></span>
+          <span class="event-label label-category"></span>
+          <span class="event-label label-type"></span>
+        </div>
+      </div>
+      <p class="detail-description"></p>
+      <div class="detail-info-grid">
+        <div class="detail-info-item">
+          <div class="detail-info-label">日時</div>
+          <div class="detail-info-value event-time"></div>
+        </div>
+        <div class="detail-info-item">
+          <div class="detail-info-label">場所</div>
+          <div class="detail-info-value event-location"></div>
+        </div>
       </div>
     </div>
   </div>
 
   <script>
-    // 既存のスクリプトを保持
-    // ... 検索、フィルター、お気に入り機能 ... 
-
-    // 詳細ページ機能の追加
+    // 検索とフィルター機能
+    const searchInput = document.getElementById('searchInput');
+    const filterButtons = document.querySelectorAll('.filter-button');
     const eventCards = document.querySelectorAll('.event-card');
-    const eventDetail = document.getElementById('eventDetail');
-    const backButton = eventDetail.querySelector('.back-button');
+    let currentFilter = 'all';
 
-    function showEventDetail(event) {
-      // Star buttonがクリックされた場合は詳細ページに遷移しない
-      if (event.target.classList.contains('star-button')) {
-        return;
-      }
+    const filterEvents = () => {
+      const searchText = searchInput.value.toLowerCase();
+      
+      eventCards.forEach(card => {
+        const title = card.querySelector('.event-title').textContent.toLowerCase();
+        const description = card.querySelector('.event-description').textContent.toLowerCase();
+        const type = card.dataset.type;
+        
+        const matchesSearch = title.includes(searchText) || description.includes(searchText);
+        const matchesFilter = currentFilter === 'all' || type === currentFilter;
+        
+        card.style.display = matchesSearch && matchesFilter ? 'flex' : 'none';
+      });
+    };
 
-      const card = event.currentTarget;
-      const title = card.querySelector('.event-title').textContent;
-      const description = card.querySelector('.event-description').textContent;
-      const image = card.querySelector('.event-thumbnail').src;
-      const labels = card.querySelector('.event-labels').innerHTML;
-      const info = card.querySelector('.event-info').innerHTML;
+    searchInput.addEventListener('input', filterEvents);
 
-      // 詳細ページの内容を更新
-      eventDetail.querySelector('.event-title').textContent = title;
-      eventDetail.querySelector('.detail-image').src = image;
-      eventDetail.querySelector('.event-labels').innerHTML = labels;
-      eventDetail.querySelector('.detail-description').textContent = description;
-      eventDetail.querySelector('.event-info').innerHTML = info;
+    filterButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        filterButtons.forEach(btn => btn.classList.remove('active'));
+        button.classList.add('active');
+        currentFilter = button.dataset.type;
+        filterEvents();
+      });
+    });
 
-      // お気に入り状態を同期
-      const sourceStarButton = card.querySelector('.star-button');
-      const detailStarButton = eventDetail.querySelector('.star-button');
-      detailStarButton.classList.toggle('active', sourceStarButton.classList.contains('active'));
+    // お気に入り機能
+    const starButtons = document.querySelectorAll('.star-button');
+    
+    const loadFavorites = () => {
+      const favorites = JSON.parse(localStorage.getItem('event-favorites') || '[]');
+      starButtons.forEach(button => {
+        const eventTitle = button.closest('.event-header').querySelector('.event-title').textContent;
+        if (favorites.includes(eventTitle)) {
+          button.classList.add('active');
+        }
+      });
+    };
 
+    const saveFavorites = () => {
+      const favorites = [];
+      starButtons.forEach(button => {
+        if (button.classList.contains('active')) {
+          const eventTitle = button.closest('.event-header').querySelector('.event-title').textContent;
+          favorites.push(eventTitle);
+        }
+      });
+      localStorage.setItem('event-favorites', JSON.stringify(favorites));
+    };
+
+    starButtons.forEach(button => {
+      button.addEventListener('click', (e) => {
+        e.stopPropagation();
+        button.classList.toggle('active');
+        saveFavorites();
+      });
+    });
+
+    // 詳細ページ機能
+    const eventDetailPage = document.getElementById('eventDetailPage');
+
+    function showEventDetail(card) {
+      const content = card.querySelector('.event-content');
+      const thumbnail = card.querySelector('.event-thumbnail');
+      
+      // 詳細ページの要素を更新
+      eventDetailPage.querySelector('.detail-title').textContent = 
+        content.querySelector('.event-title').textContent;
+      
+      eventDetailPage.querySelector('.detail-image').src = thumbnail.src;
+      eventDetailPage.querySelector('.detail-image').alt = thumbnail.alt;
+      
+      eventDetailPage.querySelector('.label-date').textContent = 
+        content.querySelector('.label-date').textContent;
+      eventDetailPage.querySelector('.label-category').textContent = 
+        content.querySelector('.label-category').textContent;
+      eventDetailPage.querySelector('.label-type').textContent = 
+        content.querySelector('.label-type').textContent;
+      
+      eventDetailPage.querySelector('.detail-description').textContent = 
+        content.querySelector('.event-description').textContent;
+      
+      eventDetailPage.querySelector('.event-time').textContent = 
+        content.querySelector('.event-time').textContent;
+      eventDetailPage.querySelector('.event-location').textContent = 
+        content.querySelector('.event-location').textContent;
+      
       // 詳細ページを表示
-      eventDetail.classList.add('active');
+      eventDetailPage.style.display = 'block';
       document.body.style.overflow = 'hidden';
 
-      // URLを更新（オプション）
-      history.pushState({}, '', `#event-${card.dataset.id}`);
+      // 履歴に追加（ブラウザの戻るボタンで戻れるように）
+      const eventTitle = content.querySelector('.event-title').textContent;
+      history.pushState({ eventTitle }, '', `#${encodeURIComponent(eventTitle)}`);
     }
 
     function hideEventDetail() {
-      eventDetail.classList.remove('active');
+      eventDetailPage.style.display = 'none';
       document.body.style.overflow = '';
-      history.pushState({}, '', '/');
+      history.back();
     }
 
-    // イベントリスナーの設定
-    eventCards.forEach(card => {
-      card.addEventListener('click', showEventDetail);
+    // イベントカードにクリックイベントを追加
+    document.querySelectorAll('.event-card').forEach(card => {
+      card.addEventListener('click', (e) => {
+        // スターボタンをクリックした場合は詳細ページを開かない
+        if (!e.target.classList.contains('star-button')) {
+          showEventDetail(card);
+        }
+      });
     });
 
-    backButton.addEventListener('click', hideEventDetail);
-
-    // 詳細ページでのお気に入りの同期
-    eventDetail.querySelector('.star-button').addEventListener('click', function() {
-      const title = eventDetail.querySelector('.event-title').textContent;
-      const sourceCard = Array.from(eventCards).find(card => 
-        card.querySelector('.event-title').textContent === title
-      );
-      if (sourceCard) {
-        const sourceStarButton = sourceCard.querySelector('.star-button');
-        sourceStarButton.click(); // 元のstar-buttonのクリックイベントを発火
-      }
-    });
-
-    // ブラウザの戻るボタン対応
+    // ブラウザの戻るボタンでイベント詳細を閉じる
     window.addEventListener('popstate', () => {
-      if (eventDetail.classList.contains('active')) {
+      if (eventDetailPage.style.display === 'block') {
         hideEventDetail();
       }
     });
+
+    // お気に入りの初期読み込み
+    loadFavorites();
   </script>
 </body>
 </html>
