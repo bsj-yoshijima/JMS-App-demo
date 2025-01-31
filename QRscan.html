@@ -306,7 +306,7 @@
                     flex-direction: column;
                     align-items: center;
                     justify-content: center;
-                    min-height: 50vh;
+                    min-height: 70vh;
                     position: relative;
                 }
                 
@@ -328,6 +328,11 @@
                     height: 40px;
                     background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cpath fill='none' stroke='%231a237e' stroke-width='2' d='M4 4h4v4H4zM16 4h4v4h-4zM4 16h4v4H4zM16 16h4v4h-4z'/%3E%3C/svg%3E") no-repeat center;
                     animation: scanAnimation 2s infinite;
+                }
+                
+                .bg-white.rounded-2xl.w-\[calc\(100\%-48px\)\].max-w-sm.mx-auto.p-6.transform.transition-all {
+                    margin-top: -700px !important;
+                    margin-left: 50px;
                 }
                 
                 @keyframes scanAnimation {
@@ -584,8 +589,56 @@
         }
 
         function processQRCode(qrData) {
+            // 13桁の英数字かどうかをチェック
+            const isValidTicket = /^[A-Za-z0-9]{13}$/.test(qrData);
+
+            if (!isValidTicket) {
+                showErrorDialog('対象のチケットではありません');
+                return;
+            }
+
             currentQR = qrData;
             showTicketRegister();
+        }
+
+        function showErrorDialog(message) {
+            const dialogHtml = `
+                <div class="fixed inset-0 flex items-center justify-center z-50" style="background: rgba(0, 0, 0, 0.5);">
+                    <div class="bg-white rounded-2xl w-[calc(100%-48px)] max-w-sm mx-auto p-6 transform transition-all">
+                        <div class="text-center">
+                            <h3 class="text-xl font-bold mb-4">エラー</h3>
+                            <p class="text-gray-700 text-center mb-6">${message}</p>
+                            <button onclick="closeErrorDialog()" 
+                                    class="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold">
+                                閉じる
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            const dialogElement = document.createElement('div');
+            dialogElement.id = 'error-dialog';
+            dialogElement.innerHTML = dialogHtml;
+            document.body.appendChild(dialogElement);
+
+            // エラーダイアログを表示した後、スキャンページに戻る
+            setTimeout(() => {
+                showScanOptions();
+            }, 100);
+        }
+
+        function closeErrorDialog() {
+            const dialog = document.getElementById('error-dialog');
+            if (dialog) {
+                // フェードアウトアニメーション
+                dialog.style.opacity = '0';
+                dialog.style.transition = 'opacity 0.2s ease-out';
+
+                setTimeout(() => {
+                    dialog.remove();
+                }, 200);
+            }
         }
 
         function showTicketRegister() {
