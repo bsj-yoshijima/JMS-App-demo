@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Japan Mobility Show - チケットシステム</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <style>
+         :root {
+            --brand-blue: #1E40AF;
+            --brand-red: #dc2626;
+            --brand-gradient: linear-gradient(135deg, var(--brand-blue), var(--brand-red));
+        }
+        
+        body {
+            background: #f8fafc;
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+        
+        .page {
+            max-width: 100%;
+            min-height: 100vh;
+            transition: transform 0.3s ease-out;
+        }
+        
+        .page.active {
+            transform: translateX(0);
+        }
+        
+        .page.inactive {
+            transform: translateX(100%);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+        }
+        
+        .btn {
+            padding: 16px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-primary {
+            background: var(--brand-gradient);
+            color: white;
+            box-shadow: 0 4px 12px rgba(30, 64, 175, 0.2);
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: var(--brand-blue);
+            border: 2px solid #e2e8f0;
+        }
+        
+        .btn:active {
+            transform: scale(0.98);
+        }
+        
+        .card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            padding: 24px;
+            margin: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .ticket-card {
+            border-left: 4px solid var(--brand-blue);
+            cursor: pointer;
+        }
+        
+        .ticket-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+        }
+        
+        .header {
+            position: relative;
+            padding: 24px;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .back-btn {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 8px;
+            border-radius: 8px;
+            color: #64748b;
+        }
+        
+        select {
+            appearance: none;
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 12px 16px;
+            width: 100%;
+            margin: 8px 0;
+            font-size: 16px;
+            transition: all 0.2s ease;
+        }
+        
+        select:focus {
+            border-color: var(--brand-blue);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+        }
+        
+        .qr-preview {
+            width: 100%;
+            max-width: 300px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+        
+        #reader {
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+        
+        .floating-action-btn {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            width: 64px;
+            height: 64px;
+            border-radius: 32px;
+            background: var(--brand-gradient);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .floating-action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(30, 64, 175, 0.4);
+        }
+        
+        .scan-option {
+            display: flex;
+            align-items: center;
+            padding: 24px;
+            margin: 16px 0;
+            border-radius: 24px;
+            background: white;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .scan-option:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.1);
+            background: linear-gradient(145deg, white, #f8fafc);
+        }
+        
+        .scan-option:active {
+            transform: translateY(0);
+        }
+        
+        .icon {
+            width: 48px;
+            height: 48px;
+            margin-right: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(145deg, #f1f5f9, #f8fafc);
+            border-radius: 16px;
+            font-size: 24px;
+        }
+        
+        .scan-option-content {
+            flex: 1;
+        }
+        
+        .scan-option-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a237e;
+            margin-bottom: 4px;
+        }
+        
+        .scan-option-description {
+            font-size: 14px;
+            color: #64748b;
+        }
+        
+        .tickets-button {
+            margin-top: 32px;
+            background: white;
+            border: 2px solid #e2e8f0;
+            padding: 20px;
+            border-radius: 20px;
+            width: 100%;
+            font-weight: 600;
+            color: #1a237e;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        
+        .tickets-button:hover {
+            border-color: #1a237e;
+            background: #f8fafc;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- スキャンオプション選択画面 -->
+    <div id="scan-options-page" class="page active">
+        <div class="header">
+            <h1 class="text-xl font-bold text-center">チケットスキャン</h1>
+        </div>
+        <div class="container mx-auto px-4 py-8">
+            <div class="mb-8">
+                <button onclick="showImagePicker()" class="scan-option w-full">
+                    <div class="icon">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1a237e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                            <circle cx="8.5" cy="8.5" r="1.5"/>
+                            <polyline points="21 15 16 10 5 21"/>
+                        </svg>
+                    </div>
+                    <div class="scan-option-content">
+                        <div class="scan-option-title">スクリーンショットから選ぶ</div>
+                        <div class="scan-option-description">保存された画像からQRコードを読み取る</div>
+                    </div>
+                </button>
+                <button onclick="startCameraScan()" class="scan-option w-full">
+                    <div class="icon">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1a237e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                            <circle cx="12" cy="13" r="4"/>
+                        </svg>
+                    </div>
+                    <div class="scan-option-content">
+                        <div class="scan-option-title">カメラでスキャン</div>
+                        <div class="scan-option-description">カメラを使用してQRコードをスキャン</div>
+                    </div>
+                </button>
+            </div>
+            <button onclick="showTicketList()" class="tickets-button">
+                チケット一覧を見る
+            </button>
+        </div>
+    </div>
+
+    <!-- カメラスキャン画面 -->
+    <div id="camera-scan-page" class="page inactive">
+        <div class="header">
+            <button onclick="showScanOptions()" class="back-btn">←</button>
+            <h1 class="text-xl font-bold text-center">QRコードをスキャン</h1>
+        </div>
+        <div class="container mx-auto px-4 py-8">
+            <div class="scan-container">
+                <div class="phone-guide">
+                    <svg class="phone-icon" width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="5" y="2" width="14" height="20" rx="3" stroke="#1a237e"/>
+                        <path d="M12 18h.01" stroke="#1a237e"/>
+                        <rect x="8" y="5" width="8" height="11" stroke="#1a237e"/>
+                    </svg>
+                    <div class="qr-scanner-animation"></div>
+                </div>
+                <p class="scan-text">QRコードを読み取りエリアに合わせてください</p>
+                <div id="reader"></div>
+            </div>
+            <style>
+                .scan-container {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    min-height: 70vh;
+                    position: relative;
+                }
+                
+                .phone-guide {
+                    position: relative;
+                    margin-bottom: 24px;
+                }
+                
+                .phone-icon {
+                    opacity: 0.8;
+                }
+                
+                .qr-scanner-animation {
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    width: 40px;
+                    height: 40px;
+                    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cpath fill='none' stroke='%231a237e' stroke-width='2' d='M4 4h4v4H4zM16 4h4v4h-4zM4 16h4v4H4zM16 16h4v4h-4z'/%3E%3C/svg%3E") no-repeat center;
+                    animation: scanAnimation 2s infinite;
+                }
+                
+                @keyframes scanAnimation {
+                    0% {
+                        opacity: 0;
+                        transform: translate(-50%, -60%) scale(0.8);
+                    }
+                    50% {
+                        opacity: 1;
+                        transform: translate(-50%, -50%) scale(1.2);
+                    }
+                    100% {
+                        opacity: 0;
+                        transform: translate(-50%, -40%) scale(0.8);
+                    }
+                }
+                
+                .scan-text {
+                    color: #1a237e;
+                    font-size: 16px;
+                    font-weight: 500;
+                    margin: 16px 0;
+                    text-align: center;
+                }
+                
+                #reader {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    opacity: 0.8;
+                }
+                
+                #reader video {
+                    border-radius: 16px;
+                }
+                
+                .html5-qrcode-element {
+                    border-radius: 12px !important;
+                }
+            </style>
+        </div>
+    </div>
+
+    <!-- チケット登録画面 -->
+    <div id="ticket-register-page" class="page inactive">
+        <div class="header">
+            <button onclick="showScanOptions()" class="back-btn">←</button>
+            <h1 class="text-xl font-bold text-center">チケット登録</h1>
+        </div>
+        <div class="container mx-auto px-4 py-8">
+            <div class="qr-preview mb-8">
+                <div id="qrcode" class="flex justify-center"></div>
+            </div>
+            <div class="card">
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">チケット種別</label>
+                    <select id="ticket-type" class="w-full">
+                        <option value="general">一般入場券</option>
+                        <option value="vip">VIPチケット</option>
+                        <option value="press">プレス関係者</option>
+                        <option value="exhibitor">出展者パス</option>
+                    </select>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">入場日時</label>
+                    <select id="ticket-date" class="w-full mb-2">
+                        <option value="2024-10-24">2024年10月24日（木）</option>
+                        <option value="2024-10-25">2024年10月25日（金）</option>
+                        <option value="2024-10-26">2024年10月26日（土）</option>
+                        <option value="2024-10-27">2024年10月27日（日）</option>
+                    </select>
+                    <select id="ticket-time" class="w-full">
+                        <option value="1000">10:00入場</option>
+                        <option value="1300">13:00入場</option>
+                        <option value="1500">15:00入場</option>
+                    </select>
+                </div>
+                <button onclick="saveTicket()" class="btn btn-primary w-full">
+                    登録する
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- チケット一覧画面 -->
+    <div id="ticket-list-page" class="page inactive">
+        <div class="header">
+            <button onclick="showScanOptions()" class="back-btn">←</button>
+            <h1 class="text-xl font-bold text-center">チケット一覧</h1>
+        </div>
+        <div class="container mx-auto px-4 py-8">
+            <div id="ticket-list"></div>
+        </div>
+        <button onclick="showScanOptions()" class="floating-action-btn">
+            ＋
+        </button>
+    </div>
+
+    <!-- チケット編集画面 -->
+    <div id="ticket-edit-page" class="page inactive">
+        <div class="header">
+            <button onclick="showTicketList()" class="back-btn">←</button>
+            <h1 class="text-xl font-bold text-center">チケット編集</h1>
+        </div>
+        <div class="container mx-auto px-4 py-8">
+            <div class="qr-preview mb-8">
+                <div id="edit-qrcode" class="flex justify-center"></div>
+            </div>
+            <div class="card">
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">チケット種別</label>
+                    <select id="edit-ticket-type" class="w-full">
+                        <option value="general">一般入場券</option>
+                        <option value="vip">VIPチケット</option>
+                        <option value="press">プレス関係者</option>
+                        <option value="exhibitor">出展者パス</option>
+                    </select>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">入場日時</label>
+                    <select id="edit-ticket-date" class="w-full mb-2">
+                        <option value="2024-10-24">2024年10月24日（木）</option>
+                        <option value="2024-10-25">2024年10月25日（金）</option>
+                        <option value="2024-10-26">2024年10月26日（土）</option>
+                        <option value="2024-10-27">2024年10月27日（日）</option>
+                    </select>
+                    <select id="edit-ticket-time" class="w-full">
+                        <option value="1000">10:00入場</option>
+                        <option value="1300">13:00入場</option>
+                        <option value="1500">15:00入場</option>
+                    </select>
+                </div>
+                <div class="flex space-x-4">
+                    <button onclick="updateTicket()" class="btn btn-primary flex-1">
+                        更新する
+                    </button>
+                    <button onclick="deleteTicket()" class="btn btn-secondary flex-1">
+                        削除
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <input type="file" id="file-input" accept="image/*" style="display: none" onchange="handleImageFile(this)">
+
+    <script>
+        let currentQR = '';
+        let editingTicketId = null;
+        let html5QrcodeScanner = null;
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.add('inactive');
+                page.classList.remove('active');
+            });
+            document.getElementById(pageId).classList.remove('inactive');
+            document.getElementById(pageId).classList.add('active');
+        }
+
+        function showScanOptions() {
+            if (html5QrcodeScanner) {
+                html5QrcodeScanner.clear();
+            }
+            showPage('scan-options-page');
+        }
+
+        function showImagePicker() {
+            document.getElementById('file-input').click();
+        }
+
+        function initializeImageFileInput() {
+            const fileInput = document.getElementById('file-input');
+            fileInput.value = '';
+        }
+
+        async function handleImageFile(input) {
+            const file = input.files[0];
+            try {
+                const html5Qrcode = new Html5Qrcode("reader");
+                const result = await html5Qrcode.scanFile(file);
+                processQRCode(result);
+            } catch (error) {
+                alert('QRコードを読み取れませんでした。別の画像を試してください。');
+                console.error(error);
+            }
+        }
+
+        function startCameraScan() {
+            showPage('camera-scan-page');
+
+            // 既存のスキャナーをクリア
+            if (html5QrcodeScanner) {
+                html5QrcodeScanner.clear();
+            }
+
+            // カメラ権限をリクエスト
+            navigator.mediaDevices.getUserMedia({
+                    video: true
+                })
+                .then(function(stream) {
+                    // カメラストリームを取得できたら、QRスキャナーを初期化
+                    html5QrcodeScanner = new Html5QrcodeScanner(
+                        "reader", {
+                            fps: 10,
+                            qrbox: 250,
+                            rememberLastUsedCamera: true,
+                            showTorchButtonIfSupported: true,
+                            aspectRatio: 1.0
+                        }
+                    );
+
+                    html5QrcodeScanner.render((decodedText) => {
+                        // QRコードが読み取られたときの処理
+                        html5QrcodeScanner.clear();
+                        processQRCode(decodedText);
+                    });
+                })
+                .catch(function(err) {
+                    alert('カメラへのアクセスが許可されていません。設定からカメラへのアクセスを許可してください。');
+                    console.error(err);
+                    showScanOptions();
+                });
+        }
+
+        function processQRCode(qrData) {
+            currentQR = qrData;
+            showTicketRegister();
+        }
+
+        function showTicketRegister() {
+            showPage('ticket-register-page');
+            document.getElementById('qrcode').innerHTML = '';
+            new QRCode(document.getElementById("qrcode"), {
+                text: currentQR,
+                width: 200,
+                height: 200
+            });
+        }
+
+        function showTicketList() {
+            showPage('ticket-list-page');
+            renderTicketList();
+        }
+
+        function saveTicket() {
+            const ticketType = document.getElementById('ticket-type').value;
+            const date = document.getElementById('ticket-date').value;
+            const time = document.getElementById('ticket-time').value;
+
+            const ticket = {
+                id: Date.now().toString(),
+                qr: currentQR,
+                type: ticketType,
+                date: date,
+                time: time,
+                created: new Date().toISOString()
+            };
+
+            let tickets = JSON.parse(localStorage.getItem('tickets') || '[]');
+            tickets.push(ticket);
+            localStorage.setItem('tickets', JSON.stringify(tickets));
+
+            showTicketList();
+        }
+
+        function renderTicketList() {
+            const tickets = JSON.parse(localStorage.getItem('tickets') || '[]');
+            const listElement = document.getElementById('ticket-list');
+
+            listElement.innerHTML = tickets.map(ticket => `
+                <div class="card ticket-card fade-in" onclick="showTicketEdit('${ticket.id}')">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <div class="font-bold text-lg">${getTicketTypeName(ticket.type)}</div>
+                            <div class="text-gray-600">${formatDateTime(ticket.date, ticket.time)}</div>
+                        </div>
+                        <div class="text-2xl">→</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function showTicketEdit(ticketId) {
+            editingTicketId = ticketId;
+            const tickets = JSON.parse(localStorage.getItem('tickets') || '[]');
+            const ticket = tickets.find(t => t.id === ticketId);
+
+            if (!ticket) return;
+
+            document.getElementById('edit-ticket-type').value = ticket.type;
+            document.getElementById('edit-ticket-date').value = ticket.date;
+            document.getElementById('edit-ticket-time').value = ticket.time;
+
+            document.getElementById('edit-qrcode').innerHTML = '';
+            new QRCode(document.getElementById("edit-qrcode"), {
+                text: ticket.qr,
+                width: 200,
+                height: 200
+            });
+
+            showPage('ticket-edit-page');
+        }
+
+        function updateTicket() {
+            if (!editingTicketId) return;
+
+            const tickets = JSON.parse(localStorage.getItem('tickets') || '[]');
+            const ticketIndex = tickets.findIndex(t => t.id === editingTicketId);
+
+            if (ticketIndex === -1) return;
+
+            tickets[ticketIndex] = {
+                ...tickets[ticketIndex],
+                type: document.getElementById('edit-ticket-type').value,
+                date: document.getElementById('edit-ticket-date').value,
+                time: document.getElementById('edit-ticket-time').value,
+                updated: new Date().toISOString()
+            };
+
+            localStorage.setItem('tickets', JSON.stringify(tickets));
+            showTicketList();
+        }
+
+        function deleteTicket() {
+            if (!editingTicketId) return;
+
+            if (confirm('このチケットを削除してもよろしいですか？')) {
+                const tickets = JSON.parse(localStorage.getItem('tickets') || '[]');
+                const filteredTickets = tickets.filter(t => t.id !== editingTicketId);
+                localStorage.setItem('tickets', JSON.stringify(filteredTickets));
+                showTicketList();
+            }
+        }
+
+        function getTicketTypeName(type) {
+            const types = {
+                general: '一般入場券',
+                vip: 'VIPチケット',
+                press: 'プレス関係者',
+                exhibitor: '出展者パス'
+            };
+            return types[type] || type;
+        }
+
+        function formatDateTime(date, time) {
+            const dateObj = new Date(date);
+            const days = ['日', '月', '火', '水', '木', '金', '土'];
+            const formattedDate = `${dateObj.getFullYear()}年${dateObj.getMonth() + 1}月${dateObj.getDate()}日(${days[dateObj.getDay()]})`;
+            const formattedTime = `${time.substring(0, 2)}:${time.substring(2)}`;
+            return `${formattedDate} ${formattedTime}入場`;
+        }
+
+        // 初期表示
+        showScanOptions();
+
+        // ファイル入力の初期化
+        initializeImageFileInput();
+
+        // エラーハンドリングの初期化
+        window.onerror = function(message, source, lineno, colno, error) {
+            console.error('Global error:', error);
+            alert('エラーが発生しました。もう一度お試しください。');
+            showScanOptions();
+            return true;
+        };
+
+        // ページ遷移時のクリーンアップ
+        window.onbeforeunload = function() {
+            if (html5QrcodeScanner) {
+                html5QrcodeScanner.clear();
+            }
+        };
+
+        // スワイプでの戻る操作の実装
+        document.addEventListener('touchstart', handleTouchStart, false);
+        document.addEventListener('touchmove', handleTouchMove, false);
+
+        let xDown = null;
+        let yDown = null;
+
+        function handleTouchStart(evt) {
+            const firstTouch = evt.touches[0];
+            xDown = firstTouch.clientX;
+            yDown = firstTouch.clientY;
+        }
+
+        function handleTouchMove(evt) {
+            if (!xDown || !yDown) {
+                return;
+            }
+
+            const xUp = evt.touches[0].clientX;
+            const yUp = evt.touches[0].clientY;
+
+            const xDiff = xDown - xUp;
+            const yDiff = yDown - yUp;
+
+            if (Math.abs(xDiff) > Math.abs(yDiff)) {
+                if (xDiff > 0) {
+                    /* 左スワイプ */
+                } else {
+                    /* 右スワイプ - 戻る */
+                    const currentPage = document.querySelector('.page.active');
+                    if (currentPage.id !== 'scan-options-page') {
+                        if (currentPage.id === 'ticket-list-page') {
+                            showScanOptions();
+                        } else if (currentPage.id === 'ticket-edit-page') {
+                            showTicketList();
+                        } else {
+                            showScanOptions();
+                        }
+                    }
+                }
+            }
+
+            xDown = null;
+            yDown = null;
+        }
+
+        // アプリケーションの初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            showScanOptions();
+            initializeImageFileInput();
+        });
+    </script>
+
+    <!-- Progressive Web App (PWA) サポート -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/service-worker.js').then(function(registration) {
+                    console.log('ServiceWorker registration successful');
+                }, function(err) {
+                    console.log('ServiceWorker registration failed: ', err);
+                });
+            });
+        }
+    </script>
+
+    <!-- アプリインストールプロモーション -->
+    <div id="install-prompt" class="hidden fixed bottom-0 left-0 right-0 bg-white p-4 shadow-lg" style="display: none;">
+        <div class="flex justify-between items-center">
+            <div>
+                <h3 class="font-bold">アプリをインストール</h3>
+                <p class="text-sm text-gray-600">より快適にご利用いただけます</p>
+            </div>
+            <div class="flex space-x-2">
+                <button onclick="hideInstallPrompt()" class="px-4 py-2 text-gray-600">後で</button>
+                <button id="install-button" class="px-4 py-2 bg-blue-600 text-white rounded-lg">インストール</button>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
