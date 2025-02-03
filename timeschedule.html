@@ -21,6 +21,7 @@
       padding: 16px;
     }
 
+    /* Previous styles remain the same */
     .date-tabs {
       overflow-x: auto;
       white-space: nowrap;
@@ -132,6 +133,35 @@
       padding: 32px;
       color: #666;
     }
+
+    /* New floating action button styles */
+    .fab {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #007AFF;
+      color: white;
+      padding: 16px 24px;
+      border-radius: 100px;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+      transition: transform 0.2s, box-shadow 0.2s;
+      z-index: 1000;
+    }
+
+    .fab:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 122, 255, 0.4);
+    }
+
+    @media (max-width: 600px) {
+      .fab {
+        padding: 12px 20px;
+        font-size: 13px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -214,18 +244,19 @@
     </div>
   </div>
 
+  <!-- New floating action button -->
+  <a href="https://main.d194addch7ev33.amplifyapp.com/eventlist.html" class="fab">カテゴリ表示に切り替え</a>
+
   <script>
-    // タブ切り替え機能
+    // Previous JavaScript remains the same
     const dateTabs = document.querySelectorAll('.date-tab');
     const eventCards = document.querySelectorAll('.event-card');
 
     dateTabs.forEach(tab => {
       tab.addEventListener('click', () => {
-        // タブのアクティブ状態を更新
         dateTabs.forEach(t => t.classList.remove('active'));
         tab.classList.add('active');
 
-        // イベントの表示/非表示を切り替え
         const selectedDate = tab.dataset.date;
         eventCards.forEach(card => {
           if (card.dataset.date === selectedDate) {
@@ -237,7 +268,6 @@
       });
     });
 
-    // お気に入り機能
     const starButtons = document.querySelectorAll('.star-button');
     
     const loadFavorites = () => {
