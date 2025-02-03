@@ -1,304 +1,812 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: #f5f5f5;
-    }
-
-    .container {
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 16px;
-    }
-
-    /* Previous styles remain the same */
-    .date-tabs {
-      overflow-x: auto;
-      white-space: nowrap;
-      -webkit-overflow-scrolling: touch;
-      background: #f5f5f5;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      padding: 8px 0;
-    }
-
-    .date-list {
-      display: inline-flex;
-      gap: 8px;
-      padding: 0 4px;
-    }
-
-    .date-tab {
-      padding: 12px 20px;
-      border: none;
-      background: white;
-      border-radius: 20px;
-      font-size: 14px;
-      cursor: pointer;
-      transition: all 0.2s;
-      border: 1px solid #ddd;
-    }
-
-    .date-tab.active {
-      background: #007AFF;
-      color: white;
-      border-color: #007AFF;
-    }
-
-    .schedule-container {
-      margin-top: 16px;
-    }
-
-    .time-slot {
-      display: flex;
-      margin-bottom: 16px;
-    }
-
-    .time-label {
-      width: 80px;
-      padding-top: 12px;
-      font-size: 14px;
-      color: #666;
-      flex-shrink: 0;
-    }
-
-    .event-list {
-      flex-grow: 1;
-    }
-
-    .event-card {
-      background: white;
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 12px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    }
-
-    .event-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 8px;
-    }
-
-    .event-title {
-      font-size: 16px;
-      font-weight: 600;
-      color: #333;
-      margin-right: 12px;
-    }
-
-    .star-button {
-      width: 24px;
-      height: 24px;
-      border: none;
-      background: none;
-      cursor: pointer;
-      padding: 0;
-      color: #ccc;
-      font-size: 24px;
-      line-height: 1;
-      transition: color 0.2s;
-    }
-
-    .star-button.active {
-      color: #FFD700;
-    }
-
-    .event-description {
-      font-size: 14px;
-      color: #666;
-      margin-bottom: 8px;
-      line-height: 1.4;
-    }
-
-    .event-location {
-      font-size: 13px;
-      color: #007AFF;
-    }
-
-    .no-events {
-      text-align: center;
-      padding: 32px;
-      color: #666;
-    }
-
-    /* New floating action button styles */
-    .fab {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      background: #007AFF;
-      color: white;
-      padding: 16px 24px;
-      border-radius: 100px;
-      text-decoration: none;
-      font-size: 14px;
-      font-weight: 600;
-      box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
-      transition: transform 0.2s, box-shadow 0.2s;
-      z-index: 1000;
-    }
-
-    .fab:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(0, 122, 255, 0.4);
-    }
-
-    @media (max-width: 600px) {
-      .fab {
-        padding: 12px 20px;
-        font-size: 13px;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>Schedule</title>
+    <style>
+         :root {
+            --primary: #2563eb;
+            --primary-light: #3b82f6;
+            --primary-dark: #1d4ed8;
+            --background: #f8fafc;
+            --surface: #ffffff;
+            --text: #1e293b;
+            --text-secondary: #64748b;
+            --border: #e2e8f0;
+            --accent: #f59e0b;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: var(--background);
+            color: var(--text);
+            line-height: 1.5;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 16px;
+        }
+        
+        .date-tabs {
+            position: sticky;
+            top: 0;
+            background: var(--surface);
+            padding: 16px 0;
+            z-index: 100;
+            width: 100vw;
+            margin-left: calc(50% - 50vw);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+        
+        .date-list {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 16px;
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .date-list::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .date-tab {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 12px 8px;
+            min-width: 64px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            color: var(--text-secondary);
+        }
+        
+        .date-tab .date-day {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .date-tab .date-weekday {
+            font-size: 12px;
+        }
+        
+        .date-tab.active {
+            color: var(--primary);
+        }
+        
+        .date-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 16px;
+            height: 3px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+        
+        .schedule-container {
+            padding: 32px 0;
+        }
+        
+        .time-slot {
+            display: flex;
+            position: relative;
+        }
+        
+        .time-slot::before {
+            content: '';
+            position: absolute;
+            left: 40px;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: var(--border);
+        }
+        
+        .time-label {
+            width: 80px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            padding-top: 24px;
+            flex-shrink: 0;
+        }
+        
+        .event-list {
+            flex-grow: 1;
+            padding: 16px 0 32px 24px;
+        }
+        
+        .event-card {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s;
+            position: relative;
+            border: 1px solid var(--border);
+        }
+        
+        .event-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+        }
+        
+        .event-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+        
+        .event-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text);
+            margin-right: 16px;
+        }
+        
+        .star-button {
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: var(--background);
+            cursor: pointer;
+            border-radius: 50%;
+            color: var(--text-secondary);
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            margin: -8px -8px -8px 0;
+        }
+        
+        .star-button:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+        
+        .star-button.active {
+            color: var(--accent);
+        }
+        
+        .event-description {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+        
+        .event-location {
+            display: flex;
+            align-items: center;
+            font-size: 13px;
+            color: var(--primary);
+            font-weight: 500;
+        }
+        
+        .event-location i {
+            margin-right: 6px;
+            font-size: 16px;
+        }
+        
+        .fab {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: var(--primary);
+            color: white;
+            padding: 16px 24px;
+            border-radius: 100px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            box-shadow: 0 8px 16px rgba(37, 99, 235, 0.25), 0 4px 6px rgba(37, 99, 235, 0.1);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+        }
+        
+        .fab:hover {
+            transform: translateY(-2px);
+            background: var(--primary-dark);
+            box-shadow: 0 12px 20px rgba(37, 99, 235, 0.3), 0 6px 8px rgba(37, 99, 235, 0.15);
+        }
+        
+        @media (max-width: 640px) {
+            .date-tab {
+                min-width: 56px;
+            }
+            .date-tab .date-day {
+                font-size: 20px;
+            }
+            .event-card {
+                padding: 16px;
+            }
+            .fab {
+                bottom: 16px;
+                right: 16px;
+                padding: 12px 20px;
+                font-size: 13px;
+            }
+        }
+    </style>
 </head>
+
 <body>
-  <div class="container">
-    <div class="date-tabs">
-      <div class="date-list">
-        <button class="date-tab active" data-date="10/25">10/25（水）</button>
-        <button class="date-tab" data-date="10/26">10/26（木）</button>
-        <button class="date-tab" data-date="10/27">10/27（金）</button>
-        <button class="date-tab" data-date="10/28">10/28（土）</button>
-        <button class="date-tab" data-date="10/29">10/29（日）</button>
-        <button class="date-tab" data-date="10/30">10/30（月）</button>
-        <button class="date-tab" data-date="10/31">10/31（火）</button>
-        <button class="date-tab" data-date="11/1">11/1（水）</button>
-        <button class="date-tab" data-date="11/2">11/2（木）</button>
-        <button class="date-tab" data-date="11/3">11/3（金）</button>
-      </div>
+    <div class="container">
+        <div class="date-tabs">
+            <div class="date-list">
+                <button class="date-tab active">
+          <span class="date-day">25</span>
+          <span class="date-weekday">水</span>
+        </button>
+                <button class="date-tab">
+          <span class="date-day">26</span>
+          <span class="date-weekday">木</span>
+        </button>
+                <button class="date-tab">
+          <span class="date-day">27</span>
+          <span class="date-weekday">金</span>
+        </button>
+                <button class="date-tab">
+          <span class="date-day">28</span>
+          <span class="date-weekday">土</span>
+        </button>
+                <button class="date-tab">
+          <span class="date-day">29</span>
+          <span class="date-weekday">日</span>
+        </button>
+                <button class="date-tab">
+          <span class="date-day">30</span>
+          <span class="date-weekday">月</span>
+        </button>
+                <button class="date-tab">
+          <span class="date-day">31</span>
+          <span class="date-weekday">火</span>
+        </button>
+                <button class="date-tab">
+          <span class="date-day">1</span>
+          <span class="date-weekday">水</span>
+        </button>
+                <button class="date-tab">
+          <span class="date-day">2</span>
+          <span class="date-weekday">木</span>
+        </button>
+                <button class="date-tab">
+          <span class="date-day">3</span>
+          <span class="date-weekday">金</span>
+        </button>
+            </div>
+        </div>
+
+        <div class="schedule-container">
+            <!-- 9:00 -->
+            <div class="time-slot" data-time="9:00">
+                <div class="time-label">9:00</div>
+                <div class="event-list">
+                    <div class="event-card" data-date="10/26">
+                        <div class="event-header">
+                            <div class="event-title">未来のモビリティ展示オープニング</div>
+                            <button class="star-button">
+                <i class="fas fa-star"></i>
+              </button>
+                        </div>
+                        <div class="event-description">
+                            最新のEVコンセプトカーや次世代モビリティの展示がスタート。特別ガイドツアーも実施。
+                        </div>
+                        <div class="event-location">
+                            <i class="fas fa-map-marker-alt"></i> 展示ホールA
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 10:30 -->
+            <div class="time-slot" data-time="10:30">
+                <div class="time-label">10:30</div>
+                <div class="event-list">
+                    <div class="event-card" data-date="10/26">
+                        <div class="event-header">
+                            <div class="event-title">自動運転技術セミナー</div>
+                            <button class="star-button">
+                <i class="fas fa-star"></i>
+              </button>
+                        </div>
+                        <div class="event-description">
+                            最新の自動運転技術と安全システムについて、開発者が詳しく解説します。
+                        </div>
+                        <div class="event-location">
+                            <i class="fas fa-map-marker-alt"></i> セミナールームB
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 13:00 -->
+            <div class="time-slot" data-time="13:00">
+                <div class="time-label">13:00</div>
+                <div class="event-list">
+                    <div class="event-card" data-date="10/26">
+                        <div class="event-header">
+                            <div class="event-title">次世代バッテリー技術フォーラム</div>
+                            <button class="star-button">
+                <i class="fas fa-star"></i>
+              </button>
+                        </div>
+                        <div class="event-description">
+                            EVの航続距離を飛躍的に向上させる新型バッテリーの開発状況について紹介します。
+                        </div>
+                        <div class="event-location">
+                            <i class="fas fa-map-marker-alt"></i> カンファレンスホールC
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 15:00 -->
+            <div class="time-slot" data-time="15:00">
+                <div class="time-label">15:00</div>
+                <div class="event-list">
+                    <div class="event-card" data-date="10/26">
+                        <div class="event-header">
+                            <div class="event-title">モビリティxAIシンポジウム</div>
+                            <button class="star-button">
+                <i class="fas fa-star"></i>
+              </button>
+                        </div>
+                        <div class="event-description">
+                            AI技術がモビリティの未来をどのように変革するのか、最新の研究成果を交えて議論します。
+                        </div>
+                        <div class="event-location">
+                            <i class="fas fa-map-marker-alt"></i> メインホール
+                        </div>
+                    </div>
+                    <div class="event-card" data-date="10/27">
+                        <div class="event-header">
+                            <div class="event-title">サステナブルモビリティ展</div>
+                            <button class="star-button">
+                <i class="fas fa-star"></i>
+              </button>
+                        </div>
+                        <div class="event-description">
+                            環境に配慮した次世代モビリティの展示。リサイクル技術や省エネ技術にも注目。
+                        </div>
+                        <div class="event-location">
+                            <i class="fas fa-map-marker-alt"></i> 展示ホールB
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 10:00 -->
+            <div class="time-slot" data-time="10:00">
+                <div class="time-label">10:00</div>
+                <div class="event-list">
+                    <div class="event-card" data-date="10/28">
+                        <div class="event-header">
+                            <div class="event-title">週末ファミリーイベント</div>
+                            <button class="star-button">
+                <i class="fas fa-star"></i>
+              </button>
+                        </div>
+                        <div class="event-description">
+                            子供向けの電動カート試乗体験や、未来のクルマの絵を描くワークショップを開催。
+                        </div>
+                        <div class="event-location">
+                            <i class="fas fa-map-marker-alt"></i> キッズエリア
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 14:00 -->
+            <div class="time-slot" data-time="14:00">
+                <div class="event-list">
+                    <div class="event-card" data-date="10/29">
+                        <div class="event-header">
+                            <div class="event-title">モビリティデザインアワード</div>
+                            <button class="star-button">
+                <i class="fas fa-star"></i>
+              </button>
+                        </div>
+                        <div class="event-description">
+                            次世代モビリティのデザインコンペティション。学生から専門家まで、革新的なデザインを表彰。
+                        </div>
+                        <div class="event-location">
+                            <i class="fas fa-map-marker-alt"></i> メインステージ
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 11:00 -->
+            <div class="time-slot" data-time="11:00">
+                <div class="time-label">11:00</div>
+                <div class="event-list">
+                    <div class="event-card" data-date="10/30">
+                        <div class="event-header">
+                            <div class="event-title">スマートシティ構想発表</div>
+                            <button class="star-button">
+                <i class="fas fa-star"></i>
+              </button>
+                        </div>
+                        <div class="event-description">
+                            次世代モビリティを活用したスマートシティの実証実験結果と今後の展開について発表。
+                        </div>
+                        <div class="event-location">
+                            <i class="fas fa-map-marker-alt"></i> カンファレンスホールA
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 15:30 -->
+            <div class="time-slot" data-time="15:30">
+                <div class="time-label">15:30</div>
+                <div class="event-list">
+                    <div class="event-card" data-date="10/31">
+                        <div class="event-header">
+                            <div class="event-title">モビリティ産業の未来</div>
+                            <button class="star-button">
+                <i class="fas fa-star"></i>
+              </button>
+                        </div>
+                        <div class="event-description">
+                            自動車産業のデジタルトランスフォーメーションと、新たなビジネスモデルについて議論します。
+                        </div>
+                        <div class="event-location">
+                            <i class="fas fa-map-marker-alt"></i> メインホール
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 10:00-11:00 -->
+            <div class="time-slot" data-time="10:00">
+                <div class="time-label">10:00</div>
+                <div class="event-list">
+                    <div class="event-card" data-date="10/25">
+                        <div class="event-header">
+                            <div class="event-title">次世代モビリティ技術カンファレンス</div>
+                            <button class="star-button">
+                <i class="fas fa-star"></i>
+              </button>
+                        </div>
+                        <div class="event-description">
+                            自動運転技術の最新動向と今後の展望について、業界をリードする専門家が講演を行います。
+                        </div>
+                        <div class="event-location">
+                            <i class="fas fa-map-marker-alt"></i> カンファレンスホールA
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 13:00-14:00 -->
+            <div class="time-slot" data-time="13:00">
+                <div class="time-label">13:00</div>
+                <div class="event-list">
+                    <div class="event-card" data-date="10/25">
+                        <div class="event-header">
+                            <div class="event-title">EVデモンストレーション</div>
+                            <button class="star-button">
+                <i class="fas fa-star"></i>
+              </button>
+                        </div>
+                        <div class="event-description">
+                            最新の電気自動車による実車デモンストレーション。充電技術や航続距離についての説明も行います。
+                        </div>
+                        <div class="event-location">
+                            <i class="fas fa-map-marker-alt"></i> 屋外展示場
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 15:00-16:00 -->
+            <div class="time-slot" data-time="15:00">
+                <div class="time-label">15:00</div>
+                <div class="event-list">
+                    <div class="event-card" data-date="10/25">
+                        <div class="event-header">
+                            <div class="event-title">空飛ぶクルマ展示会</div>
+                            <button class="star-button">
+                <i class="fas fa-star"></i>
+              </button>
+                        </div>
+                        <div class="event-description">
+                            eVTOL（電動垂直離着陸機）の展示と技術説明。未来の空の移動手段について紹介します。
+                        </div>
+                        <div class="event-location">
+                            <i class="fas fa-map-marker-alt"></i> 展示ホールB
+                        </div>
+                    </div>
+                    <div class="event-card" data-date="10/26">
+                        <div class="event-header">
+                            <div class="event-title">自動運転シンポジウム</div>
+                            <button class="star-button">
+                <i class="fas fa-star"></i>
+              </button>
+                        </div>
+                        <div class="event-description">
+                            自動運転レベル4の実用化に向けた課題と展望について、専門家によるパネルディスカッションを行います。
+                        </div>
+                        <div class="event-location">
+                            <i class="fas fa-map-marker-alt"></i> カンファレンスホールA
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 10:30-11:30 -->
+            <div class="time-slot" data-time="10:30">
+                <div class="time-label">10:30</div>
+                <div class="event-list">
+                    <div class="event-card" data-date="10/26">
+                        <div class="event-header">
+                            <div class="event-title">キッズモビリティ体験</div>
+                            <button class="star-button">
+                <i class="fas fa-star"></i>
+              </button>
+                        </div>
+                        <div class="event-description">
+                            子供向けの電動カートの試乗体験。未来のモビリティについて楽しく学べるワークショップも開催。
+                        </div>
+                        <div class="event-location">
+                            <i class="fas fa-map-marker-alt"></i> キッズエリア
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 13:30-14:30 -->
+            <div class="time-slot" data-time="13:30">
+                <div class="time-label">13:30</div>
+                <div class="event-list">
+                    <div class="event-card" data-date="10/26">
+                        <div class="event-header">
+                            <div class="event-title">水素エネルギー講演会</div>
+                            <button class="star-button">
+                <i class="fas fa-star"></i>
+              </button>
+                        </div>
+                        <div class="event-description">
+                            水素燃料電池車の開発状況と、水素社会の実現に向けたインフラ整備について解説します。
+                        </div>
+                        <div class="event-location">
+                            <i class="fas fa-map-marker-alt"></i> セミナールームC
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 11:00-12:00 -->
+            <div class="time-slot" data-time="11:00">
+                <div class="time-label">11:00</div>
+                <div class="event-list">
+                    <div class="event-card" data-date="10/27">
+                        <div class="event-header">
+                            <div class="event-title">モビリティデザイン展</div>
+                            <button class="star-button">
+                <i class="fas fa-star"></i>
+              </button>
+                        </div>
+                        <div class="event-description">
+                            次世代モビリティのデザインコンセプトモデルを展示。デザイナーによる解説付きツアーを実施。
+                        </div>
+                        <div class="event-location">
+                            <i class="fas fa-map-marker-alt"></i> 展示ホールC
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 14:00-15:00 -->
+            <div class="time-slot" data-time="14:00">
+                <div class="time-label">14:00</div>
+                <div class="event-list">
+                    <div class="event-card" data-date="10/27">
+                        <div class="event-header">
+                            <div class="event-title">スマートシティフォーラム</div>
+                            <button class="star-button">
+                <i class="fas fa-star"></i>
+              </button>
+                        </div>
+                        <div class="event-description">
+                            モビリティを軸とした未来の街づくりについて、都市計画の専門家と企業の取り組みを紹介します。
+                        </div>
+                        <div class="event-location">
+                            <i class="fas fa-map-marker-alt"></i> メインホール
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 16:30-17:30 -->
+            <div class="time-slot" data-time="16:30">
+                <div class="time-label">16:30</div>
+                <div class="event-list">
+                    <div class="event-card" data-date="10/27">
+                        <div class="event-header">
+                            <div class="event-title">モータースポーツの未来</div>
+                            <button class="star-button">
+                <i class="fas fa-star"></i>
+              </button>
+                        </div>
+                        <div class="event-description">
+                            電動化時代のモータースポーツの展望について、レーシングドライバーと技術者によるトークセッション。
+                        </div>
+                        <div class="event-location">
+                            <i class="fas fa-map-marker-alt"></i> スペシャルステージ
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="schedule-container">
-      <!-- 9:00-10:00 -->
-      <div class="time-slot" data-time="9:00">
-        <div class="time-label">9:00</div>
-        <div class="event-list">
-          <div class="event-card" data-date="10/25">
-            <div class="event-header">
-              <div class="event-title">開会式</div>
-              <button class="star-button">★</button>
-            </div>
-            <div class="event-description">Japan Mobility Show 2023の開会式を執り行います。主催者挨拶と来賓祝辞を予定しています。</div>
-            <div class="event-location">メインステージ</div>
-          </div>
-        </div>
-      </div>
+    <a href="https://main.d194addch7ev33.amplifyapp.com/eventlist.html" class="fab">
+    カテゴリ表示に切り替え
+  </a>
 
-      <!-- 10:00-11:00 -->
-      <div class="time-slot" data-time="10:00">
-        <div class="time-label">10:00</div>
-        <div class="event-list">
-          <div class="event-card" data-date="10/25">
-            <div class="event-header">
-              <div class="event-title">次世代モビリティ技術カンファレンス</div>
-              <button class="star-button">★</button>
-            </div>
-            <div class="event-description">自動運転技術の最新動向と今後の展望について、業界をリードする専門家が講演を行います。</div>
-            <div class="event-location">カンファレンスホールA</div>
-          </div>
-        </div>
-      </div>
+    <script>
+        const dateTabs = document.querySelectorAll('.date-tab');
+        const eventCards = document.querySelectorAll('.event-card');
+        const timeSlots = document.querySelectorAll('.time-slot');
 
-      <!-- 13:00-14:00 -->
-      <div class="time-slot" data-time="13:00">
-        <div class="time-label">13:00</div>
-        <div class="event-list">
-          <div class="event-card" data-date="10/25">
-            <div class="event-header">
-              <div class="event-title">EVデモンストレーション</div>
-              <button class="star-button">★</button>
-            </div>
-            <div class="event-description">最新の電気自動車による実車デモンストレーション。充電技術や航続距離についての説明も行います。</div>
-            <div class="event-location">屋外展示場</div>
-          </div>
-        </div>
-      </div>
+        function showEventsForDate(dateStr) {
+            eventCards.forEach(card => {
+                if (card.dataset.date === dateStr) {
+                    card.style.display = 'block';
+                    card.closest('.time-slot').style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                    // 該当する日付のイベントがない時間帯は非表示
+                    const timeSlot = card.closest('.time-slot');
+                    const hasVisibleEvents = Array.from(timeSlot.querySelectorAll('.event-card'))
+                        .some(event => event.dataset.date === dateStr);
+                    timeSlot.style.display = hasVisibleEvents ? 'flex' : 'none';
+                }
+            });
+        }
 
-      <!-- 15:00-16:00 -->
-      <div class="time-slot" data-time="15:00">
-        <div class="time-label">15:00</div>
-        <div class="event-list">
-          <div class="event-card" data-date="10/25">
-            <div class="event-header">
-              <div class="event-title">空飛ぶクルマ展示会</div>
-              <button class="star-button">★</button>
-            </div>
-            <div class="event-description">eVTOL（電動垂直離着陸機）の展示と技術説明。未来の空の移動手段について紹介します。</div>
-            <div class="event-location">展示ホールB</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+        dateTabs.forEach((tab, index) => {
+            // 日付データの設定
+            const date = new Date(2023, 9, 25 + index); // 10月25日から
+            const day = date.getDate();
+            const weekday = ['日', '月', '火', '水', '木', '金', '土'][date.getDay()];
 
-  <!-- New floating action button -->
-  <a href="https://main.d194addch7ev33.amplifyapp.com/eventlist.html" class="fab">カテゴリ表示に切り替え</a>
+            // 日付とデータ属性を設定
+            tab.querySelector('.date-day').textContent = day;
+            tab.querySelector('.date-weekday').textContent = weekday;
+            const dateStr = `${date.getMonth() + 1}/${day}`;
+            tab.dataset.date = dateStr;
 
-  <script>
-    // Previous JavaScript remains the same
-    const dateTabs = document.querySelectorAll('.date-tab');
-    const eventCards = document.querySelectorAll('.event-card');
-
-    dateTabs.forEach(tab => {
-      tab.addEventListener('click', () => {
-        dateTabs.forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-
-        const selectedDate = tab.dataset.date;
-        eventCards.forEach(card => {
-          if (card.dataset.date === selectedDate) {
-            card.style.display = 'block';
-          } else {
-            card.style.display = 'none';
-          }
+            tab.addEventListener('click', () => {
+                dateTabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                showEventsForDate(dateStr);
+            });
         });
-      });
-    });
 
-    const starButtons = document.querySelectorAll('.star-button');
-    
-    const loadFavorites = () => {
-      const favorites = JSON.parse(localStorage.getItem('schedule-favorites') || '[]');
-      starButtons.forEach(button => {
-        const eventTitle = button.closest('.event-header').querySelector('.event-title').textContent;
-        if (favorites.includes(eventTitle)) {
-          button.classList.add('active');
+        // 初期表示（26日を選択）
+        const defaultTab = Array.from(dateTabs).find(tab => tab.dataset.date === '10/26');
+        if (defaultTab) {
+            defaultTab.classList.add('active');
+            showEventsForDate('10/26');
         }
-      });
-    };
 
-    const saveFavorites = () => {
-      const favorites = [];
-      starButtons.forEach(button => {
-        if (button.classList.contains('active')) {
-          const eventTitle = button.closest('.event-header').querySelector('.event-title').textContent;
-          favorites.push(eventTitle);
-        }
-      });
-      localStorage.setItem('schedule-favorites', JSON.stringify(favorites));
-    };
+        const starButtons = document.querySelectorAll('.star-button');
 
-    starButtons.forEach(button => {
-      button.addEventListener('click', () => {
-        button.classList.toggle('active');
-        saveFavorites();
-      });
-    });
+        const loadFavorites = () => {
+            const favorites = JSON.parse(localStorage.getItem('schedule-favorites') || '[]');
+            starButtons.forEach(button => {
+                const eventTitle = button.closest('.event-header').querySelector('.event-title').textContent;
+                if (favorites.includes(eventTitle)) {
+                    button.classList.add('active');
+                }
+            });
+        };
 
-    loadFavorites();
-  </script>
+        const saveFavorites = () => {
+            const favorites = [];
+            starButtons.forEach(button => {
+                if (button.classList.contains('active')) {
+                    const eventTitle = button.closest('.event-header').querySelector('.event-title').textContent;
+                    favorites.push(eventTitle);
+                }
+            });
+            localStorage.setItem('schedule-favorites', JSON.stringify(favorites));
+        };
+
+        starButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                button.classList.toggle('active');
+                saveFavorites();
+            });
+        });
+
+        loadFavorites();
+
+        // スムーズスクロール用の補助
+        const dateList = document.querySelector('.date-list');
+        let isScrolling = false;
+        let startX;
+        let scrollLeft;
+
+        dateList.addEventListener('mousedown', (e) => {
+            isScrolling = true;
+            dateList.classList.add('scrolling');
+
+            startX = e.pageX - dateList.offsetLeft;
+            scrollLeft = dateList.scrollLeft;
+        });
+
+        dateList.addEventListener('mouseleave', () => {
+            isScrolling = false;
+            dateList.classList.remove('scrolling');
+        });
+
+        dateList.addEventListener('mouseup', () => {
+            isScrolling = false;
+            dateList.classList.remove('scrolling');
+        });
+
+        dateList.addEventListener('mousemove', (e) => {
+            if (!isScrolling) return;
+
+            e.preventDefault();
+            const x = e.pageX - dateList.offsetLeft;
+            const walk = (x - startX) * 2;
+            dateList.scrollLeft = scrollLeft - walk;
+        });
+
+        // アニメーション効果の追加
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.event-card').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'all 0.4s ease-out';
+            observer.observe(card);
+        });
+    </script>
 </body>
+
 </html>
