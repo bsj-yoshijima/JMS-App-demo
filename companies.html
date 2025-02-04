@@ -391,6 +391,32 @@
                 animation: none;
             }
         }
+        
+        .exhibitor-content {
+            position: relative;
+        }
+        
+        .favorite-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .favorite-btn i {
+            color: #64748b;
+            transition: all 0.3s;
+        }
+        
+        .favorite-btn.active i {
+            color: #ef4444;
+        }
     </style>
 </head>
 
@@ -403,233 +429,312 @@
                 <input type="text" class="search-input" placeholder="企業名を検索..." id="searchInput">
             </div>
             <div class="category-scroll">
-                <div class="category-container" id="categoryContainer"></div>
+                <div class="category-container" id="categoryContainer">
+                    <div class="category-tag" data-filter="favorite">
+                        <i class="fas fa-heart"></i> お気に入り
+                    </div>
+                </div>
             </div>
         </div>
         <div class="exhibitor-list">
-            <div class="exhibitor-item" data-category="AI・ロボット">
+            <div class="exhibitor-item" data-category="AI・ロボット" data-id="toyota">
                 <div class="exhibitor-content">
                     <img src="/images.jpeg" alt="トヨタ" class="exhibitor-image">
                     <div class="exhibitor-info">
                         <div class="exhibitor-name">トヨタ</div>
+                        <button class="favorite-btn">
+        <i class="fas fa-heart"></i>
+    </button>
                         <div class="exhibitor-category">#AI・ロボット</div>
                     </div>
                 </div>
             </div>
-            <div class="exhibitor-item" data-category="SDGs">
+            <div class="exhibitor-item" data-category="SDGs" data-id="byd">
                 <div class="exhibitor-content">
                     <img src="/images.jpeg" alt="BYD" class="exhibitor-image">
                     <div class="exhibitor-info">
                         <div class="exhibitor-name">BYD</div>
+                        <button class="favorite-btn">
+        <i class="fas fa-heart"></i>
+    </button>
                         <div class="exhibitor-category">#SDGs</div>
                     </div>
                 </div>
             </div>
-            <div class="exhibitor-item" data-category="ウェルビーイング">
+            <div class="exhibitor-item" data-category="ウェルビーイング" data-id="tesla">
                 <div class="exhibitor-content">
                     <img src="/images.jpeg" alt="Tesla" class="exhibitor-image">
                     <div class="exhibitor-info">
                         <div class="exhibitor-name">Tesla</div>
+                        <button class="favorite-btn">
+        <i class="fas fa-heart"></i>
+    </button>
                         <div class="exhibitor-category">#ウェルビーイング</div>
                     </div>
                 </div>
             </div>
-            <div class="exhibitor-item" data-category="エンタテインメント">
+            <div class="exhibitor-item" data-category="エンタテインメント" data-id="honda">
                 <div class="exhibitor-content">
                     <img src="/images.jpeg" alt="Honda" class="exhibitor-image">
                     <div class="exhibitor-info">
                         <div class="exhibitor-name">Honda</div>
+                        <button class="favorite-btn">
+        <i class="fas fa-heart"></i>
+    </button>
                         <div class="exhibitor-category">#エンタテインメント</div>
                     </div>
                 </div>
             </div>
-            <div class="exhibitor-item" data-category="キッズ・ファミリー">
+            <div class="exhibitor-item" data-category="キッズ・ファミリー" data-id="mitsubishi">
                 <div class="exhibitor-content">
                     <img src="/images.jpeg" alt="三菱" class="exhibitor-image">
                     <div class="exhibitor-info">
                         <div class="exhibitor-name">三菱</div>
+                        <button class="favorite-btn">
+        <i class="fas fa-heart"></i>
+    </button>
                         <div class="exhibitor-category">#キッズ・ファミリー</div>
                     </div>
                 </div>
             </div>
-            <div class="exhibitor-item" data-category="スタートアップ">
+            <div class="exhibitor-item" data-category="スタートアップ" data-id="rivian">
                 <div class="exhibitor-content">
                     <img src="/images.jpeg" alt="Rivian" class="exhibitor-image">
                     <div class="exhibitor-info">
                         <div class="exhibitor-name">Rivian</div>
+                        <button class="favorite-btn">
+        <i class="fas fa-heart"></i>
+    </button>
                         <div class="exhibitor-category">#スタートアップ</div>
                     </div>
                 </div>
             </div>
-            <div class="exhibitor-item" data-category="スポーツ・モータースポーツ">
+            <div class="exhibitor-item" data-category="スポーツ・モータースポーツ" data-id="nissan">
                 <div class="exhibitor-content">
                     <img src="/images.jpeg" alt="Nissan" class="exhibitor-image">
                     <div class="exhibitor-info">
                         <div class="exhibitor-name">Nissan</div>
+                        <button class="favorite-btn">
+        <i class="fas fa-heart"></i>
+    </button>
                         <div class="exhibitor-category">#スポーツ・モータースポーツ</div>
                     </div>
                 </div>
             </div>
-            <div class="exhibitor-item" data-category="はたらくクルマ">
+            <div class="exhibitor-item" data-category="はたらくクルマ" data-id="hino">
                 <div class="exhibitor-content">
                     <img src="/images.jpeg" alt="日野自動車" class="exhibitor-image">
                     <div class="exhibitor-info">
                         <div class="exhibitor-name">日野自動車</div>
+                        <button class="favorite-btn">
+        <i class="fas fa-heart"></i>
+    </button>
                         <div class="exhibitor-category">#はたらくクルマ</div>
                     </div>
                 </div>
             </div>
-            <div class="exhibitor-item" data-category="フード">
+            <div class="exhibitor-item" data-category="フード" data-id="mercedes">
                 <div class="exhibitor-content">
                     <img src="/images.jpeg" alt="Mercedes Benz" class="exhibitor-image">
                     <div class="exhibitor-info">
                         <div class="exhibitor-name">Mercedes Benz</div>
+                        <button class="favorite-btn">
+        <i class="fas fa-heart"></i>
+    </button>
                         <div class="exhibitor-category">#フード</div>
                     </div>
                 </div>
             </div>
-            <div class="exhibitor-item" data-category="その他">
+            <div class="exhibitor-item" data-category="その他" data-id="daihatsu">
                 <div class="exhibitor-content">
                     <img src="/images.jpeg" alt="ダイハツ" class="exhibitor-image">
                     <div class="exhibitor-info">
                         <div class="exhibitor-name">ダイハツ</div>
+                        <button class="favorite-btn">
+        <i class="fas fa-heart"></i>
+    </button>
                         <div class="exhibitor-category">#その他</div>
                     </div>
                 </div>
             </div>
 
             <!-- 15個の追加サンプル -->
-            <div class="exhibitor-item" data-category="AI・ロボット">
+            <div class="exhibitor-item" data-category="AI・ロボット" data-id="audi">
                 <div class="exhibitor-content">
                     <img src="/images.jpeg" alt="Audi" class="exhibitor-image">
                     <div class="exhibitor-info">
                         <div class="exhibitor-name">Audi</div>
+                        <button class="favorite-btn">
+        <i class="fas fa-heart"></i>
+    </button>
                         <div class="exhibitor-category">#AI・ロボット</div>
                     </div>
                 </div>
             </div>
-            <div class="exhibitor-item" data-category="SDGs">
+            <div class="exhibitor-item" data-category="SDGs" data-id="ford">
                 <div class="exhibitor-content">
                     <img src="/images.jpeg" alt="Ford" class="exhibitor-image">
                     <div class="exhibitor-info">
                         <div class="exhibitor-name">Ford</div>
+                        <button class="favorite-btn">
+        <i class="fas fa-heart"></i>
+    </button>
                         <div class="exhibitor-category">#SDGs</div>
                     </div>
                 </div>
             </div>
-            <div class="exhibitor-item" data-category="ウェルビーイング">
+            <div class="exhibitor-item" data-category="ウェルビーイング" data-id="bmw">
                 <div class="exhibitor-content">
                     <img src="/images.jpeg" alt="BMW" class="exhibitor-image">
                     <div class="exhibitor-info">
                         <div class="exhibitor-name">BMW</div>
+                        <button class="favorite-btn">
+        <i class="fas fa-heart"></i>
+    </button>
                         <div class="exhibitor-category">#ウェルビーイング</div>
                     </div>
                 </div>
             </div>
-            <div class="exhibitor-item" data-category="エンタテインメント">
+            <div class="exhibitor-item" data-category="エンタテインメント" data-id="lucid">
                 <div class="exhibitor-content">
                     <img src="/images.jpeg" alt="Lucid Motors" class="exhibitor-image">
                     <div class="exhibitor-info">
                         <div class="exhibitor-name">Lucid Motors</div>
+                        <button class="favorite-btn">
+        <i class="fas fa-heart"></i>
+    </button>
                         <div class="exhibitor-category">#エンタテインメント</div>
                     </div>
                 </div>
             </div>
-            <div class="exhibitor-item" data-category="キッズ・ファミリー">
+            <div class="exhibitor-item" data-category="キッズ・ファミリー" data-id="chevrolet">
                 <div class="exhibitor-content">
                     <img src="/images.jpeg" alt="Chevrolet" class="exhibitor-image">
                     <div class="exhibitor-info">
                         <div class="exhibitor-name">Chevrolet</div>
+                        <button class="favorite-btn">
+        <i class="fas fa-heart"></i>
+    </button>
                         <div class="exhibitor-category">#キッズ・ファミリー</div>
                     </div>
                 </div>
             </div>
-            <div class="exhibitor-item" data-category="スタートアップ">
+            <div class="exhibitor-item" data-category="スタートアップ" data-id="faraday">
                 <div class="exhibitor-content">
                     <img src="/images.jpeg" alt="Faraday Future" class="exhibitor-image">
                     <div class="exhibitor-info">
                         <div class="exhibitor-name">Faraday Future</div>
+                        <button class="favorite-btn">
+        <i class="fas fa-heart"></i>
+    </button>
                         <div class="exhibitor-category">#スタートアップ</div>
                     </div>
                 </div>
             </div>
-            <div class="exhibitor-item" data-category="スポーツ・モータースポーツ">
+            <div class="exhibitor-item" data-category="スポーツ・モータースポーツ" data-id="porsche">
                 <div class="exhibitor-content">
                     <img src="/images.jpeg" alt="Porsche" class="exhibitor-image">
                     <div class="exhibitor-info">
                         <div class="exhibitor-name">Porsche</div>
+                        <button class="favorite-btn">
+        <i class="fas fa-heart"></i>
+    </button>
                         <div class="exhibitor-category">#スポーツ・モータースポーツ</div>
                     </div>
                 </div>
             </div>
-            <div class="exhibitor-item" data-category="はたらくクルマ">
+            <div class="exhibitor-item" data-category="はたらくクルマ" data-id="volvo">
                 <div class="exhibitor-content">
                     <img src="/images.jpeg" alt="Volvo" class="exhibitor-image">
                     <div class="exhibitor-info">
                         <div class="exhibitor-name">Volvo</div>
+                        <button class="favorite-btn">
+        <i class="fas fa-heart"></i>
+    </button>
                         <div class="exhibitor-category">#はたらくクルマ</div>
                     </div>
                 </div>
             </div>
-            <div class="exhibitor-item" data-category="フード">
+            <div class="exhibitor-item" data-category="フード" data-id="peugeot">
                 <div class="exhibitor-content">
                     <img src="/images.jpeg" alt="Peugeot" class="exhibitor-image">
                     <div class="exhibitor-info">
                         <div class="exhibitor-name">Peugeot</div>
+                        <button class="favorite-btn">
+        <i class="fas fa-heart"></i>
+    </button>
                         <div class="exhibitor-category">#フード</div>
                     </div>
                 </div>
             </div>
-            <div class="exhibitor-item" data-category="その他">
+            <div class="exhibitor-item" data-category="その他" data-id="lamborghini">
                 <div class="exhibitor-content">
                     <img src="/images.jpeg" alt="Lamborghini" class="exhibitor-image">
                     <div class="exhibitor-info">
                         <div class="exhibitor-name">Lamborghini</div>
+                        <button class="favorite-btn">
+        <i class="fas fa-heart"></i>
+    </button>
                         <div class="exhibitor-category">#その他</div>
                     </div>
                 </div>
             </div>
-            <div class="exhibitor-item" data-category="AI・ロボット">
+            <div class="exhibitor-item" data-category="AI・ロボット" data-id="jaguar">
                 <div class="exhibitor-content">
                     <img src="/images.jpeg" alt="Jaguar" class="exhibitor-image">
                     <div class="exhibitor-info">
                         <div class="exhibitor-name">Jaguar</div>
+                        <button class="favorite-btn">
+        <i class="fas fa-heart"></i>
+    </button>
                         <div class="exhibitor-category">#AI・ロボット</div>
                     </div>
                 </div>
             </div>
-            <div class="exhibitor-item" data-category="SDGs">
+            <div class="exhibitor-item" data-category="SDGs" data-id="hundai">
                 <div class="exhibitor-content">
                     <img src="/images.jpeg" alt="Hyundai" class="exhibitor-image">
                     <div class="exhibitor-info">
                         <div class="exhibitor-name">Hyundai</div>
+                        <button class="favorite-btn">
+        <i class="fas fa-heart"></i>
+    </button>
                         <div class="exhibitor-category">#SDGs</div>
                     </div>
                 </div>
             </div>
-            <div class="exhibitor-item" data-category="ウェルビーイング">
+            <div class="exhibitor-item" data-category="ウェルビーイング" data-id="kia">
                 <div class="exhibitor-content">
                     <img src="/images.jpeg" alt="Kia" class="exhibitor-image">
                     <div class="exhibitor-info">
                         <div class="exhibitor-name">Kia</div>
+                        <button class="favorite-btn">
+        <i class="fas fa-heart"></i>
+    </button>
                         <div class="exhibitor-category">#ウェルビーイング</div>
                     </div>
                 </div>
             </div>
-            <div class="exhibitor-item" data-category="エンタテインメント">
+            <div class="exhibitor-item" data-category="エンタテインメント" data-id="matsuda">
                 <div class="exhibitor-content">
                     <img src="/images.jpeg" alt="Mazda" class="exhibitor-image">
                     <div class="exhibitor-info">
                         <div class="exhibitor-name">Mazda</div>
+                        <button class="favorite-btn">
+        <i class="fas fa-heart"></i>
+    </button>
                         <div class="exhibitor-category">#エンタテインメント</div>
                     </div>
                 </div>
             </div>
-            <div class="exhibitor-item" data-category="キッズ・ファミリー">
+            <div class="exhibitor-item" data-category="キッズ・ファミリー" data-id="subaru">
                 <div class="exhibitor-content">
                     <img src="/images.jpeg" alt="Subaru" class="exhibitor-image">
                     <div class="exhibitor-info">
                         <div class="exhibitor-name">Subaru</div>
+                        <button class="favorite-btn">
+        <i class="fas fa-heart"></i>
+    </button>
                         <div class="exhibitor-category">#キッズ・ファミリー</div>
                     </div>
                 </div>
@@ -671,7 +776,11 @@
             const modalTitle = document.getElementById('modalTitle');
             const carGrid = document.getElementById('carGrid');
             const closeButton = document.querySelector('.close-button');
+            let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
             let activeCategory = '';
+
+            const favoriteBtn = document.querySelectorAll('.favorite-btn');
+            const favoriteFilter = document.querySelector('[data-filter="favorite"]');
 
             // カテゴリータグを生成
             categories.forEach(category => {
@@ -692,18 +801,46 @@
                 categoryContainer.appendChild(tag);
             });
 
+            // お気に入りの初期状態設定
+            favorites.forEach(id => {
+                const btn = document.querySelector(`.exhibitor-item[data-id="${id}"] .favorite-btn`);
+                if (btn) btn.classList.add('active');
+            });
+
+            // お気に入りボタンのクリック処理
+            favoriteBtn.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const item = btn.closest('.exhibitor-item');
+                    const id = item.dataset.id;
+
+                    if (favorites.includes(id)) {
+                        favorites = favorites.filter(fid => fid !== id);
+                        btn.classList.remove('active');
+                    } else {
+                        favorites.push(id);
+                        btn.classList.add('active');
+                    }
+
+                    localStorage.setItem('favorites', JSON.stringify(favorites));
+                });
+            });
+
             // 検索とフィルタリング
             function filterExhibitors() {
                 const searchText = searchInput.value.toLowerCase();
+                const isFavoriteMode = favoriteFilter.classList.contains('active');
 
                 exhibitorItems.forEach(item => {
                     const companyName = item.querySelector('.exhibitor-name').textContent.toLowerCase();
                     const category = item.dataset.category;
+                    const id = item.dataset.id;
 
                     const matchesSearch = companyName.includes(searchText);
                     const matchesCategory = !activeCategory || category === activeCategory;
+                    const matchesFavorite = !isFavoriteMode || favorites.includes(id);
 
-                    if (matchesSearch && matchesCategory) {
+                    if (matchesSearch && matchesCategory && matchesFavorite) {
                         item.style.display = 'block';
                         setTimeout(() => item.style.opacity = '1', 10);
                     } else {
@@ -713,7 +850,12 @@
                 });
             }
 
+
             searchInput.addEventListener('input', filterExhibitors);
+            favoriteFilter.addEventListener('click', () => {
+                favoriteFilter.classList.toggle('active');
+                filterExhibitors();
+            });
 
             // モーダル関連の処理
             const carData = {
@@ -1058,6 +1200,35 @@
                 modal.style.display = 'none';
                 document.body.style.overflow = '';
             }
+        });
+        // 既存のコードの後に追加
+        let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+        const favoriteBtn = document.querySelectorAll('.favorite-btn');
+        const favoriteFilter = document.querySelector('[data-filter="favorite"]');
+
+        // お気に入りボタンの初期状態を設定
+        favorites.forEach(id => {
+            const btn = document.querySelector(`.exhibitor-item[data-id="${id}"] .favorite-btn`);
+            if (btn) btn.classList.add('active');
+        });
+
+        // お気に入りボタンのクリックイベント
+        favoriteBtn.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const item = btn.closest('.exhibitor-item');
+                const id = item.dataset.id;
+
+                if (favorites.includes(id)) {
+                    favorites = favorites.filter(fid => fid !== id);
+                    btn.classList.remove('active');
+                } else {
+                    favorites.push(id);
+                    btn.classList.add('active');
+                }
+
+                localStorage.setItem('favorites', JSON.stringify(favorites));
+            });
         });
     </script>
 </body>
