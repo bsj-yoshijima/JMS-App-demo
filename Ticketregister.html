@@ -7,6 +7,7 @@
     <title>Japan Mobility Show - チケットシステム</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.5/JsBarcode.all.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
     <style>
          :root {
@@ -386,7 +387,10 @@
         </div>
         <div class="container mx-auto px-4 py-8">
             <div class="qr-preview mb-8">
+                <!-- QRコード用 -->
                 <div id="qrcode" class="flex justify-center"></div>
+                <!-- バーコード用 -->
+                <svg id="barcode" class="w-full max-w-[300px] mx-auto hidden"></svg>
             </div>
             <div class="card">
                 <div class="mb-6">
@@ -637,6 +641,100 @@
             setTimeout(() => {
                 showScanOptions();
             }, 100);
+        }
+
+        // バーコード表示を更新する関数
+        function updateBarcodeDisplay(barcodeData) {
+            const qrcodeElement = document.getElementById('qrcode');
+            const barcodeElement = document.getElementById('barcode');
+            const type = detectBarcodeType(barcodeData);
+
+            // 既存の表示をクリア
+            qrcodeElement.innerHTML = '';
+            barcodeElement.innerHTML = '';
+
+            if (type === 'qr') {
+                // QRコードの場合
+                qrcodeElement.classList.remove('hidden');
+                barcodeElement.classList.add('hidden');
+                new QRCode(qrcodeElement, {
+                    text: barcodeData,
+                    width: 200,
+                    height: 200
+                });
+            } else {
+                // 一次元バーコードの場合
+                qrcodeElement.classList.add('hidden');
+                barcodeElement.classList.remove('hidden');
+                try {
+                    JsBarcode("#barcode", barcodeData, {
+                        format: type,
+                        width: 2,
+                        height: 100,
+                        displayValue: true,
+                        fontSize: 16,
+                        margin: 10
+                    });
+                } catch (e) {
+                    // フォーマットエラーの場合はCODE128で表示を試みる
+                    JsBarcode("#barcode", barcodeData, {
+                        format: "code128",
+                        width: 2,
+                        height: 100,
+                        displayValue: true,
+                        fontSize: 16,
+                        margin: 10
+                    });
+                }
+            }
+        }
+
+        // チケット登録画面表示時の処理を更新
+        function showTicketRegister() {
+            showPage('ticket-register-page');
+            updateBarcodeDisplay(currentQR);
+            updateBarcodeInfo(currentQR);
+        }
+
+        // 同様にチケット編集画面も更新
+        function showTicketEdit(ticketId) {
+            editingTicketId = ticketId;
+            const tickets = JSON.parse(localStorage.getItem('tickets') || '[]');
+            const ticket = tickets.find(t => t.id === ticketId);
+
+            if (!ticket) return;
+
+            document.getElementById('edit-ticket-type').value = ticket.type;
+            document.getElementById('edit-ticket-date').value = ticket.date;
+            document.getElementById('edit-ticket-time').value = ticket.time;
+
+            // バーコード表示を更新
+            const editQrcodeElement = document.getElementById('edit-qrcode');
+            const editBarcodeElement = document.getElementById('edit-barcode');
+            editQrcodeElement.innerHTML = '';
+
+            if (detectBarcodeType(ticket.qr) === 'qr') {
+                editQrcodeElement.classList.remove('hidden');
+                editBarcodeElement.classList.add('hidden');
+                new QRCode(editQrcodeElement, {
+                    text: ticket.qr,
+                    width: 200,
+                    height: 200
+                });
+            } else {
+                editQrcodeElement.classList.add('hidden');
+                editBarcodeElement.classList.remove('hidden');
+                JsBarcode("#edit-barcode", ticket.qr, {
+                    format: detectBarcodeType(ticket.qr),
+                    width: 2,
+                    height: 100,
+                    displayValue: true,
+                    fontSize: 16,
+                    margin: 10
+                });
+            }
+
+            showPage('ticket-edit-page');
         }
 
         function closeErrorDialog() {
