@@ -526,16 +526,13 @@
         function startCameraScan() {
             showPage('camera-scan-page');
 
-            // 既存のスキャナーをクリア
             if (html5QrcodeScanner) {
                 html5QrcodeScanner.clear();
             }
 
-            // モバイルデバイスの背面カメラを優先的に使用
             navigator.mediaDevices.enumerateDevices()
                 .then(devices => {
                     const cameras = devices.filter(device => device.kind === 'videoinput');
-                    // 背面カメラを探す（通常、最初のカメラが背面カメラ）
                     const rearCamera = cameras[0];
 
                     if (rearCamera) {
@@ -544,6 +541,15 @@
                             fps: 10,
                             qrbox: 250,
                             aspectRatio: 1.0,
+                            formatsToSupport: [ // 対応フォーマットを追加
+                                Html5QrcodeSupportedFormats.QR_CODE,
+                                Html5QrcodeSupportedFormats.EAN_13,
+                                Html5QrcodeSupportedFormats.CODE_128,
+                                Html5QrcodeSupportedFormats.CODE_39,
+                                Html5QrcodeSupportedFormats.UPC_A,
+                                Html5QrcodeSupportedFormats.UPC_E,
+                                Html5QrcodeSupportedFormats.EAN_8
+                            ],
                             videoConstraints: {
                                 deviceId: rearCamera.deviceId,
                                 facingMode: "environment",
@@ -565,11 +571,11 @@
                             config,
                             (decodedText) => {
                                 html5Qrcode.stop().then(() => {
-                                    processQRCode(decodedText);
+                                    processBarcode(decodedText);
                                 });
                             },
                             (errorMessage) => {
-                                // QRコードが見つからない時は何もしない
+                                // QRコード/バーコードが見つからない時は何もしない
                             }
                         ).catch((err) => {
                             console.error("カメラの起動に失敗しました:", err);
@@ -588,17 +594,22 @@
                 });
         }
 
-        function processQRCode(qrData) {
-            // 13桁の英数字かどうかをチェック
-            const isValidTicket = /^[A-Za-z0-9]{13}$/.test(qrData);
+        function processBarcode(barcodeData) {
+            // QRコードの場合（13桁の英数字）
+            const isQRTicket = /^[A-Za-z0-9]{13}$/.test(barcodeData);
 
-            if (!isValidTicket) {
-                showErrorDialog('対象のチケットではありません');
-                return;
+            // JANコード（13桁の数字）
+            const isJAN = /^\d{13}$/.test(barcodeData);
+
+            // その他の一次元バーコード（CODE128, CODE39など）
+            const isOtherBarcode = /^[A-Za-z0-9-_]{1,}$/.test(barcodeData);
+
+            if (isQRTicket || isJAN || isOtherBarcode) {
+                currentQR = barcodeData;
+                showTicketRegister();
+            } else {
+                showErrorDialog('対応していないバーコード形式です');
             }
-
-            currentQR = qrData;
-            showTicketRegister();
         }
 
         function showErrorDialog(message) {
@@ -649,6 +660,7 @@
                 width: 200,
                 height: 200
             });
+            updateBarcodeInfo(currentQR); // バーコード情報を更新
         }
 
         function showTicketList() {
@@ -682,6 +694,12 @@
             const listElement = document.getElementById('ticket-list');
 
             listElement.innerHTML = tickets.map(ticket => `
+            <div class="mb-6">
+    <label class="block text-sm font-medium text-gray-700 mb-2">バーコード情報</label>
+    <div class="p-3 bg-gray-50 rounded-lg">
+        <p class="text-sm text-gray-600" id="barcode-info"></p>
+    </div>
+</div>
                 <div class="card ticket-card fade-in" onclick="showTicketEdit('${ticket.id}')">
                     <div class="flex justify-between items-center">
                         <div>
