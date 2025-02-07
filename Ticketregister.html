@@ -525,11 +525,14 @@
             const file = input.files[0];
             try {
                 const html5Qrcode = new Html5Qrcode("reader");
-                const result = await html5Qrcode.scanFile(file);
-                processQRCode(result);
+                const result = await html5Qrcode.scanFile(file, true); // 第2引数をtrueにしてバーコードスキャンを有効化
+                processBarcode(result); // processQRCode から processBarcode に変更
             } catch (error) {
-                alert('QRコードを読み取れませんでした。別の画像を試してください。');
+                alert('コードを読み取れませんでした。別の画像を試してください。');
                 console.error(error);
+            } finally {
+                // 入力をクリアして次回の読み取りに備える
+                input.value = '';
             }
         }
 
@@ -699,7 +702,6 @@
         function showTicketRegister() {
             showPage('ticket-register-page');
             updateBarcodeDisplay(currentQR);
-            updateBarcodeInfo(currentQR);
         }
 
         // 同様にチケット編集画面も更新
