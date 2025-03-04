@@ -429,6 +429,119 @@
             opacity: 1;
             pointer-events: auto;
         }
+        /* QRコードボタンの改善スタイル */
+        
+        .add-spot-button {
+            position: fixed;
+            right: 20px;
+            bottom: 100px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: #0066cc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            text-decoration: none;
+            overflow: hidden;
+            /* はみ出した部分を隠す */
+            padding: 0;
+            /* 内部の余白をなくす */
+            border: 2px solid white;
+            /* 白い枠線を追加 */
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .add-spot-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+        }
+        
+        .add-spot-button:active {
+            transform: scale(0.95);
+        }
+        
+        .add-spot-button img {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+            border-radius: 5px;
+            /* 画像の角を少し丸く */
+            background-color: white;
+            /* QRコードに白い背景を追加 */
+            padding: 2px;
+        }
+        /* QRコードモーダルスタイル */
+        
+        .qr-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .qr-modal-content {
+            background-color: white;
+            border-radius: 15px;
+            padding: 25px;
+            width: 300px;
+            max-width: 90%;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .qr-modal-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #0066cc;
+        }
+        
+        .qr-modal-subtitle {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        .qr-code-display {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 20px;
+            padding: 10px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .qr-code-display img {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .close-qr-modal {
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 12px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .close-qr-modal:hover {
+            background-color: #0055b3;
+        }
+    </style>
     </style>
 </head>
 
@@ -447,12 +560,12 @@
         <!-- ヘッダー -->
         <div class="header">
             <a href="#" class="back-button">←</a>
-            <div class="page-title">ドライブプラン</div>
+            <div class="page-title">コース詳細</div>
         </div>
 
         <!-- コースヘッダー -->
         <div class="course-header">
-            <div class="course-location">東京ビッグサイト（臨海エリア）</div>
+            <div class="course-location">東京ビッグサイト</div>
             <h1 class="course-title">次世代モビリティを体験する、テクノロジータイムライン</h1>
         </div>
 
@@ -564,10 +677,9 @@
         </div>
 
         <!-- 追加ボタン -->
-        <a href="#" class="add-spot-button" id="openModal">+</a>
-
-        <!-- 下部ボタン -->
-        <button class="bottom-button">このプランを登録</button>
+        <a href="https://japanmobilityshow2023.com/scan-mobility?uuid=5438848&lang=jpn&map=1" class="add-spot-button" id="openQrModal">
+            <img src="./QR.png" alt="QRコード">
+        </a>
 
         <!-- オーバーレイ -->
         <div class="overlay" id="overlay"></div>

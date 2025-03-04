@@ -74,6 +74,56 @@
             margin-right: 8px;
             font-size: 20px;
         }
+        /* エリア選択部分 */
+        
+        .area-selection-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 15px;
+            margin-bottom: 15px;
+        }
+        
+        .area-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .area-dropdown {
+            position: relative;
+        }
+        
+        .area-select {
+            padding: 8px 15px;
+            border-radius: 20px;
+            border: 1px solid #ccc;
+            background-color: #f5f5f5;
+            font-size: 16px;
+            color: #333;
+            appearance: none;
+            padding-right: 30px;
+            cursor: pointer;
+        }
+        
+        .area-select:focus {
+            outline: none;
+            border-color: #0066cc;
+        }
+        
+        .area-dropdown::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            right: 12px;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 6px solid #666;
+            pointer-events: none;
+        }
         /* マップビュー */
         
         .map-view {
@@ -206,17 +256,23 @@
         }
         
         .courses-container {
-            height: calc(100vh - 80px);
+            height: calc(100vh - 140px);
+            /* エリア選択の高さを考慮して調整 */
             overflow-y: scroll;
             scroll-snap-type: y mandatory;
         }
         
         .course-card {
             position: relative;
-            height: calc(100vh - 80px);
+            height: calc(100vh - 140px);
+            /* エリア選択の高さを考慮して調整 */
             overflow: hidden;
             border-radius: 0;
             scroll-snap-align: start;
+            border-radius: 17px;
+            width: 95%;
+            margin-top: 10px !important;
+            margin: auto;
         }
         
         .course-image {
@@ -278,13 +334,14 @@
         }
         
         .category-tag {
-            background-color: rgba(255, 255, 255, 0.8);
+            background-color: rgb(0 0 0 / 0%);
             padding: 6px 15px;
             border-radius: 20px;
             font-size: 12px;
-            color: #333;
+            color: #ffffff;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
             backdrop-filter: blur(4px);
+            border: 2px solid #ffffff;
         }
         
         .course-info {
@@ -345,6 +402,20 @@
             </a>
         </div>
 
+        <!-- エリア選択 -->
+        <div class="area-selection-container">
+            <h2 class="area-title" id="currentArea">すべてのコース</h2>
+            <div class="area-dropdown">
+                <select class="area-select" id="areaSelect">
+                    <option value="all">すべて</option>
+                    <option value="hokkaido">EV</option>
+                    <option value="tohoku">コンセプト</option>
+                    <option value="kanto">未来の乗り物</option>
+                    <option value="chubu">モーターサイクル</option>
+                </select>
+            </div>
+        </div>
+
         <!-- マップビュー -->
         <div id="mapView" class="map-view">
             <div class="japan-map">
@@ -352,21 +423,21 @@
                 <img src="/api/placeholder/450/500" alt="日本地図" style="width: 100%; height: 100%; object-fit: contain;">
                 <div class="map-overlay">
                     <!-- 北海道 -->
-                    <div class="area-marker hokkaido">
+                    <div class="area-marker hokkaido" data-area="hokkaido">
                         <img src="/api/placeholder/80/80" alt="北海道">
                         <div class="area-badge">2</div>
                         <div class="area-label">北海道</div>
                     </div>
 
                     <!-- 東北 -->
-                    <div class="area-marker tohoku">
+                    <div class="area-marker tohoku" data-area="tohoku">
                         <img src="/api/placeholder/80/80" alt="東北">
                         <div class="area-badge">2</div>
                         <div class="area-label">東北</div>
                     </div>
 
                     <!-- 関東 -->
-                    <div class="area-marker kanto">
+                    <div class="area-marker kanto" data-area="kanto">
                         <img src="/api/placeholder/80/80" alt="関東">
                         <div class="area-badge">6</div>
                         <div class="area-label">関東</div>
@@ -374,35 +445,35 @@
                     </div>
 
                     <!-- 中部/北信越 -->
-                    <div class="area-marker chubu">
+                    <div class="area-marker chubu" data-area="chubu">
                         <img src="/api/placeholder/80/80" alt="北信越">
                         <div class="area-badge">3</div>
                         <div class="area-label">北信越</div>
                     </div>
 
                     <!-- 近畿 -->
-                    <div class="area-marker kinki">
+                    <div class="area-marker kinki" data-area="kinki">
                         <img src="/api/placeholder/80/80" alt="近畿">
                         <div class="area-badge">2</div>
                         <div class="area-label">近畿</div>
                     </div>
 
                     <!-- 中国四国 -->
-                    <div class="area-marker chugoku">
+                    <div class="area-marker chugoku" data-area="chugoku">
                         <img src="/api/placeholder/80/80" alt="中国四国">
                         <div class="area-badge">2</div>
                         <div class="area-label">中国<br>四国</div>
                     </div>
 
                     <!-- 東海 -->
-                    <div class="area-marker shikoku" style="top: 65%; right: 30%;">
+                    <div class="area-marker shikoku" style="top: 65%; right: 30%;" data-area="tokai">
                         <img src="/api/placeholder/80/80" alt="東海">
                         <div class="area-badge">5</div>
                         <div class="area-label">東海</div>
                     </div>
 
                     <!-- 九州沖縄 -->
-                    <div class="area-marker kyushu">
+                    <div class="area-marker kyushu" data-area="kyushu">
                         <img src="/api/placeholder/80/80" alt="九州沖縄">
                         <div class="area-badge">2</div>
                         <div class="area-label">九州<br>沖縄</div>
@@ -414,8 +485,8 @@
         <!-- 一覧ビュー -->
         <div id="listView" class="list-view">
             <div class="courses-container">
-                <!-- コース1 -->
-                <div class="course-card">
+                <!-- コース1 - 関東エリア -->
+                <div class="course-card" data-area="kanto">
                     <div class="course-image">
                         <img src="https://xtech.nikkei.com/atcl/nxt/mag/at/18/00012/00171/topm.jpg" alt="EVコース">
                         <div class="image-overlay"></div>
@@ -441,8 +512,8 @@
                     </div>
                 </div>
 
-                <!-- コース2 -->
-                <div class="course-card">
+                <!-- コース2 - 東海エリア -->
+                <div class="course-card" data-area="tokai">
                     <div class="course-image">
                         <img src="https://rocketnews24.com/wp-content/uploads/sites/2/2023/11/japan-mobility-show029.jpg" alt="コンセプトカーコース">
                         <div class="image-overlay"></div>
@@ -456,7 +527,7 @@
                         </div>
 
                         <div class="course-info">
-                            <h2 class="course-title">コンセプトカーを巡る</h2>
+                            <h2 class="course-title">コンセプトカー</h2>
                             <h3 class="course-subtitle">各企業の未来の姿を見にいく</h3>
                             <div class="course-specs">
                                 <div class="distance">15ブース</div>
@@ -476,19 +547,73 @@
             const listToggle = document.getElementById('listToggle');
             const mapView = document.getElementById('mapView');
             const listView = document.getElementById('listView');
+            const areaSelect = document.getElementById('areaSelect');
+            const currentArea = document.getElementById('currentArea');
+            const courseCards = document.querySelectorAll('.course-card');
+            const areaMarkers = document.querySelectorAll('.area-marker');
 
-            mapToggle.addEventListener('click', function() {
+            // タブ切り替え
+            mapToggle.addEventListener('click', function(e) {
+                e.preventDefault();
                 mapToggle.classList.add('active');
                 listToggle.classList.remove('active');
                 mapView.style.display = 'block';
                 listView.style.display = 'none';
             });
 
-            listToggle.addEventListener('click', function() {
+            listToggle.addEventListener('click', function(e) {
+                e.preventDefault();
                 listToggle.classList.add('active');
                 mapToggle.classList.remove('active');
                 listView.style.display = 'block';
                 mapView.style.display = 'none';
+            });
+
+            // エリア選択機能
+            areaSelect.addEventListener('change', function() {
+                const selectedArea = this.value;
+
+                // エリア名の表示を更新
+                if (selectedArea === 'all') {
+                    currentArea.textContent = 'すべてのコース';
+                    // すべてのコースカードを表示
+                    courseCards.forEach(card => {
+                        card.style.display = 'block';
+                    });
+                } else {
+                    // エリア名を取得して表示
+                    const areaNames = {
+                        'hokkaido': 'EV',
+                        'tohoku': 'コンセプト',
+                        'kanto': '未来の乗り物',
+                        'chubu': 'モーターサイクル',
+                    };
+                    currentArea.textContent = areaNames[selectedArea];
+
+                    // 選択したエリアのコースのみ表示
+                    courseCards.forEach(card => {
+                        if (card.dataset.area === selectedArea) {
+                            card.style.display = 'block';
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    });
+                }
+            });
+
+            // マップ上のエリアマーカーをクリックしたときの処理
+            areaMarkers.forEach(marker => {
+                marker.addEventListener('click', function() {
+                    const area = this.dataset.area;
+                    areaSelect.value = area;
+
+                    // change イベントを発火させて選択を反映
+                    const event = new Event('change');
+                    areaSelect.dispatchEvent(event);
+
+                    // リストビューに切り替え
+                    listToggle.click();
+                });
             });
         });
     </script>

@@ -238,6 +238,7 @@
             overflow: hidden;
             height: 100px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
         }
         
         .theme-card img {
@@ -408,30 +409,27 @@
                 <div class="starting-point-text">スタート地点: Mobility Culture Area</div>
             </div>
 
-            <h3 class="section-title">ツアー評価</h3>
+            <h3 class="section-title">おすすめのテーマを見つける</h3>
             <div class="slider-container">
                 <div class="slider-item">
                     <div class="slider-label">
                         <span>エンタメ度</span>
-                        <span>高い</span>
                     </div>
-                    <input type="range" min="1" max="100" value="85" class="slider" disabled>
+                    <input type="range" min="1" max="100" value="85" class="slider">
                 </div>
 
                 <div class="slider-item">
                     <div class="slider-label">
                         <span>ビジネス度</span>
-                        <span>高い</span>
                     </div>
-                    <input type="range" min="1" max="100" value="90" class="slider" disabled>
+                    <input type="range" min="1" max="100" value="90" class="slider">
                 </div>
 
                 <div class="slider-item">
                     <div class="slider-label">
                         <span>体験の多さ</span>
-                        <span>多い</span>
                     </div>
-                    <input type="range" min="1" max="100" value="75" class="slider" disabled>
+                    <input type="range" min="1" max="100" value="75" class="slider">
                 </div>
             </div>
 
@@ -519,6 +517,35 @@
             <button class="primary-button">詳細を見る</button>
         </div>
     </div>
+
+    <script>
+        // トグルアイテムのクリックイベントを追加
+        document.querySelectorAll('.toggle-item').forEach(item => {
+            item.addEventListener('click', function() {
+                this.classList.toggle('active');
+            });
+        });
+
+        // テーマカードのクリックイベントを追加
+        document.querySelectorAll('.theme-card').forEach(card => {
+            card.addEventListener('click', function() {
+                this.classList.toggle('selected');
+            });
+        });
+
+        // スライダーの値の変更を表示する機能を追加
+        document.querySelectorAll('.slider').forEach(slider => {
+            const valueDisplay = document.createElement('span');
+            valueDisplay.style.marginLeft = '10px';
+            valueDisplay.textContent = slider.value;
+
+            slider.parentNode.querySelector('.slider-label').appendChild(valueDisplay);
+
+            slider.addEventListener('input', function() {
+                valueDisplay.textContent = this.value;
+            });
+        });
+    </script>
 </body>
 
 </html>
