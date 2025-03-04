@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JMS回遊施策アプリ - コース詳細</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', sans-serif;
+        }
+        
+        body {
+            background-color: #ffffff;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+            min-height: 100vh;
+            position: relative;
+            padding-bottom: 80px;
+        }
+        
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 15px;
+            font-size: 16px;
+        }
+        
+        .status-bar-right {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .header {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            position: relative;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .back-button {
+            font-size: 24px;
+            color: #333;
+            text-decoration: none;
+            margin-right: 15px;
+        }
+        
+        .page-title {
+            flex-grow: 1;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .course-header {
+            padding: 20px 15px;
+            background-color: #f8f8f8;
+            margin-bottom: 20px;
+        }
+        
+        .course-location {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .course-title {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            line-height: 1.3;
+            color: #0066cc;
+        }
+        
+        .timeline {
+            position: relative;
+            padding: 0 15px;
+            padding-bottom: 80px;
+        }
+        
+        .timeline-line {
+            position: absolute;
+            left: 30px;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background-color: #0066cc;
+            z-index: 1;
+        }
+        
+        .spot-item {
+            display: flex;
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .spot-time {
+            width: 60px;
+            font-size: 14px;
+            font-weight: bold;
+            padding-top: 4px;
+            color: #333;
+        }
+        
+        .spot-content {
+            flex-grow: 1;
+        }
+        
+        .spot-card {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .spot-image {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+        }
+        
+        .spot-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.1), rgba(0,0,0,0.6));
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 15px;
+        }
+        
+        .spot-name {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #fff;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+        }
+        
+        .spot-icons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .spot-icon {
+            width: 30px;
+            height: 30px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: #333;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+        
+        .spot-info {
+            font-size: 14px;
+            color: #666;
+            padding: 0 5px;
+        }
+        
+        .reward-info {
+            background-color: #f0f7ff;
+            border-radius: 12px;
+            padding: 15px;
+            margin: 20px 15px 15px;
+            border: 1px solid #e0e9f5;
+        }
+        
+        .reward-title {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            color: #0066cc;
+            font-weight: bold;
+        }
+        
+        .reward-icon {
+            font-size: 18px;
+            color: #FFD700;
+            margin-right: 10px;
+        }
+        
+        .reward-text {
+            font-size: 14px;
+            color: #555;
+            line-height: 1.5;
+        }
+        
+        .add-spot-button {
+            position: fixed;
+            right: 20px;
+            bottom: 100px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background-color: #0066cc;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            text-decoration: none;
+        }
+        
+        .bottom-button {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            padding: 15px 0;
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+        }
+        
+        .distance-marker {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 10px 0;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .distance-text {
+            background-color: #f0f0f0;
+            color: #666;
+            font-size: 12px;
+            padding: 4px 12px;
+            border-radius: 12px;
+        }
+        
+        .timeline-dot {
+            position: absolute;
+            left: 30px;
+            transform: translateX(-50%);
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #0066cc;
+            border: 2px solid #fff;
+            z-index: 3;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* スポット追加モーダル */
+        .add-spot-modal {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: white;
+            border-radius: 20px 20px 0 0;
+            padding: 20px;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 200;
+            max-height: 80vh;
+            overflow-y: auto;
+            transform: translateY(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .add-spot-modal.hidden {
+            transform: translateY(100%);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .close-modal {
+            font-size: 24px;
+            color: #999;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .search-box {
+            background-color: #f5f5f5;
+            border-radius: 25px;
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .search-icon {
+            color: #999;
+            margin-right: 10px;
+        }
+        
+        .search-input {
+            flex-grow: 1;
+            border: none;
+            background: transparent;
+            outline: none;
+            font-size: 16px;
+        }
+        
+        .spot-categories {
+            display: flex;
+            overflow-x: auto;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding-bottom: 5px;
+        }
+        
+        .category-tag {
+            white-space: nowrap;
+            background-color: #f0f0f0;
+            border-radius: 20px;
+            padding: 8px 15px;
+            font-size: 14px;
+            color: #333;
+        }
+        
+        .category-tag.active {
+            background-color: #0066cc;
+            color: white;
+        }
+        
+        .available-spots {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .available-spot {
+            position: relative;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .spot-thumb {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+        }
+        
+        .spot-thumb-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+            padding: 10px;
+        }
+        
+        .spot-thumb-name {
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .spot-thumb-info {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 12px;
+        }
+        
+        .modal-action {
+            text-align: center;
+            padding-top: 10px;
+        }
+        
+        .add-selected-button {
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 12px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 150;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        .overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- ステータスバー -->
+        <div class="status-bar">
+            <div class="time">17:43</div>
+            <div class="status-bar-right">
+                <div class="signal">●●●●</div>
+                <div class="wifi">📶</div>
+                <div class="battery">🔋</div>
+            </div>
+        </div>
+        
+        <!-- ヘッダー -->
+        <div class="header">
+            <a href="#" class="back-button">←</a>
+            <div class="page-title">ドライブプラン</div>
+        </div>
+        
+        <!-- コースヘッダー -->
+        <div class="course-header">
+            <div class="course-location">東京ビッグサイト（臨海エリア）</div>
+            <h1 class="course-title">次世代モビリティを体験する、テクノロジータイムライン</h1>
+        </div>
+        
+        <!-- タイムライン -->
+        <div class="timeline">
+            <div class="timeline-line"></div>
+            
+            <!-- スポット1 -->
+            <div class="spot-item">
+                <div class="timeline-dot"></div>
+                <div class="spot-time">10:00</div>
+                <div class="spot-content">
+                    <div class="spot-card">
+                        <img src="/api/placeholder/380/160" alt="Mobility Culture Area" class="spot-image">
+                        <div class="spot-overlay">
+                            <h3 class="spot-name">Mobility Culture Area</h3>
+                            <div class="spot-icons">
+                                <div class="spot-icon">P</div>
+                                <div class="spot-icon">🚻</div>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="spot-info">JMS特設展示エリア。未来のモビリティ文化を紹介する展示やインタラクティブな体験コーナーがあります。</p>
+                </div>
+            </div>
+            
+            <!-- 距離マーカー -->
+            <div class="distance-marker">
+                <div class="distance-text">400m</div>
+            </div>
+            
+            <!-- スポット2 -->
+            <div class="spot-item">
+                <div class="timeline-dot"></div>
+                <div class="spot-time">10:30</div>
+                <div class="spot-content">
+                    <div class="spot-card">
+                        <img src="/api/placeholder/380/160" alt="TOYOTAブース" class="spot-image">
+                        <div class="spot-overlay">
+                            <h3 class="spot-name">TOYOTAブース</h3>
+                            <div class="spot-icons">
+                                <div class="spot-icon">🎮</div>
+                                <div class="spot-icon">📱</div>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="spot-info">次世代EVコンセプトカーの展示や自動運転技術のデモンストレーションを体験できます。最新のHMIテクノロジーも紹介。</p>
+                </div>
+            </div>
+            
+            <!-- 距離マーカー -->
+            <div class="distance-marker">
+                <div class="distance-text">300m</div>
+            </div>
+            
+            <!-- スポット3 -->
+            <div class="spot-item">
+                <div class="timeline-dot"></div>
+                <div class="spot-time">11:00</div>
+                <div class="spot-content">
+                    <div class="spot-card">
+                        <img src="/api/placeholder/380/160" alt="日産ブース" class="spot-image">
+                        <div class="spot-overlay">
+                            <h3 class="spot-name">日産ブース</h3>
+                            <div class="spot-icons">
+                                <div class="spot-icon">VR</div>
+                                <div class="spot-icon">🎁</div>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="spot-info">電動化技術の展示やVRを使った未来の移動体験が可能。オリジナルグッズがもらえるミニゲームも開催中。</p>
+                </div>
+            </div>
+            
+            <!-- 距離マーカー -->
+            <div class="distance-marker">
+                <div class="distance-text">250m</div>
+            </div>
+            
+            <!-- スポット4 -->
+            <div class="spot-item">
+                <div class="timeline-dot"></div>
+                <div class="spot-time">11:30</div>
+                <div class="spot-content">
+                    <div class="spot-card">
+                        <img src="/api/placeholder/380/160" alt="OEMエリア" class="spot-image">
+                        <div class="spot-overlay">
+                            <h3 class="spot-name">OEMエリア</h3>
+                            <div class="spot-icons">
+                                <div class="spot-icon">🔍</div>
+                                <div class="spot-icon">🤝</div>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="spot-info">自動車部品メーカーの最新技術やイノベーションが一堂に集結。未来のモビリティを支える技術の数々を見学できます。</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- リワード情報 -->
+        <div class="reward-info">
+            <div class="reward-title">
+                <div class="reward-icon">🏆</div>
+                <div>リワード獲得方法</div>
+            </div>
+            <p class="reward-text">
+                各ブースに設置された二次元コードを撮影することでリワードを獲得できます。すべてのスポットを回るとJMSオリジナルグッズがもらえます。
+            </p>
+        </div>
+        
+        <!-- 追加ボタン -->
+        <a href="#" class="add-spot-button" id="openModal">+</a>
+        
+        <!-- 下部ボタン -->
+        <button class="bottom-button">このプランを登録</button>
+        
+        <!-- オーバーレイ -->
+        <div class="overlay" id="overlay"></div>
+        
+        <!-- スポット追加モーダル -->
+        <div class="add-spot-modal hidden" id="addSpotModal">
+            <div class="modal-header">
+                <div class="modal-title">スポットを追加</div>
+                <button class="close-modal" id="closeModal">×</button>
+            </div>
+            
+            <div class="search-box">
+                <div class="search-icon">🔍</div>
+                <input type="text" class="search-input" placeholder="スポットを検索">
+            </div>
+            
+            <div class="spot-categories">
+                <div class="category-tag active">すべて</div>
+                <div class="category-tag">メーカーブース</div>
+                <div class="category-tag">体験コーナー</div>
+                <div class="category-tag">休憩スポット</div>
+                <div class="category-tag">プレゼンテーション</div>
+            </div>
+            
+            <div class="available-spots">
+                <div class="available-spot">
+                    <img src="/api/placeholder/180/120" alt="ホンダブース" class="spot-thumb">
+                    <div class="spot-thumb-overlay">
+                        <div class="spot-thumb-name">ホンダブース</div>
+                        <div class="spot-thumb-info">メーカーブース</div>
+                    </div>
+                </div>
+                
+                <div class="available-spot">
+                    <img src="/api/placeholder/180/120" alt="スバルブース" class="spot-thumb">
+                    <div class="spot-thumb-overlay">
+                        <div class="spot-thumb-name">スバルブース</div>
+                        <div class="spot-thumb-info">メーカーブース</div>
+                    </div>
+                </div>
+                
+                <div class="available-spot">
+                    <img src="/api/placeholder/180/120" alt="自動運転デモ" class="spot-thumb">
+                    <div class="spot-thumb-overlay">
+                        <div class="spot-thumb-name">自動運転デモ</div>
+                        <div class="spot-thumb-info">体験コーナー</div>
+                    </div>
+                </div>
+                
+                <div class="available-spot">
+                    <img src="/api/placeholder/180/120" alt="フードコート" class="spot-thumb">
+                    <div class="spot-thumb-overlay">
+                        <div class="spot-thumb-name">フードコート</div>
+                        <div class="spot-thumb-info">休憩スポット</div>
+                    </div>
+                </div>
+                
+                <div class="available-spot">
+                    <img src="/api/placeholder/180/120" alt="EVワールド" class="spot-thumb">
+                    <div class="spot-thumb-overlay">
+                        <div class="spot-thumb-name">EVワールド</div>
+                        <div class="spot-thumb-info">体験コーナー</div>
+                    </div>
+                </div>
+                
+                <div class="available-spot">
+                    <img src="/api/placeholder/180/120" alt="モビリティ講演" class="spot-thumb">
+                    <div class="spot-thumb-overlay">
+                        <div class="spot-thumb-name">モビリティ講演</div>
+                        <div class="spot-thumb-info">プレゼンテーション</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-action">
+                <button class="add-selected-button">選択したスポットを追加</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const openModalBtn = document.getElementById('openModal');
+            const closeModalBtn = document.getElementById('closeModal');
+            const modal = document.getElementById('addSpotModal');
+            const overlay = document.getElementById('overlay');
+            
+            openModalBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                modal.classList.remove('hidden');
+                overlay.classList.add('active');
+            });
+            
+            closeModalBtn.addEventListener('click', function() {
+                modal.classList.add('hidden');
+                overlay.classList.remove('active');
+            });
+            
+            overlay.addEventListener('click', function() {
+                modal.classList.add('hidden');
+                overlay.classList.remove('active');
+            });
+        });
+    </script>
+</body>
+</html>
