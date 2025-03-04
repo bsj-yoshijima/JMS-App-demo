@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -135,7 +136,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(to bottom, rgba(255,255,255,0.1), rgba(0,0,0,0.6));
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.1), rgba(0, 0, 0, 0.6));
             display: flex;
             flex-direction: column;
             justify-content: flex-end;
@@ -267,8 +268,8 @@
             z-index: 3;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
         }
-        
         /* スポット追加モーダル */
+        
         .add-spot-modal {
             position: fixed;
             bottom: 0;
@@ -379,7 +380,7 @@
             bottom: 0;
             left: 0;
             right: 0;
-            background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
             padding: 10px;
         }
         
@@ -430,6 +431,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <!-- ステータスバー -->
@@ -441,30 +443,30 @@
                 <div class="battery">🔋</div>
             </div>
         </div>
-        
+
         <!-- ヘッダー -->
         <div class="header">
             <a href="#" class="back-button">←</a>
             <div class="page-title">ドライブプラン</div>
         </div>
-        
+
         <!-- コースヘッダー -->
         <div class="course-header">
             <div class="course-location">東京ビッグサイト（臨海エリア）</div>
             <h1 class="course-title">次世代モビリティを体験する、テクノロジータイムライン</h1>
         </div>
-        
+
         <!-- タイムライン -->
         <div class="timeline">
             <div class="timeline-line"></div>
-            
+
             <!-- スポット1 -->
             <div class="spot-item">
                 <div class="timeline-dot"></div>
                 <div class="spot-time">10:00</div>
                 <div class="spot-content">
                     <div class="spot-card">
-                        <img src="/api/placeholder/380/160" alt="Mobility Culture Area" class="spot-image">
+                        <img src="https://www.jama.or.jp/release/docs/release/2023/20230830_03.jpg" alt="Mobility Culture Area" class="spot-image">
                         <div class="spot-overlay">
                             <h3 class="spot-name">Mobility Culture Area</h3>
                             <div class="spot-icons">
@@ -476,19 +478,19 @@
                     <p class="spot-info">JMS特設展示エリア。未来のモビリティ文化を紹介する展示やインタラクティブな体験コーナーがあります。</p>
                 </div>
             </div>
-            
+
             <!-- 距離マーカー -->
             <div class="distance-marker">
                 <div class="distance-text">400m</div>
             </div>
-            
+
             <!-- スポット2 -->
             <div class="spot-item">
                 <div class="timeline-dot"></div>
                 <div class="spot-time">10:30</div>
                 <div class="spot-content">
                     <div class="spot-card">
-                        <img src="/api/placeholder/380/160" alt="TOYOTAブース" class="spot-image">
+                        <img src="https://global.toyota/pages/news/images/2023/10/jms_toyota/jms_toyota_01_kv_w1920.jpg" alt="TOYOTAブース" class="spot-image">
                         <div class="spot-overlay">
                             <h3 class="spot-name">TOYOTAブース</h3>
                             <div class="spot-icons">
@@ -500,19 +502,19 @@
                     <p class="spot-info">次世代EVコンセプトカーの展示や自動運転技術のデモンストレーションを体験できます。最新のHMIテクノロジーも紹介。</p>
                 </div>
             </div>
-            
+
             <!-- 距離マーカー -->
             <div class="distance-marker">
                 <div class="distance-text">300m</div>
             </div>
-            
+
             <!-- スポット3 -->
             <div class="spot-item">
                 <div class="timeline-dot"></div>
                 <div class="spot-time">11:00</div>
                 <div class="spot-content">
                     <div class="spot-card">
-                        <img src="/api/placeholder/380/160" alt="日産ブース" class="spot-image">
+                        <img src="https://www.nissan.co.jp/JMS/2023/IMAGES/OGP/opengraph-image.png" alt="日産ブース" class="spot-image">
                         <div class="spot-overlay">
                             <h3 class="spot-name">日産ブース</h3>
                             <div class="spot-icons">
@@ -524,19 +526,19 @@
                     <p class="spot-info">電動化技術の展示やVRを使った未来の移動体験が可能。オリジナルグッズがもらえるミニゲームも開催中。</p>
                 </div>
             </div>
-            
+
             <!-- 距離マーカー -->
             <div class="distance-marker">
                 <div class="distance-text">250m</div>
             </div>
-            
+
             <!-- スポット4 -->
             <div class="spot-item">
                 <div class="timeline-dot"></div>
                 <div class="spot-time">11:30</div>
                 <div class="spot-content">
                     <div class="spot-card">
-                        <img src="/api/placeholder/380/160" alt="OEMエリア" class="spot-image">
+                        <img src="https://s.response.jp/imgs/thumb_h2/1948561.jpg" alt="OEMエリア" class="spot-image">
                         <div class="spot-overlay">
                             <h3 class="spot-name">OEMエリア</h3>
                             <div class="spot-icons">
@@ -549,7 +551,7 @@
                 </div>
             </div>
         </div>
-        
+
         <!-- リワード情報 -->
         <div class="reward-info">
             <div class="reward-title">
@@ -560,28 +562,28 @@
                 各ブースに設置された二次元コードを撮影することでリワードを獲得できます。すべてのスポットを回るとJMSオリジナルグッズがもらえます。
             </p>
         </div>
-        
+
         <!-- 追加ボタン -->
         <a href="#" class="add-spot-button" id="openModal">+</a>
-        
+
         <!-- 下部ボタン -->
         <button class="bottom-button">このプランを登録</button>
-        
+
         <!-- オーバーレイ -->
         <div class="overlay" id="overlay"></div>
-        
+
         <!-- スポット追加モーダル -->
         <div class="add-spot-modal hidden" id="addSpotModal">
             <div class="modal-header">
                 <div class="modal-title">スポットを追加</div>
                 <button class="close-modal" id="closeModal">×</button>
             </div>
-            
+
             <div class="search-box">
                 <div class="search-icon">🔍</div>
                 <input type="text" class="search-input" placeholder="スポットを検索">
             </div>
-            
+
             <div class="spot-categories">
                 <div class="category-tag active">すべて</div>
                 <div class="category-tag">メーカーブース</div>
@@ -589,7 +591,7 @@
                 <div class="category-tag">休憩スポット</div>
                 <div class="category-tag">プレゼンテーション</div>
             </div>
-            
+
             <div class="available-spots">
                 <div class="available-spot">
                     <img src="/api/placeholder/180/120" alt="ホンダブース" class="spot-thumb">
@@ -598,7 +600,7 @@
                         <div class="spot-thumb-info">メーカーブース</div>
                     </div>
                 </div>
-                
+
                 <div class="available-spot">
                     <img src="/api/placeholder/180/120" alt="スバルブース" class="spot-thumb">
                     <div class="spot-thumb-overlay">
@@ -606,7 +608,7 @@
                         <div class="spot-thumb-info">メーカーブース</div>
                     </div>
                 </div>
-                
+
                 <div class="available-spot">
                     <img src="/api/placeholder/180/120" alt="自動運転デモ" class="spot-thumb">
                     <div class="spot-thumb-overlay">
@@ -614,7 +616,7 @@
                         <div class="spot-thumb-info">体験コーナー</div>
                     </div>
                 </div>
-                
+
                 <div class="available-spot">
                     <img src="/api/placeholder/180/120" alt="フードコート" class="spot-thumb">
                     <div class="spot-thumb-overlay">
@@ -622,7 +624,7 @@
                         <div class="spot-thumb-info">休憩スポット</div>
                     </div>
                 </div>
-                
+
                 <div class="available-spot">
                     <img src="/api/placeholder/180/120" alt="EVワールド" class="spot-thumb">
                     <div class="spot-thumb-overlay">
@@ -630,7 +632,7 @@
                         <div class="spot-thumb-info">体験コーナー</div>
                     </div>
                 </div>
-                
+
                 <div class="available-spot">
                     <img src="/api/placeholder/180/120" alt="モビリティ講演" class="spot-thumb">
                     <div class="spot-thumb-overlay">
@@ -639,31 +641,31 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="modal-action">
                 <button class="add-selected-button">選択したスポットを追加</button>
             </div>
         </div>
     </div>
-    
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const openModalBtn = document.getElementById('openModal');
             const closeModalBtn = document.getElementById('closeModal');
             const modal = document.getElementById('addSpotModal');
             const overlay = document.getElementById('overlay');
-            
+
             openModalBtn.addEventListener('click', function(e) {
                 e.preventDefault();
                 modal.classList.remove('hidden');
                 overlay.classList.add('active');
             });
-            
+
             closeModalBtn.addEventListener('click', function() {
                 modal.classList.add('hidden');
                 overlay.classList.remove('active');
             });
-            
+
             overlay.addEventListener('click', function() {
                 modal.classList.add('hidden');
                 overlay.classList.remove('active');
@@ -671,4 +673,5 @@
         });
     </script>
 </body>
+
 </html>
