@@ -51,14 +51,20 @@
             font-size: 24px;
             color: #333;
             text-decoration: none;
-            margin-right: 15px;
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 1;
         }
         
         .page-title {
-            flex-grow: 1;
+            width: 100%;
             text-align: center;
             font-size: 18px;
             font-weight: 600;
+            position: relative;
+            z-index: 0;
         }
         
         .course-header {
@@ -373,14 +379,14 @@
 <body>
     <div class="container">
         <!-- ステータスバー -->
-        <div class="status-bar">
+        <!-- <div class="status-bar">
             <div class="time">17:43</div>
             <div class="status-bar-right">
                 <div class="signal">●●●●</div>
                 <div class="wifi">📶</div>
                 <div class="battery">🔋</div>
             </div>
-        </div>
+        </div> -->
 
         <!-- ヘッダー -->
         <div class="header">
