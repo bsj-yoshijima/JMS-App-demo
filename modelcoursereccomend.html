@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JMSコースプラン</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background-color: white;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .back-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            margin-right: 15px;
+        }
+        
+        .title {
+            flex: 1;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .map-container {
+            padding: 15px;
+            background-color: #f0f0f0;
+        }
+        
+        .map svg {
+            width: 100%;
+            height: auto;
+        }
+        
+        .course-details {
+            flex: 1;
+            padding: 20px;
+            background-color: #e6f3ff;
+            position: relative;
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .course-content {
+            text-align: center;
+            flex: 1;
+        }
+        
+        .course-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .course-description {
+            margin-bottom: 20px;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+        
+        .course-image {
+            width: 240px;
+            height: 160px;
+            margin: 0 auto 20px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .course-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .detail-button {
+            background: none;
+            border: 1px solid #aaa;
+            border-radius: 5px;
+            padding: 8px 20px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        .navigation-buttons {
+            position: absolute;
+            top: 50%;
+            width: 100%;
+            left: 0;
+            transform: translateY(-50%);
+            display: flex;
+            justify-content: space-between;
+            padding: 0 10px;
+            pointer-events: none;
+        }
+        
+        .nav-button {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background-color: white;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            pointer-events: auto;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 20px;
+        }
+        
+        .pagination-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #ccc;
+            cursor: pointer;
+        }
+        
+        .pagination-dot.active {
+            background-color: #3B82F6;
+        }
+        
+        .highlighted {
+            fill: #3B82F6;
+        }
+        
+        .normal {
+            fill: #6B7280;
+        }
+        
+        .east-hall {
+            fill: #D1D5DB;
+        }
+        
+        #hall-1-circle, #hall-2-circle, #hall-3-circle {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="back-button">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M15 18l-6-6 6-6"></path>
+                </svg>
+            </button>
+            <h1 class="title">JMSコースプラン</h1>
+        </div>
+        
+        <div class="map-container">
+            <div class="map">
+                <svg viewBox="0 0 400 200">
+                    <!-- Base map layout -->
+                    <rect x="50" y="20" width="300" height="160" fill="#E5E5E5" />
+                    
+                    <!-- Exhibition halls -->
+                    <g id="hall-1">
+                        <rect x="60" y="30" width="80" height="60" class="east-hall" />
+                        <text x="100" y="60" text-anchor="middle" fill="white" font-size="14">東展示棟</text>
+                        <g id="hall-1-circle">
+                            <circle cx="100" cy="40" r="12" fill="#3B82F6" stroke="white" />
+                            <text x="100" y="45" text-anchor="middle" fill="white" font-size="12">1</text>
+                        </g>
+                    </g>
+                    
+                    <g id="hall-2">
+                        <rect x="160" y="70" width="80" height="60" class="normal" />
+                        <text x="200" y="100" text-anchor="middle" fill="white" font-size="14">会議棟</text>
+                        <g id="hall-2-circle">
+                            <circle cx="200" cy="80" r="12" fill="#3B82F6" stroke="white" />
+                            <text x="200" y="85" text-anchor="middle" fill="white" font-size="12">2</text>
+                        </g>
+                    </g>
+                    
+                    <g id="hall-3">
+                        <rect x="260" y="30" width="80" height="60" class="normal" />
+                        <text x="300" y="60" text-anchor="middle" fill="white" font-size="14">南展示棟</text>
+                        <g id="hall-3-circle">
+                            <circle cx="300" cy="40" r="12" fill="#3B82F6" stroke="white" />
+                            <text x="300" y="45" text-anchor="middle" fill="white" font-size="12">3</text>
+                        </g>
+                    </g>
+                    
+                    <g id="hall-4">
+                        <rect x="260" y="110" width="80" height="60" class="normal" />
+                        <text x="300" y="140" text-anchor="middle" fill="white" font-size="14">西展示棟</text>
+                    </g>
+                    
+                    <!-- Connection paths -->
+                    <path d="M140 60 L160 100" stroke="#3B82F6" stroke-width="3" />
+                    <path d="M240 100 L260 60" stroke="#3B82F6" stroke-width="3" />
+                    <path d="M300 90 L300 110" stroke="#3B82F6" stroke-width="3" />
+                </svg>
+            </div>
+        </div>
+        
+        <div class="course-details">
+            <div class="course-content">
+                <h2 class="course-title" id="course-title"></h2>
+                <p class="course-description" id="course-description"></p>
+                
+                <div class="course-image">
+                    <img id="course-image" src="/api/placeholder/240/160" alt="コース画像">
+                </div>
+                
+                <button class="detail-button" id="detail-button"></button>
+            </div>
+            
+            <div class="navigation-buttons">
+                <button class="nav-button prev-button">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M15 18l-6-6 6-6"></path>
+                    </svg>
+                </button>
+                <button class="nav-button next-button">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 18l6-6-6-6"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="pagination" id="pagination">
+                <!-- Pagination dots will be added by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Course data
+        const courses = [
+            {
+                title: "タレントXXコース",
+                description: "XX氏おすすめコース！ここを見ておけば大丈夫。JMS初心者向けコース。メーカーの最新車＆未来のコンセプトカーを見物しよう！",
+                mapHighlights: [1, 2, 3],
+                image: "/api/placeholder/240/160",
+                buttonText: "このコースの詳細を見る"
+            },
+            {
+                title: "テクノロジーコース",
+                description: "次世代技術が集結！自動運転、EV技術、新素材など未来のモビリティ技術を重点的に体験できるコース。技術好きな方におすすめです。",
+                mapHighlights: [2, 3],
+                image: "/api/placeholder/240/160",
+                buttonText: "このコースの詳細を見る"
+            },
+            {
+                title: "ファミリーコース",
+                description: "お子様連れでも楽しめる！体験型展示やキッズスペースを中心に回るファミリー向けコース。記念撮影スポットも多数あります。",
+                mapHighlights: [1, 3],
+                image: "/api/placeholder/240/160",
+                buttonText: "このコースの詳細を見る"
+            },
+            {
+                title: "ビジネスパーソンコース",
+                description: "限られた時間で効率よく回りたい方向け。業界動向や最新ビジネスモデルが学べる展示を厳選したコースです。",
+                mapHighlights: [1, 2],
+                image: "/api/placeholder/240/160",
+                buttonText: "このコースの詳細を見る"
+            }
+        ];
+
+        let currentPage = 0;
+        
+        // DOM elements
+        const courseTitle = document.getElementById('course-title');
+        const courseDescription = document.getElementById('course-description');
+        const courseImage = document.getElementById('course-image');
+        const detailButton = document.getElementById('detail-button');
+        const pagination = document.getElementById('pagination');
+        const prevButton = document.querySelector('.prev-button');
+        const nextButton = document.querySelector('.next-button');
+        
+        // Create pagination dots
+        function createPagination() {
+            pagination.innerHTML = '';
+            
+            for (let i = 0; i < courses.length; i++) {
+                const dot = document.createElement('div');
+                dot.className = `pagination-dot ${i === currentPage ? 'active' : ''}`;
+                dot.addEventListener('click', () => {
+                    goToPage(i);
+                });
+                pagination.appendChild(dot);
+            }
+        }
+        
+        // Update map highlights based on current course
+        function updateMapHighlights() {
+            // Reset all halls to normal
+            document.querySelectorAll('#hall-1 rect, #hall-2 rect, #hall-3 rect, #hall-4 rect').forEach(hall => {
+                if (hall.parentElement.id === 'hall-1') {
+                    hall.className.baseVal = 'east-hall';
+                } else {
+                    hall.className.baseVal = 'normal';
+                }
+            });
+            
+            // Hide all circles
+            document.getElementById('hall-1-circle').style.display = 'none';
+            document.getElementById('hall-2-circle').style.display = 'none';
+            document.getElementById('hall-3-circle').style.display = 'none';
+            
+            // Highlight selected halls
+            courses[currentPage].mapHighlights.forEach(hallNumber => {
+                const hall = document.getElementById(`hall-${hallNumber}`);
+                if (hall) {
+                    hall.querySelector('rect').className.baseVal = 'highlighted';
+                    document.getElementById(`hall-${hallNumber}-circle`).style.display = 'block';
+                }
+            });
+        }
+        
+        // Update course content
+        function updateCourseContent() {
+            const course = courses[currentPage];
+            
+            courseTitle.textContent = course.title;
+            courseDescription.textContent = course.description;
+            courseImage.src = course.image;
+            courseImage.alt = course.title;
+            detailButton.textContent = course.buttonText;
+        }
+        
+        // Go to specific page
+        function goToPage(pageNumber) {
+            currentPage = pageNumber;
+            
+            // Update pagination
+            document.querySelectorAll('.pagination-dot').forEach((dot, index) => {
+                dot.className = `pagination-dot ${index === currentPage ? 'active' : ''}`;
+            });
+            
+            // Update map and content
+            updateMapHighlights();
+            updateCourseContent();
+        }
+        
+        // Next page
+        function nextPage() {
+            currentPage = (currentPage + 1) % courses.length;
+            goToPage(currentPage);
+        }
+        
+        // Previous page
+        function prevPage() {
+            currentPage = (currentPage - 1 + courses.length) % courses.length;
+            goToPage(currentPage);
+        }
+        
+        // Initialize
+        function init() {
+            createPagination();
+            updateMapHighlights();
+            updateCourseContent();
+            
+            // Event listeners
+            prevButton.addEventListener('click', prevPage);
+            nextButton.addEventListener('click', nextPage);
+        }
+        
+        // Start the app
+        init();
+    </script>
+</body>
+</html>
