@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JMS回遊施策アプリ - コース詳細</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', sans-serif;
+        }
+        
+        body {
+            background-color: #ffffff;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+            position: relative;
+        }
+        
+        header {
+            background: white;
+            padding: 15px;
+            position: relative;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .back-button {
+            position: absolute;
+            left: 15px;
+            top: 15px;
+            font-size: 24px;
+            color: #333;
+            text-decoration: none;
+        }
+        
+        h1 {
+            text-align: center;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .course-image {
+            width: 100%;
+            height: 180px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .course-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .course-info {
+            padding: 20px;
+        }
+        
+        .course-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #0066cc;
+        }
+        
+        .course-description {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        
+        .starting-point {
+            background: #f5f5f5;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .starting-point-icon {
+            margin-right: 15px;
+            font-size: 20px;
+            color: #0066cc;
+        }
+        
+        .starting-point-text {
+            font-weight: 500;
+        }
+        
+        .section-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            position: relative;
+            color: #333;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            background-color: #0066cc;
+        }
+        
+        .slider-container {
+            margin-bottom: 25px;
+        }
+        
+        .slider-item {
+            margin-bottom: 15px;
+        }
+        
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .slider-label span {
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #e0e0e0;
+            outline: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #0066cc;
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+        
+        .reward-section {
+            background: #f8f8f8;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .reward-title {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .reward-icon {
+            margin-right: 10px;
+            font-size: 20px;
+            color: #FFD700;
+        }
+        
+        .reward-items {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+        
+        .reward-item {
+            min-width: 100px;
+            background: white;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .reward-item-icon {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        
+        .reward-item-text {
+            font-size: 12px;
+        }
+        
+        .theme-selection {
+            padding: 0 20px;
+            margin-bottom: 30px;
+        }
+        
+        .theme-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .theme-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            background: #0066cc;
+        }
+        
+        .themes-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .theme-card {
+            position: relative;
+            border-radius: 10px;
+            overflow: hidden;
+            height: 100px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+        }
+        
+        .theme-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .theme-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+            padding: 10px;
+        }
+        
+        .theme-name {
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+        }
+        
+        .theme-card.selected {
+            border: 3px solid #0066cc;
+        }
+        
+        .theme-card.selected::after {
+            content: '✓';
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 20px;
+            height: 20px;
+            background: #0066cc;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 10px;
+            padding: 20px;
+        }
+        
+        .secondary-button {
+            background: #f5f5f5;
+            color: #333;
+            border: none;
+            padding: 12px 0;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        .primary-button {
+            background: #0066cc;
+            color: white;
+            border: none;
+            padding: 12px 0;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        .preference-setting {
+            padding: 0 20px;
+            margin-bottom: 30px;
+        }
+        
+        .preference-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .preference-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            background: #0066cc;
+        }
+        
+        .toggle-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .toggle-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: #f5f5f5;
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+        
+        .toggle-item.active {
+            background: #e1f0ff;
+            color: #0066cc;
+        }
+        
+        .toggle-checkbox {
+            position: relative;
+            width: 36px;
+            height: 20px;
+            border-radius: 10px;
+            background: #ccc;
+        }
+        
+        .toggle-checkbox::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: white;
+            transition: 0.2s;
+        }
+        
+        .toggle-item.active .toggle-checkbox {
+            background: #0066cc;
+        }
+        
+        .toggle-item.active .toggle-checkbox::after {
+            left: 18px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <a href="#" class="back-button">←</a>
+            <h1>EVコース</h1>
+        </header>
+
+        <div class="course-image">
+            <img src="https://xtech.nikkei.com/atcl/nxt/mag/at/18/00012/00171/topm.jpg" alt="EVコース">
+        </div>
+
+        <div class="course-info">
+            <h2 class="course-title">EVコース</h2>
+            <p class="course-description">
+                内燃機構と並んで主流になりつつある電気自動車。しかし、電気自動車（EV）は地球環境に本当に利益をもたらすのでしょうか？飛躍的に進化する技術の中で、本当に大切なものは何かをEVを通じて学びましょう。
+            </p>
+
+            <div class="starting-point">
+                <div class="starting-point-icon">🚩</div>
+                <div class="starting-point-text">スタート地点: Mobility Culture Area</div>
+            </div>
+
+            <h3 class="section-title">おすすめのテーマを見つける</h3>
+            <div class="slider-container">
+                <div class="slider-item">
+                    <div class="slider-label">
+                        <span>エンタメ度</span>
+                    </div>
+                    <input type="range" min="1" max="100" value="85" class="slider">
+                </div>
+
+                <div class="slider-item">
+                    <div class="slider-label">
+                        <span>ビジネス度</span>
+                    </div>
+                    <input type="range" min="1" max="100" value="90" class="slider">
+                </div>
+
+                <div class="slider-item">
+                    <div class="slider-label">
+                        <span>体験の多さ</span>
+                    </div>
+                    <input type="range" min="1" max="100" value="75" class="slider">
+                </div>
+            </div>
+
+            <h3 class="section-title">獲得リワード</h3>
+            <div class="reward-section">
+                <div class="reward-title">
+                    <div class="reward-icon">🏆</div>
+                    <div>コース完了で獲得できるリワード</div>
+                </div>
+                <div class="reward-items">
+                    <div class="reward-item">
+                        <div class="reward-item-icon">🎁</div>
+                        <div class="reward-item-text">限定ステッカー</div>
+                    </div>
+                    <div class="reward-item">
+                        <div class="reward-item-icon">🎫</div>
+                        <div class="reward-item-text">ドリンク引換券</div>
+                    </div>
+                    <div class="reward-item">
+                        <div class="reward-item-icon">📱</div>
+                        <div class="reward-item-text">デジタルバッジ</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="theme-selection">
+            <h3 class="theme-title">興味のあるテーマを選択</h3>
+            <div class="themes-grid">
+                <div class="theme-card">
+                    <img src="https://toyota.jp/pages/contents/prius/005_p_001/image/ecocar/prius_ecocar_01.png" alt="エコカー">
+                    <div class="theme-overlay">
+                        <div class="theme-name">エコカーと環境技術</div>
+                    </div>
+                </div>
+                <div class="theme-card selected">
+                    <img src="https://joycal.jp/magazine/wp-content/uploads/2022/12/jo-11-2-0.jpg" alt="自動運転">
+                    <div class="theme-overlay">
+                        <div class="theme-name">自動運転技術</div>
+                    </div>
+                </div>
+                <div class="theme-card">
+                    <img src="https://kuruma-news.jp/wp-content/uploads/2020/07/20200727_skydrive_005.jpg?v=1595849418" alt="未来の乗り物">
+                    <div class="theme-overlay">
+                        <div class="theme-name">未来の乗り物</div>
+                    </div>
+                </div>
+                <div class="theme-card selected">
+                    <img src="https://cdn-xtrend.nikkei.com/atcl/contents/18/00757/00007/04.jpg?__scale=w:600,h:400&_sh=0370b70630" alt="エンタメ">
+                    <div class="theme-overlay">
+                        <div class="theme-name">エンターテイメント</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="preference-setting">
+            <h3 class="preference-title">コース調整オプション</h3>
+            <div class="toggle-container">
+                <div class="toggle-item active">
+                    <div class="toggle-checkbox"></div>
+                    <div>体験重視</div>
+                </div>
+                <div class="toggle-item">
+                    <div class="toggle-checkbox"></div>
+                    <div>歴史・文化</div>
+                </div>
+                <div class="toggle-item active">
+                    <div class="toggle-checkbox"></div>
+                    <div>子ども向け</div>
+                </div>
+                <div class="toggle-item active">
+                    <div class="toggle-checkbox"></div>
+                    <div>技術紹介</div>
+                </div>
+                <div class="toggle-item">
+                    <div class="toggle-checkbox"></div>
+                    <div>買い物</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <button class="secondary-button">戻る</button>
+            <a href="https://main.d194addch7ev33.amplifyapp.com/modelcoursedetail.html" class="primary-button">詳細を見る</a>
+        </div>
+    </div>
+
+    <script>
+        // トグルアイテムのクリックイベントを追加
+        document.querySelectorAll('.toggle-item').forEach(item => {
+            item.addEventListener('click', function() {
+                this.classList.toggle('active');
+            });
+        });
+
+        // テーマカードのクリックイベントを追加
+        document.querySelectorAll('.theme-card').forEach(card => {
+            card.addEventListener('click', function() {
+                this.classList.toggle('selected');
+            });
+        });
+
+        // スライダーの値の変更を表示する機能を追加
+        document.querySelectorAll('.slider').forEach(slider => {
+            const valueDisplay = document.createElement('span');
+            valueDisplay.style.marginLeft = '10px';
+            valueDisplay.textContent = slider.value;
+
+            slider.parentNode.querySelector('.slider-label').appendChild(valueDisplay);
+
+            slider.addEventListener('input', function() {
+                valueDisplay.textContent = this.value;
+            });
+        });
+    </script>
+</body>
+
+</html>

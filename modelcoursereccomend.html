@@ -107,6 +107,9 @@
             padding: 8px 20px;
             font-size: 14px;
             cursor: pointer;
+            display: inline-block;
+            text-decoration: none;
+            color: #333;
         }
         
         .navigation-buttons {
@@ -238,7 +241,7 @@
                     <img id="course-image" src="/api/placeholder/240/160" alt="コース画像">
                 </div>
                 
-                <button class="detail-button" id="detail-button"></button>
+                <a href="#" class="detail-button" id="detail-button"></a>
             </div>
             
             <div class="navigation-buttons">
@@ -268,28 +271,32 @@
                 description: "XX氏おすすめコース！ここを見ておけば大丈夫。JMS初心者向けコース。メーカーの最新車＆未来のコンセプトカーを見物しよう！",
                 mapHighlights: [1, 2, 3],
                 image: "/api/placeholder/240/160",
-                buttonText: "このコースの詳細を見る"
+                buttonText: "このコースの詳細を見る",
+                url: "https://main.d194addch7ev33.amplifyapp.com/b.html"
             },
             {
                 title: "テクノロジーコース",
                 description: "次世代技術が集結！自動運転、EV技術、新素材など未来のモビリティ技術を重点的に体験できるコース。技術好きな方におすすめです。",
                 mapHighlights: [2, 3],
                 image: "/api/placeholder/240/160",
-                buttonText: "このコースの詳細を見る"
+                buttonText: "このコースの詳細を見る",
+                url: "/courses/technology-course.html"
             },
             {
                 title: "ファミリーコース",
                 description: "お子様連れでも楽しめる！体験型展示やキッズスペースを中心に回るファミリー向けコース。記念撮影スポットも多数あります。",
                 mapHighlights: [1, 3],
                 image: "/api/placeholder/240/160",
-                buttonText: "このコースの詳細を見る"
+                buttonText: "このコースの詳細を見る",
+                url: "/courses/family-course.html"
             },
             {
                 title: "ビジネスパーソンコース",
                 description: "限られた時間で効率よく回りたい方向け。業界動向や最新ビジネスモデルが学べる展示を厳選したコースです。",
                 mapHighlights: [1, 2],
                 image: "/api/placeholder/240/160",
-                buttonText: "このコースの詳細を見る"
+                buttonText: "このコースの詳細を見る",
+                url: "/courses/business-course.html"
             }
         ];
 
@@ -353,6 +360,7 @@
             courseImage.src = course.image;
             courseImage.alt = course.title;
             detailButton.textContent = course.buttonText;
+            detailButton.href = course.url;
         }
         
         // Go to specific page
