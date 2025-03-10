@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>モビリティショーおすすめコース</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', sans-serif;
+        }
+        
+        body {
+            background-color: #f6f6f6;
+        }
+        
+        .app-container {
+            max-width: 414px;
+            margin: 0 auto;
+            background-color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        
+        .hero-container {
+            position: relative;
+            width: 100%;
+            height: 300px;
+        }
+        
+        .search-bar {
+            margin: 10px 15px;
+            background-color: #f0f0f0;
+            border-radius: 20px;
+            padding: 8px 15px;
+            display: flex;
+            align-items: center;
+            position: absolute;
+            top: 25px;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            display: none; /* Hide search bar */
+        }
+        
+        .search-bar input {
+            border: none;
+            background: transparent;
+            width: 100%;
+            padding: 0 10px;
+            font-size: 16px;
+        }
+        
+        .icon {
+            display: inline-flex;
+            width: 24px;
+            height: 24px;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .icon svg {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .small-icon {
+            width: 16px;
+            height: 16px;
+        }
+        
+        .hero-image {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            position: relative;
+            display: block;
+        }
+        
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 300px;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.6));
+            z-index: 1;
+        }
+        
+        .hero-content {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            color: white;
+            z-index: 2;
+        }
+        
+        .hero-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .hero-subtitle {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+        
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #e74c3c;
+            color: white;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            font-size: 10px;
+            margin-right: 4px;
+        }
+        
+        .hero-description {
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        
+        .details-button {
+            display: inline-block;
+            padding: 5px 10px;
+            background-color: rgba(255,255,255,0.2);
+            border-radius: 15px;
+            color: white;
+            font-size: 12px;
+            text-decoration: none;
+        }
+        
+        .tabs {
+            display: flex;
+            justify-content: space-between;
+            background-color: white;
+            padding: 10px 15px;
+            border-bottom: 1px solid #f0f0f0;
+            position: relative;
+        }
+        
+        .tab {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #333;
+            font-size: 12px;
+            text-decoration: none;
+            position: relative;
+            flex: 1;
+            text-align: center;
+        }
+        
+        .tab.active {
+            color: #000;
+            font-weight: bold;
+        }
+        
+        .tab-icon {
+            margin-bottom: 5px;
+            opacity: 0.7;
+        }
+        
+        .active .tab-icon {
+            opacity: 1;
+        }
+        
+        .active-indicator {
+            display: none;
+        }
+        
+        .section-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin: 20px 15px 15px;
+        }
+        
+        .course-description-text {
+            margin: 20px 15px;
+            line-height: 1.6;
+            font-size: 14px;
+            color: #333;
+        }
+        
+        .course-highlights {
+            margin: 20px 15px;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            padding: 15px;
+        }
+        
+        .highlight-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        
+        .highlight-list {
+            list-style-type: none;
+        }
+        
+        .highlight-list li {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: flex-start;
+        }
+        
+        .highlight-list li:before {
+            content: "•";
+            color: #3498db;
+            font-weight: bold;
+            display: inline-block;
+            width: 15px;
+            margin-left: 5px;
+        }
+        
+        .course-action {
+            margin: 20px 15px;
+            display: flex;
+            justify-content: center;
+        }
+        
+        .action-button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="hero-container">
+            <img src="https://images.pexels.com/photos/845457/pexels-photo-845457.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" class="hero-image" id="hero-image" alt="モビリティショー">
+            <div class="hero-overlay"></div>
+            <div class="hero-content">
+                <h1 class="hero-title">忘れられないモビリティ体験</h1>
+                <div class="hero-subtitle">
+                    <span class="badge">★</span>
+                    <span>Originals by GetYourGuide</span>
+                </div>
+                <p class="hero-description">地元の人のようにJMSモビリティショーの中を探索</p>
+                <a href="#" class="details-button">詳細を見る →</a>
+            </div>
+        </div>
+        
+        <div class="tabs">
+            <a href="#" class="tab active" id="tab-talent">
+                <div class="tab-icon icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    </svg>
+                </div>
+                <div>タレント</div>
+            </a>
+            <a href="#" class="tab" id="tab-tech">
+                <div class="tab-icon icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+                        <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
+                        <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
+                        <line x1="6" y1="1" x2="6" y2="4"></line>
+                        <line x1="10" y1="1" x2="10" y2="4"></line>
+                        <line x1="14" y1="1" x2="14" y2="4"></line>
+                    </svg>
+                </div>
+                <div>タレントB</div>
+            </a>
+            <a href="#" class="tab" id="tab-family">
+                <div class="tab-icon icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+                        <path d="M20 9c0 4-2.5 8-7 8.5-4.5.5-8.5-2-9.5-6.5 1 1.5 2 2 4 2s4-1 4-3c0 1.5 2 3 4 3s4-1 4-4z"></path>
+                    </svg>
+                </div>
+                <div>タレントC</div>
+            </a>
+            <a href="#" class="tab" id="tab-business">
+                <div class="tab-icon icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+                        <line x1="9" y1="9" x2="9.01" y2="9"></line>
+                        <line x1="15" y1="9" x2="15.01" y2="9"></line>
+                    </svg>
+                </div>
+                <div>タレントD</div>
+            </a>
+        </div>
+        
+        <h2 class="section-title">心ゆさぶるタレントXXコース</h2>
+        
+        <div class="course-description-text" id="course-description-text">
+            <p>タレントXXコースは、JMS初心者の方に最適なコースです。人気タレントXX氏が厳選した展示ルートを巡り、モビリティショーの魅力を効率よく体験できます。</p>
+            <p>このコースでは、メーカーの最新車種や未来を感じさせるコンセプトカーを中心に見学します。XX氏のおすすめポイントや撮影スポットもご紹介していますので、SNS映えする写真も撮影できます。</p>
+        </div>
+        
+        <div class="course-highlights">
+            <h3 class="highlight-title">コースのハイライト</h3>
+            <ul class="highlight-list">
+                <li>XX氏厳選の最新車種5台を重点的に見学</li>
+                <li>未来のモビリティ技術が詰まったコンセプトカー展示</li>
+                <li>インスタ映え間違いなしの撮影スポット3か所</li>
+                <li>XX氏本人による音声ガイド付き（アプリダウンロード必要）</li>
+            </ul>
+        </div>
+        
+        <div class="course-action">
+            <button class="action-button">このコースの詳細を見る</button>
+        </div>
+    </div>
+    
+    <script>
+        // Tab switching functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabs = document.querySelectorAll('.tab');
+            const sectionTitle = document.querySelector('.section-title');
+            const heroImage = document.getElementById('hero-image');
+            const descriptionText = document.getElementById('course-description-text');
+            const courseHighlights = document.querySelector('.course-highlights');
+            
+            // Define hero images for each tab
+            const tabImages = {
+                'tab-talent': '/api/placeholder/480/320?text=TalentCourse',
+                'tab-tech': '/api/placeholder/480/320?text=TechnologyCourse',
+                'tab-family': '/api/placeholder/480/320?text=FamilyCourse',
+                'tab-business': '/api/placeholder/480/320?text=BusinessCourse'
+            };
+            
+            // Course titles for each tab
+            const courseTitles = {
+                'tab-talent': '心ゆさぶるタレントXXコース',
+                'tab-tech': '次世代テクノロジーコース',
+                'tab-family': '家族で楽しむファミリーコース',
+                'tab-business': '効率重視のビジネスパーソンコース'
+            };
+            
+            // Course descriptions for each tab
+            const courseDescriptions = {
+                'tab-talent': `
+                    <p>タレントXXコースは、JMS初心者の方に最適なコースです。人気タレントXX氏が厳選した展示ルートを巡り、モビリティショーの魅力を効率よく体験できます。</p>
+                    <p>このコースでは、メーカーの最新車種や未来を感じさせるコンセプトカーを中心に見学します。XX氏のおすすめポイントや撮影スポットもご紹介していますので、SNS映えする写真も撮影できます。</p>
+                `,
+                'tab-tech': `
+                    <p>テクノロジーコースは、最新の自動車技術に興味がある方向けの専門的なルートです。自動運転技術やEV技術、新素材の開発など、未来のモビリティ技術を重点的に体験できます。</p>
+                    <p>各メーカーのエンジニアによる技術解説が聞けるブースを中心に回るため、技術的な知識を深めたい方に最適です。実際に触れて体験できるインタラクティブな展示も多数あります。</p>
+                `,
+                'tab-family': `
+                    <p>ファミリーコースは、お子様連れのご家族が楽しめるルートです。体験型の展示やキッズスペースを中心に回り、家族全員でモビリティの魅力を発見できます。</p>
+                    <p>子供向けのドライビングシミュレーターや未来の乗り物の試乗体験など、お子様が喜ぶアクティビティが満載です。休憩スポットも多く設定されており、小さなお子様連れでも安心して回れます。</p>
+                `,
+                'tab-business': `
+                    <p>ビジネスパーソンコースは、限られた時間で効率よく回りたいビジネス目的の来場者向けのルートです。業界動向や最新ビジネスモデルが学べる展示を厳選しています。</p>
+                    <p>各メーカーの事業戦略や市場展望が理解できるブースを効率的に回るため、ビジネス視点でモビリティ業界の最新トレンドを把握したい方に最適です。商談スペースやビジネスラウンジの案内も含まれています。</p>
+                `
+            };
+            
+            // Course highlights for each tab
+            const highlightContents = {
+                'tab-talent': `
+                    <h3 class="highlight-title">コースのハイライト</h3>
+                    <ul class="highlight-list">
+                        <li>XX氏厳選の最新車種5台を重点的に見学</li>
+                        <li>未来のモビリティ技術が詰まったコンセプトカー展示</li>
+                        <li>インスタ映え間違いなしの撮影スポット3か所</li>
+                        <li>XX氏本人による音声ガイド付き（アプリダウンロード必要）</li>
+                    </ul>
+                `,
+                'tab-tech': `
+                    <h3 class="highlight-title">コースのハイライト</h3>
+                    <ul class="highlight-list">
+                        <li>最先端自動運転技術のデモンストレーション</li>
+                        <li>次世代EVプラットフォームの詳細解説</li>
+                        <li>ハンズオン体験ができる技術展示ブース</li>
+                        <li>エンジニアとの質疑応答セッション（予約制）</li>
+                    </ul>
+                `,
+                'tab-family': `
+                    <h3 class="highlight-title">コースのハイライト</h3>
+                    <ul class="highlight-list">
+                        <li>子供向け安全運転シミュレーター体験</li>
+                        <li>ファミリーカーの最新モデル試乗体験</li>
+                        <li>親子で参加できるワークショップ（予約制）</li>
+                        <li>ファミリー休憩スペースと授乳室の案内</li>
+                    </ul>
+                `,
+                'tab-business': `
+                    <h3 class="highlight-title">コースのハイライト</h3>
+                    <ul class="highlight-list">
+                        <li>業界キーパーソンによる市場動向セミナー</li>
+                        <li>B2Bソリューション展示エリア</li>
+                        <li>モビリティサービスの新規ビジネスモデル解説</li>
+                        <li>商談スペースとビジネスラウンジの優先利用案内</li>
+                    </ul>
+                `
+            };
+            
+            // Hero content updates for each tab
+            const heroTitles = {
+                'tab-talent': '忘れられないタレントXXコース体験',
+                'tab-tech': '最先端テクノロジーに触れる旅',
+                'tab-family': '家族みんなで楽しむモビリティ',
+                'tab-business': 'ビジネスパーソンのための効率的な視察'
+            };
+            
+            const heroDescriptions = {
+                'tab-talent': '人気タレントXX氏と巡るJMSモビリティショーの魅力',
+                'tab-tech': '自動運転からEV技術まで、次世代モビリティの全て',
+                'tab-family': 'お子様も楽しめる体験型アクティビティが満載',
+                'tab-business': '限られた時間で業界トレンドを効率的に把握'
+            };
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Remove active class from all tabs
+                    tabs.forEach(t => {
+                        t.classList.remove('active');
+                    });
+                    
+                    // Add active class to clicked tab
+                    this.classList.add('active');
+                    
+                    // Get the ID of the clicked tab
+                    const tabId = this.id;
+                    
+                    // Update section title
+                    sectionTitle.textContent = courseTitles[tabId];
+                    
+                    // Update hero image
+                    heroImage.src = tabImages[tabId];
+                    
+                    // Update hero content
+                    document.querySelector('.hero-title').textContent = heroTitles[tabId];
+                    document.querySelector('.hero-description').textContent = heroDescriptions[tabId];
+                    
+                    // Update course description
+                    descriptionText.innerHTML = courseDescriptions[tabId];
+                    
+                    // Update course highlights
+                    courseHighlights.innerHTML = highlightContents[tabId];
+                });
+            });
+        });
+    </script>
+</body>
+</html>

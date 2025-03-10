@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>モビリティショーおすすめコース</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+        
+        body {
+            background-color: #f4f4f4;
+        }
+        
+        /* .phone-container {
+            width: 375px;
+            height: 667px;
+            margin: 20px auto;
+            background-color: white;
+            border-radius: 30px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        } */
+        
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: white;
+        }
+        
+        .time {
+            font-weight: bold;
+        }
+        
+        .status-icons {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .status-icons span {
+            width: 15px;
+            height: 15px;
+        }
+        
+        .header {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            background-color: white;
+        }
+        
+        .back-button {
+            background: #f1f1f1;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            margin-right: 15px;
+        }
+        
+        .title {
+            font-size: 17px;
+            font-weight: 600;
+        }
+        
+        .courses-container {
+            height: calc(100% - 80px);
+            overflow-y: auto;
+            padding: 0 0 70px 0;
+        }
+        
+        .course-card {
+            margin: 0 0 16px 0;
+            height: 200px;
+            position: relative;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+        
+        .course-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .course-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+            padding: 20px;
+            color: white;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .user-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            margin-right: 8px;
+            background-color: #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #666;
+            overflow: hidden;
+        }
+        
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .username {
+            font-size: 13px;
+            font-weight: 500;
+        }
+        
+        .course-title {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 4px;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+        
+        .likes {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 15px;
+            padding: 3px 8px;
+            color: white;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .tab-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background-color: white;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-top: 1px solid #eee;
+        }
+        
+        .tab {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            height: 100%;
+        }
+        
+        .tab-icon {
+            width: 24px;
+            height: 24px;
+            margin-bottom: 4px;
+        }
+        
+        .tab-label {
+            font-size: 10px;
+            color: #888;
+        }
+        
+        .tab.active .tab-label {
+            color: #000;
+        }
+        
+        /* Course descriptions will be hidden by default */
+        .course-description {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: white;
+            z-index: 100;
+            padding: 20px;
+        }
+        
+        /* Dummy avatars for users */
+        .avatar-talent { background-color: #ffcccb; }
+        .avatar-tech { background-color: #c6e5d9; }
+        .avatar-family { background-color: #ffe4b5; }
+        .avatar-business { background-color: #c3e5f5; }
+    </style>
+</head>
+<body>
+    <div class="phone-container">
+        <!-- Status Bar -->
+        <!-- <div class="status-bar">
+            <div class="time">13:35</div>
+            <div class="status-icons">
+                <span>📶</span>
+                <span>📡</span>
+                <span>🔋</span>
+            </div>
+        </div> -->
+        
+        <!-- Header -->
+        <div class="header">
+            <button class="back-button">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M15 18l-6-6 6-6"></path>
+                </svg>
+            </button>
+            <h1 class="title">おすすめコース</h1>
+        </div>
+        
+        <!-- Courses Container -->
+        <div class="courses-container" id="courses-container">
+            <!-- Courses will be added here by JavaScript -->
+        </div>
+        
+        <!-- Tab Bar
+        <div class="tab-bar">
+            <div class="tab active">
+                <div class="tab-icon">🏠</div>
+                <div class="tab-label">ホーム</div>
+            </div>
+            <div class="tab">
+                <div class="tab-icon">🔍</div>
+                <div class="tab-label">検索</div>
+            </div>
+            <div class="tab">
+                <div class="tab-icon">➕</div>
+                <div class="tab-label">追加</div>
+            </div>
+            <div class="tab">
+                <div class="tab-icon">🗺️</div>
+                <div class="tab-label">マップ</div>
+            </div>
+            <div class="tab">
+                <div class="tab-icon">👤</div>
+                <div class="tab-label">プロフィール</div>
+            </div>
+        </div> -->
+    </div>
+
+    <script>
+        // Course data
+        const courses = [
+            {
+                title: "タレントXXコース",
+                description: "XX氏おすすめコース！ここを見ておけば大丈夫。JMS初心者向けコース。メーカーの最新車＆未来のコンセプトカーを見物しよう！",
+                mapHighlights: [1, 2, 3],
+                image: "https://images.pexels.com/photos/39866/entrepreneur-startup-start-up-man-39866.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+                buttonText: "このコースの詳細を見る",
+                url: "/courses/talent-xx-course.html",
+                user: {
+                    name: "メーカー公式",
+                    avatar: "T",
+                    avatarClass: "avatar-talent"
+                },
+                likes: 16
+            },
+            {
+                title: "テクノロジーコース",
+                description: "次世代技術が集結！自動運転、EV技術、新素材など未来のモビリティ技術を重点的に体験できるコース。技術好きな方におすすめです。",
+                mapHighlights: [2, 3],
+                image: "https://images.pexels.com/photos/845457/pexels-photo-845457.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+                buttonText: "このコースの詳細を見る",
+                url: "/courses/technology-course.html",
+                user: {
+                    name: "テックマスター",
+                    avatar: "E",
+                    avatarClass: "avatar-tech"
+                },
+                likes: 15
+            },
+            {
+                title: "ファミリーコース",
+                description: "お子様連れでも楽しめる！体験型展示やキッズスペースを中心に回るファミリー向けコース。記念撮影スポットも多数あります。",
+                mapHighlights: [1, 3],
+                image: "https://images.pexels.com/photos/2253879/pexels-photo-2253879.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+                buttonText: "このコースの詳細を見る",
+                url: "/courses/family-course.html",
+                user: {
+                    name: "ファミリーガイド",
+                    avatar: "F",
+                    avatarClass: "avatar-family"
+                },
+                likes: 12
+            },
+            {
+                title: "ビジネスパーソンコース",
+                description: "限られた時間で効率よく回りたい方向け。業界動向や最新ビジネスモデルが学べる展示を厳選したコースです。",
+                mapHighlights: [1, 2],
+                image: "https://images.pexels.com/photos/925786/pexels-photo-925786.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+                buttonText: "このコースの詳細を見る",
+                url: "/courses/business-course.html",
+                user: {
+                    name: "ビジネストレンド",
+                    avatar: "B",
+                    avatarClass: "avatar-business"
+                },
+                likes: 11
+            }
+        ];
+
+        const coursesContainer = document.getElementById('courses-container');
+        
+        // Create and append course cards
+        function createCourseCards() {
+            courses.forEach(course => {
+                const courseCard = document.createElement('div');
+                courseCard.className = 'course-card';
+                
+                courseCard.innerHTML = `
+                    <img src="${course.image}" alt="${course.title}" class="course-image">
+                    <div class="likes">
+                        <span>❤️</span>
+                        <span>${course.likes}</span>
+                    </div>
+                    <div class="course-overlay">
+                        <div class="user-info">
+                            <div class="user-avatar ${course.user.avatarClass}">
+                                ${course.user.avatar}
+                            </div>
+                            <div class="username">${course.user.name}</div>
+                        </div>
+                        <h2 class="course-title">${course.title}</h2>
+                    </div>
+                `;
+                
+                // Add click event to navigate to course details
+                courseCard.addEventListener('click', () => {
+                    window.location.href = course.url;
+                });
+                
+                coursesContainer.appendChild(courseCard);
+            });
+        }
+        
+        // Initialize the app
+        createCourseCards();
+    </script>
+</body>
+</html>
