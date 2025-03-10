@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>モビリティショー 2025 タイムスケジュール</title>
+  <style>
+    /* Reset and base styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+    }
+    
+    body {
+      background-color: #000;
+      color: #fff;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    
+    .header {
+      padding: 15px 0;
+      text-align: center;
+      background-color: #000;
+      border-bottom: 2px solid #fff;
+      position: relative;
+      overflow: hidden;
+      z-index: 10;
+    }
+    
+    .header h1 {
+      font-size: 28px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+      position: relative;
+      z-index: 2;
+    }
+    
+    .header p {
+      font-size: 14px;
+      color: #fff;
+      position: relative;
+      z-index: 2;
+    }
+    
+    .header::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: url('/api/placeholder/800/200');
+      background-size: cover;
+      background-position: center;
+      opacity: 0.3;
+      z-index: 1;
+    }
+    
+    /* Grid Container */
+    .schedule-container {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+      background-color: #000;
+    }
+    
+    /* Time Column */
+    .time-column {
+      width: 80px;
+      flex-shrink: 0;
+      z-index: 10;
+      box-shadow: 2px 0 5px rgba(0,0,0,0.3);
+      background-color: #09c5d1;
+    }
+    
+    .time-column-header {
+      height: 60px;
+      border-bottom: 1px solid rgba(255,255,255,0.3);
+      background-color: #09c5d1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: bold;
+    }
+    
+    .time-column-scroll {
+      overflow-y: auto;
+      height: calc(100% - 60px);
+      scrollbar-width: thin;
+      color: #fff;
+    }
+    
+    .time-slot {
+      height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      border-bottom: 1px dashed rgba(255,255,255,0.3);
+      font-size: 18px;
+      font-weight: bold;
+      color: #fff;
+    }
+    
+    /* Content Area */
+    .content-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    
+    /* Date Headers */
+    .date-headers {
+      display: flex;
+      overflow-x: auto;
+      height: 60px;
+      background-color: #000;
+    }
+    
+    .date-header {
+      flex: 0 0 250px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-bottom: 1px solid rgba(255,255,255,0.3);
+      border-right: 1px solid rgba(255,255,255,0.3);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .date-header:nth-child(odd) {
+      background-color: #1d1d1d;
+    }
+    
+    .date-header:nth-child(even) {
+      background-color: #000;
+    }
+    
+    .date-number {
+      font-size: 22px;
+      font-weight: bold;
+      color: #fff;
+      z-index: 2;
+    }
+    
+    .date-day {
+      font-size: 14px;
+      color: #fff;
+      z-index: 2;
+    }
+    
+    /* Events Grid */
+    .events-grid {
+      display: flex;
+      overflow: auto;
+      flex: 1;
+    }
+    
+    .date-column {
+      flex: 0 0 250px;
+      border-right: 1px solid rgba(255,255,255,0.3);
+    }
+    
+    .date-column:nth-child(odd) {
+      background-color: #1d1d1d;
+    }
+    
+    .date-column:nth-child(even) {
+      background-color: #000;
+    }
+    
+    .event-slot {
+      height: 100px;
+      position: relative;
+      border-bottom: 1px dashed rgba(255,255,255,0.3);
+    }
+    
+    /* Event Styles */
+    .event {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 8px 12px;
+      overflow: hidden;
+      background-color: rgba(0,0,0,0.4);
+      transition: background-color 0.2s;
+      z-index: 1;
+    }
+    
+    .event:hover {
+      background-color: rgba(0,0,0,0.2);
+    }
+    
+    .event-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+    
+    .event-title {
+      font-weight: bold;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-transform: uppercase;
+      font-size: 16px;
+      letter-spacing: 0.5px;
+    }
+    
+    .event-favorite {
+      background: none;
+      border: none;
+      font-size: 18px;
+      cursor: pointer;
+      outline: none;
+      color: rgba(255,255,255,0.5);
+      z-index: 5;
+    }
+    
+    .event-favorite.active {
+      color: #ffcc00;
+    }
+    
+    .event-time, .event-location {
+      font-size: 12px;
+      color: rgba(255,255,255,0.8);
+    }
+    
+    /* Background images for events */
+    .event::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: url('https://prcdn.freetls.fastly.net/release_image/123915/9/123915-9-3882c2e5f542b976d3fb7183ed6cd2fc-1181x787.jpg');
+      background-size: cover;
+      /* background-position: center; */
+      opacity: 0.3;
+      z-index: 0;
+    }
+    
+    /* Venue indicators */
+    .event::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 5px;
+      left: 0;
+    }
+    
+    /* Different colors for different venues */
+    .event[data-location*="メインホール"]::after {
+      background-color: #ff3e3e;
+    }
+    
+    .event[data-location*="カンファレンスルーム"]::after {
+      background-color: #3e9fff;
+    }
+    
+    .event[data-location*="セミナールーム"]::after {
+      background-color: #3eff7e;
+    }
+    
+    .event[data-location*="屋外展示場"]::after {
+      background-color: #ff3ed8;
+    }
+    
+    .event[data-location*="特設会場"]::after {
+      background-color: #ffcc00;
+    }
+    
+    .event[data-location*="シンポジウム"]::after,
+    .event[data-location*="レクチャー"]::after {
+      background-color: #b83eff;
+    }
+    
+    .event[data-location*="全会場"]::after {
+      background-color: #ff8c3e;
+    }
+    
+    /* Right column color */
+    .date-column:nth-child(even) .event-slot:nth-child(odd) .event::after {
+      left: auto;
+      right: 0;
+    }
+    
+    /* Hide scrollbar for cleaner look */
+    .events-grid::-webkit-scrollbar,
+    .time-column-scroll::-webkit-scrollbar,
+    .date-headers::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    
+    .events-grid::-webkit-scrollbar-thumb,
+    .time-column-scroll::-webkit-scrollbar-thumb,
+    .date-headers::-webkit-scrollbar-thumb {
+      background-color: rgba(255,255,255,0.3);
+      border-radius: 3px;
+    }
+    
+    /* Column headers */
+    .venue-name {
+      text-transform: uppercase;
+      font-weight: bold;
+      letter-spacing: 1px;
+      text-align: center;
+      padding: 10px 0;
+      background-color: #ff3366;
+      color: white;
+      transform: rotate(-3deg);
+      margin-top: -15px;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>モビリティショー 2025</h1>
+    <p>2025年10月27日〜11月3日</p>
+  </div>
+  
+  <div class="schedule-container">
+    <!-- Time Column -->
+    <div class="time-column">
+      <div class="time-column-header">TIME</div>
+      <div class="time-column-scroll" id="timeColumnScroll">
+        <!-- Time slots will be generated by JavaScript -->
+      </div>
+    </div>
+    
+    <!-- Content Area -->
+    <div class="content-area">
+      <!-- Date Headers -->
+      <div class="date-headers" id="dateHeaders">
+        <!-- Date headers will be generated by JavaScript -->
+      </div>
+      
+      <!-- Events Grid -->
+      <div class="events-grid" id="eventsGrid">
+        <!-- Event columns will be generated by JavaScript -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // DOM Elements
+      const timeColumnScroll = document.getElementById('timeColumnScroll');
+      const dateHeaders = document.getElementById('dateHeaders');
+      const eventsGrid = document.getElementById('eventsGrid');
+      
+      // Date range: Oct 27 - Nov 3, 2025
+      const dates = [];
+      const startDate = new Date(2025, 9, 27); // October is 9 (0-indexed)
+      const endDate = new Date(2025, 10, 3);   // November is 10
+      
+      for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+        dates.push(new Date(d));
+      }
+      
+      // Japanese day of week names
+      const dayNames = ['日', '月', '火', '水', '木', '金', '土'];
+      
+      // Time slots from 9:00 to 18:00
+      const timeSlots = [];
+      for (let hour = 9; hour <= 18; hour++) {
+        timeSlots.push(`${hour}:00`);
+      }
+      
+      // Sample event data
+      const events = [
+        { id: 1, date: '2025-10-27', startTime: '9:00', endTime: '11:00', title: '未来のモビリティ展示オープニング', location: 'メインホール' },
+        { id: 2, date: '2025-10-27', startTime: '13:00', endTime: '15:00', title: '次世代EV技術カンファレンス', location: 'カンファレンスルームA' },
+        { id: 3, date: '2025-10-28', startTime: '10:00', endTime: '12:00', title: '自動運転技術セミナー', location: 'セミナールームB' },
+        { id: 4, date: '2025-10-28', startTime: '13:00', endTime: '16:00', title: '次世代バッテリー技術フォーラム', location: 'カンファレンスルームC' },
+        { id: 5, date: '2025-10-29', startTime: '10:00', endTime: '11:30', title: '空飛ぶクルマ展示会', location: '特設会場' },
+        { id: 6, date: '2025-10-29', startTime: '13:00', endTime: '15:00', title: 'EVデモンストレーション', location: '屋外展示場' },
+        { id: 7, date: '2025-10-30', startTime: '9:30', endTime: '11:30', title: 'モビリティxAIシンポジウム', location: 'シンポジウムホール' },
+        { id: 8, date: '2025-10-30', startTime: '14:00', endTime: '16:00', title: '水素エネルギー講演会', location: 'レクチャーホール' },
+        { id: 9, date: '2025-10-31', startTime: '10:00', endTime: '12:00', title: 'スマートシティとモビリティ', location: 'カンファレンスルームA' },
+        { id: 10, date: '2025-10-31', startTime: '13:30', endTime: '15:30', title: '自律走行システムデモ', location: '屋外展示場' },
+        { id: 11, date: '2025-11-01', startTime: '10:00', endTime: '17:00', title: '一般公開デー: 体験型展示', location: '全会場' },
+        { id: 12, date: '2025-11-02', startTime: '10:00', endTime: '17:00', title: '一般公開デー: 試乗会', location: '屋外展示場' },
+        { id: 13, date: '2025-11-03', startTime: '10:00', endTime: '12:00', title: 'クロージングセレモニー', location: 'メインホール' },
+        { id: 14, date: '2025-11-03', startTime: '13:00', endTime: '15:00', title: '次回展示会発表会', location: 'カンファレンスルームA' },
+      ];
+      
+      // Favorites storage
+      let favorites = JSON.parse(localStorage.getItem('eventFavorites')) || [];
+      
+      // Format date to string YYYY-MM-DD
+      function formatDateToString(date) {
+        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+      }
+      
+      // Get events for a specific date and time
+      function getEventsForDateTime(dateStr, timeStr) {
+        return events.filter(event => {
+          return event.date === dateStr && 
+                 event.startTime <= timeStr && 
+                 timeStr < event.endTime;
+        });
+      }
+      
+      // Toggle favorite status
+      function toggleFavorite(eventId) {
+        if (favorites.includes(eventId)) {
+          favorites = favorites.filter(id => id !== eventId);
+        } else {
+          favorites.push(eventId);
+        }
+        
+        // Update storage
+        localStorage.setItem('eventFavorites', JSON.stringify(favorites));
+        
+        // Update UI
+        const starButton = document.querySelector(`.event-favorite[data-id="${eventId}"]`);
+        if (starButton) {
+          starButton.classList.toggle('active');
+          starButton.textContent = favorites.includes(eventId) ? '★' : '☆';
+        }
+      }
+      
+      // Render time slots
+      function renderTimeSlots() {
+        timeColumnScroll.innerHTML = '';
+        
+        timeSlots.forEach(time => {
+          const timeSlot = document.createElement('div');
+          timeSlot.className = 'time-slot';
+          timeSlot.textContent = time;
+          timeColumnScroll.appendChild(timeSlot);
+        });
+      }
+      
+      // Render date headers
+      function renderDateHeaders() {
+        dateHeaders.innerHTML = '';
+        
+        // Group columns by pairs
+        for (let i = 0; i < dates.length; i++) {
+          const date = dates[i];
+          
+          const dateHeader = document.createElement('div');
+          dateHeader.className = 'date-header';
+          
+          const dateNumber = document.createElement('div');
+          dateNumber.className = 'date-number';
+          dateNumber.textContent = date.getDate();
+          
+          const dateDay = document.createElement('div');
+          dateDay.className = 'date-day';
+          dateDay.textContent = dayNames[date.getDay()];
+          
+          dateHeader.appendChild(dateNumber);
+          dateHeader.appendChild(dateDay);
+          dateHeaders.appendChild(dateHeader);
+        }
+      }
+      
+      // Render event columns
+      function renderEventColumns() {
+        eventsGrid.innerHTML = '';
+        
+        // Group columns by pairs
+        for (let i = 0; i < dates.length; i++) {
+          const date = dates[i];
+          const dateStr = formatDateToString(date);
+          
+          const dateColumn = document.createElement('div');
+          dateColumn.className = 'date-column';
+          
+          // Create venues for columns
+          const venues = ['MAIN VENUE', 'SUB VENUE'];
+          const venueIndex = i % 2;
+          
+          timeSlots.forEach(time => {
+            const eventSlot = document.createElement('div');
+            eventSlot.className = 'event-slot';
+            
+            // Get events for this date and time
+            const eventsAtTime = getEventsForDateTime(dateStr, time);
+            
+            eventsAtTime.forEach(event => {
+              const eventElement = document.createElement('div');
+              eventElement.className = 'event';
+              eventElement.setAttribute('data-location', event.location);
+              
+              const eventHeader = document.createElement('div');
+              eventHeader.className = 'event-header';
+              
+              const eventTitle = document.createElement('div');
+              eventTitle.className = 'event-title';
+              eventTitle.textContent = event.title;
+              
+              const favoriteButton = document.createElement('button');
+              favoriteButton.className = `event-favorite ${favorites.includes(event.id) ? 'active' : ''}`;
+              favoriteButton.textContent = favorites.includes(event.id) ? '★' : '☆';
+              favoriteButton.setAttribute('data-id', event.id);
+              favoriteButton.addEventListener('click', () => toggleFavorite(event.id));
+              
+              const eventTime = document.createElement('div');
+              eventTime.className = 'event-time';
+              eventTime.textContent = `${event.startTime} - ${event.endTime}`;
+              
+              const eventLocation = document.createElement('div');
+              eventLocation.className = 'event-location';
+              eventLocation.textContent = event.location;
+              
+              eventHeader.appendChild(eventTitle);
+              eventHeader.appendChild(favoriteButton);
+              
+              eventElement.appendChild(eventHeader);
+              eventElement.appendChild(eventTime);
+              eventElement.appendChild(eventLocation);
+              
+              eventSlot.appendChild(eventElement);
+            });
+            
+            dateColumn.appendChild(eventSlot);
+          });
+          
+          eventsGrid.appendChild(dateColumn);
+        }
+      }
+      
+      // Sync scroll between time column and events grid
+      function setupScrollSync() {
+        timeColumnScroll.addEventListener('scroll', () => {
+          eventsGrid.scrollTop = timeColumnScroll.scrollTop;
+        });
+        
+        eventsGrid.addEventListener('scroll', () => {
+          timeColumnScroll.scrollTop = eventsGrid.scrollTop;
+          
+          // Also sync horizontal scroll between events grid and date headers
+          dateHeaders.scrollLeft = eventsGrid.scrollLeft;
+        });
+      }
+      
+      // Initial render
+      renderTimeSlots();
+      renderDateHeaders();
+      renderEventColumns();
+      setupScrollSync();
+    });
+  </script>
+</body>
+</html>
