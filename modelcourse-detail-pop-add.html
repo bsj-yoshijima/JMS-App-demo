@@ -186,7 +186,33 @@
             transform: translateX(-50%);
         }
         
-        /* スポット詳細カード */
+        /* スクロールバーのスタイル調整 */
+        .theme-options::-webkit-scrollbar {
+            height: 6px;
+        }
+        
+        .theme-options::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        
+        .theme-options::-webkit-scrollbar-thumb {
+            background: #0066cc;
+            border-radius: 10px;
+        }
+        
+        .theme-options::-webkit-scrollbar-thumb:hover {
+            background: #0055aa;
+        }
+        
+        /* スクロールのヒント表示 */
+        .scroll-hint {
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+        }
         .spot-card {
             background-color: white;
             border-radius: 15px;
@@ -557,7 +583,7 @@
             border-radius: 15px;
             padding: 20px;
             width: 90%;
-            max-width: 480px;
+            max-width: 600px;
             max-height: 80vh;
             overflow-y: auto;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
@@ -573,12 +599,15 @@
         
         .theme-options {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(5, 280px);
             gap: 15px;
             margin-bottom: 20px;
-            max-height: 60vh;
-            overflow-y: auto;
             padding: 5px;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+            width: 100%;
         }
         
         .theme-option {
@@ -586,6 +615,7 @@
             border-radius: 10px;
             overflow: hidden;
             aspect-ratio: 7/5;
+            scroll-snap-align: start;
         }
         
         .theme-image {
@@ -882,7 +912,8 @@
     <!-- テーマ選択モーダル -->
     <div class="theme-modal" id="themeModal">
         <div class="theme-modal-content">
-            <div class="theme-modal-title">興味のあるテーマを選択</div>
+            <div class="theme-modal-title">興味のあるブースを追加する</div>
+            <div class="scroll-hint">→ 横にスクロールして全てのブースを見る</div>
             <div class="theme-options">
                 <!-- テーマオプション1: エコカーと環境技術 -->
                 <div class="theme-option">
@@ -910,6 +941,48 @@
                     <img src="https://s.response.jp/imgs/thumb_h2/1948561.jpg" alt="エンターテイメント" class="theme-image">
                     <div class="theme-check" data-theme="entertainment">✓</div>
                     <div class="theme-name">エンターテイメント</div>
+                </div>
+                
+                <!-- テーマオプション5: 電気自動車 -->
+                <div class="theme-option">
+                    <img src="https://global.toyota/pages/news/images/2023/10/jms_toyota/jms_toyota_01_kv_w1920.jpg" alt="電気自動車" class="theme-image">
+                    <div class="theme-check" data-theme="ev">✓</div>
+                    <div class="theme-name">電気自動車</div>
+                </div>
+                
+                <!-- テーマオプション6: モビリティサービス -->
+                <div class="theme-option">
+                    <img src="https://www.jama.or.jp/release/docs/release/2023/20230830_03.jpg" alt="モビリティサービス" class="theme-image">
+                    <div class="theme-check" data-theme="mobility-service">✓</div>
+                    <div class="theme-name">モビリティサービス</div>
+                </div>
+                
+                <!-- テーマオプション7: コネクテッドカー -->
+                <div class="theme-option">
+                    <img src="https://s.response.jp/imgs/thumb_h2/1948561.jpg" alt="コネクテッドカー" class="theme-image">
+                    <div class="theme-check" data-theme="connected">✓</div>
+                    <div class="theme-name">コネクテッドカー</div>
+                </div>
+                
+                <!-- テーマオプション8: 水素技術 -->
+                <div class="theme-option">
+                    <img src="https://www.nissan.co.jp/JMS/2023/IMAGES/OGP/opengraph-image.png" alt="水素技術" class="theme-image">
+                    <div class="theme-check" data-theme="hydrogen">✓</div>
+                    <div class="theme-name">水素技術</div>
+                </div>
+                
+                <!-- テーマオプション9: デザイン展示 -->
+                <div class="theme-option">
+                    <img src="https://global.toyota/pages/news/images/2023/10/jms_toyota/jms_toyota_01_kv_w1920.jpg" alt="デザイン展示" class="theme-image">
+                    <div class="theme-check" data-theme="design">✓</div>
+                    <div class="theme-name">デザイン展示</div>
+                </div>
+                
+                <!-- テーマオプション10: 次世代モビリティ -->
+                <div class="theme-option">
+                    <img src="https://s.response.jp/imgs/thumb_h2/1948561.jpg" alt="次世代モビリティ" class="theme-image">
+                    <div class="theme-check" data-theme="next-gen">✓</div>
+                    <div class="theme-name">次世代モビリティ</div>
                 </div>
             </div>
             <div class="theme-buttons">

@@ -426,12 +426,27 @@
             padding: 20px;
             width: 90%;
             max-width: 400px;
-            max-height: 90vh;
-            height: auto; /* 内容に合わせて高さを自動調整 */
-            overflow-y: auto;
+            max-height: 80vh; /* 画面の80%の高さに制限 */
+            height: auto;
+            overflow-y: auto; /* 縦スクロールを有効化 */
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
             display: flex;
             flex-direction: column;
+        }
+        
+        /* スクロールバーのスタイル調整 */
+        .theme-modal-content::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .theme-modal-content::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+        
+        .theme-modal-content::-webkit-scrollbar-thumb {
+            background: #0066cc;
+            border-radius: 3px;
         }
         
         .theme-modal-title {
@@ -636,34 +651,76 @@
         <!-- テーマ選択モーダル -->
         <div class="theme-modal" id="themeModal">
             <div class="theme-modal-content">
-                <div class="theme-modal-title">興味のあるテーマを選択</div>
+                <div class="theme-modal-title">興味のあるブースを追加する</div>
                 <div class="theme-grid">
-                    <!-- テーマ1: エコカーと環境技術 -->
-                    <div class="theme-item" data-theme="eco">
-                        <img src="https://global.toyota/pages/news/images/2023/10/jms_toyota/jms_toyota_01_kv_w1920.jpg" alt="エコカーと環境技術" class="theme-image">
-                        <div class="theme-caption">エコカーと環境技術</div>
-                        <div class="theme-checkbox" id="ecoCheck">✓</div>
+                    <!-- ブース1: トヨタ -->
+                    <div class="theme-item" data-theme="toyota">
+                        <img src="https://global.toyota/pages/news/images/2023/10/jms_toyota/jms_toyota_01_kv_w1920.jpg" alt="トヨタブース" class="theme-image">
+                        <div class="theme-caption">トヨタブース</div>
+                        <div class="theme-checkbox" id="toyotaCheck">✓</div>
                     </div>
                     
-                    <!-- テーマ2: 自動運転技術 -->
-                    <div class="theme-item" data-theme="autonomous">
-                        <img src="https://joycal.jp/magazine/wp-content/uploads/2022/12/jo-11-2-0.jpg" alt="自動運転技術" class="theme-image">
-                        <div class="theme-caption">自動運転技術</div>
-                        <div class="theme-checkbox" id="autonomousCheck">✓</div>
+                    <!-- ブース2: 日産 -->
+                    <div class="theme-item" data-theme="nissan">
+                        <img src="https://www.nissan.co.jp/JMS/2023/IMAGES/OGP/opengraph-image.png" alt="日産ブース" class="theme-image">
+                        <div class="theme-caption">日産ブース</div>
+                        <div class="theme-checkbox" id="nissanCheck">✓</div>
                     </div>
                     
-                    <!-- テーマ3: 未来の乗り物 -->
-                    <div class="theme-item" data-theme="future">
-                        <img src="https://www.jama.or.jp/release/docs/release/2023/20230830_03.jpg" alt="未来の乗り物" class="theme-image">
-                        <div class="theme-caption">未来の乗り物</div>
-                        <div class="theme-checkbox" id="futureCheck">✓</div>
+                    <!-- ブース3: ホンダ -->
+                    <div class="theme-item" data-theme="honda">
+                        <img src="https://www.jama.or.jp/release/docs/release/2023/20230830_03.jpg" alt="ホンダブース" class="theme-image">
+                        <div class="theme-caption">ホンダブース</div>
+                        <div class="theme-checkbox" id="hondaCheck">✓</div>
                     </div>
                     
-                    <!-- テーマ4: エンターテイメント -->
-                    <div class="theme-item" data-theme="entertainment">
-                        <img src="https://s.response.jp/imgs/thumb_h2/1948561.jpg" alt="エンターテイメント" class="theme-image">
-                        <div class="theme-caption">エンターテイメント</div>
-                        <div class="theme-checkbox" id="entertainmentCheck">✓</div>
+                    <!-- ブース4: スバル -->
+                    <div class="theme-item" data-theme="subaru">
+                        <img src="https://s.response.jp/imgs/thumb_h2/1948561.jpg" alt="スバルブース" class="theme-image">
+                        <div class="theme-caption">スバルブース</div>
+                        <div class="theme-checkbox" id="subaruCheck">✓</div>
+                    </div>
+                    
+                    <!-- ブース5: マツダ -->
+                    <div class="theme-item" data-theme="mazda">
+                        <img src="https://global.toyota/pages/news/images/2023/10/jms_toyota/jms_toyota_01_kv_w1920.jpg" alt="マツダブース" class="theme-image">
+                        <div class="theme-caption">マツダブース</div>
+                        <div class="theme-checkbox" id="mazdaCheck">✓</div>
+                    </div>
+                    
+                    <!-- ブース6: レクサス -->
+                    <div class="theme-item" data-theme="lexus">
+                        <img src="https://kinto-jp.com/cms-images/assets/c8f79fe8d67e4eb3a34ad72f0d950baf/48b7fd53eac14431a82ccba12e9ba3f5/JMS-Lexus-(7).gif" alt="レクサスブース" class="theme-image">
+                        <div class="theme-caption">レクサスブース</div>
+                        <div class="theme-checkbox" id="lexusCheck">✓</div>
+                    </div>
+                    
+                    <!-- ブース7: メルセデス -->
+                    <div class="theme-item" data-theme="mercedes">
+                        <img src="https://www.jama.or.jp/release/docs/release/2023/20230830_03.jpg" alt="メルセデスブース" class="theme-image">
+                        <div class="theme-caption">メルセデスブース</div>
+                        <div class="theme-checkbox" id="mercedesCheck">✓</div>
+                    </div>
+                    
+                    <!-- ブース8: BMW -->
+                    <div class="theme-item" data-theme="bmw">
+                        <img src="https://s.response.jp/imgs/thumb_h2/1948561.jpg" alt="BMWブース" class="theme-image">
+                        <div class="theme-caption">BMWブース</div>
+                        <div class="theme-checkbox" id="bmwCheck">✓</div>
+                    </div>
+                    
+                    <!-- ブース9: アウディ -->
+                    <div class="theme-item" data-theme="audi">
+                        <img src="https://global.toyota/pages/news/images/2023/10/jms_toyota/jms_toyota_01_kv_w1920.jpg" alt="アウディブース" class="theme-image">
+                        <div class="theme-caption">アウディブース</div>
+                        <div class="theme-checkbox" id="audiCheck">✓</div>
+                    </div>
+                    
+                    <!-- ブース10: ポルシェ -->
+                    <div class="theme-item" data-theme="porsche">
+                        <img src="https://www.carsensor.net/contents/article_images/_68196/1.jpeg" alt="ポルシェブース" class="theme-image">
+                        <div class="theme-caption">ポルシェブース</div>
+                        <div class="theme-checkbox" id="porscheCheck">✓</div>
                     </div>
                 </div>
                 
@@ -762,19 +819,19 @@
             plusBtnFloat.addEventListener('click', openThemeModal);
             cancelThemeBtn.addEventListener('click', closeThemeModal);
             confirmThemeBtn.addEventListener('click', function() {
-                // 選択されたテーマを処理する（今回はアラートで表示）
-                const selectedThemes = [];
+                // 選択されたブースを処理する（今回はアラートで表示）
+                const selectedBooths = [];
                 document.querySelectorAll('.theme-checkbox.checked').forEach(function(checkbox) {
                     const themeItem = checkbox.closest('.theme-item');
                     if (themeItem) {
-                        selectedThemes.push(themeItem.querySelector('.theme-caption').textContent);
+                        selectedBooths.push(themeItem.querySelector('.theme-caption').textContent);
                     }
                 });
                 
-                if (selectedThemes.length > 0) {
-                    alert(`選択されたテーマ: ${selectedThemes.join(', ')}`);
+                if (selectedBooths.length > 0) {
+                    alert(`選択されたブース: ${selectedBooths.join(', ')}`);
                 } else {
-                    alert('テーマが選択されていません');
+                    alert('ブースが選択されていません');
                 }
                 
                 closeThemeModal();
