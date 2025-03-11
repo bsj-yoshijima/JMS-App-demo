@@ -9,89 +9,127 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', sans-serif;
+        }
+        
+        :root {
+            --primary-color: #3B82F6;
+            --light-primary: #EBF2FE;
+            --secondary-color: #6366F1;
+            --dark-text: #1F2937;
+            --light-text: #6B7280;
+            --background: #F9FAFB;
+            --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            --soft-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --border-radius: 16px;
         }
         
         body {
-            background-color: #f5f5f5;
+            background-color: var(--background);
+            color: var(--dark-text);
         }
         
         .container {
-            max-width: 400px;
+            max-width: 420px;
             margin: 0 auto;
             background-color: white;
-            height: 100vh;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+            position: relative;
+            overflow: hidden;
         }
         
         .header {
             display: flex;
             align-items: center;
-            padding: 15px;
-            border-bottom: 1px solid #e0e0e0;
+            padding: 20px;
+            background: white;
         }
         
         .back-button {
-            background: none;
+            background: rgba(0, 0, 0, 0.05);
             border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
+            transition: background 0.2s;
             margin-right: 15px;
+        }
+        
+        .back-button:hover {
+            background: rgba(0, 0, 0, 0.1);
         }
         
         .title {
             flex: 1;
-            text-align: center;
+            /* text-align: center; */
             font-size: 18px;
-            font-weight: bold;
+            font-weight: 600;
+            padding-left: 60px;
         }
         
         .map-container {
-            padding: 15px;
-            background-color: #f0f0f0;
+            padding: 0 15px 15px;
+            background: linear-gradient(to bottom, white, var(--light-primary));
+            /* margin-bottom: -30px; */
+            position: relative;
+            z-index: 1;
+            border-radius: 0 0 var(--border-radius) var(--border-radius);
+        }
+        
+        .map {
+            filter: drop-shadow(var(--soft-shadow));
         }
         
         .map svg {
             width: 100%;
             height: auto;
+            border-radius: var(--border-radius);
+            overflow: hidden;
         }
         
         .course-details {
             flex: 1;
-            padding: 20px;
-            background-color: #e6f3ff;
+            padding: 40px 20px 30px;
+            background-color: white;
             position: relative;
-            border-top-left-radius: 15px;
-            border-top-right-radius: 15px;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+            box-shadow: var(--card-shadow);
+            z-index: 2;
+            margin-top: -10px;
         }
         
         .course-content {
             text-align: center;
-            flex: 1;
         }
         
         .course-title {
-            font-size: 18px;
-            font-weight: bold;
+            font-size: 22px;
+            font-weight: 700;
             margin-bottom: 15px;
+            color: var(--dark-text);
         }
         
         .course-description {
-            margin-bottom: 20px;
-            line-height: 1.6;
-            font-size: 14px;
+            margin-bottom: 25px;
+            line-height: 1.7;
+            font-size: 15px;
+            color: var(--light-text);
         }
         
         .course-image {
-            width: 240px;
-            height: 160px;
-            margin: 0 auto 20px;
-            border-radius: 8px;
+            width: 100%;
+            height: 180px;
+            margin: 0 auto 25px;
+            border-radius: var(--border-radius);
             overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: var(--soft-shadow);
         }
         
         .course-image img {
@@ -101,15 +139,23 @@
         }
         
         .detail-button {
-            background: none;
-            border: 1px solid #aaa;
-            border-radius: 5px;
-            padding: 8px 20px;
-            font-size: 14px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 12px 30px;
+            font-size: 15px;
+            font-weight: 600;
             cursor: pointer;
             display: inline-block;
             text-decoration: none;
-            color: #333;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 6px rgba(59, 130, 246, 0.3);
+        }
+        
+        .detail-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 10px rgba(59, 130, 246, 0.4);
         }
         
         .navigation-buttons {
@@ -117,16 +163,17 @@
             top: 50%;
             width: 100%;
             left: 0;
-            transform: translateY(-50%);
+            transform: translateY(-140px);
             display: flex;
             justify-content: space-between;
             padding: 0 10px;
             pointer-events: none;
+            z-index: 3;
         }
         
         .nav-button {
-            width: 34px;
-            height: 34px;
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
             background-color: white;
             border: none;
@@ -134,43 +181,59 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
             pointer-events: auto;
+            transition: transform 0.2s;
+        }
+        
+        .nav-button:hover {
+            transform: scale(1.1);
         }
         
         .pagination {
             display: flex;
             justify-content: center;
             gap: 8px;
-            margin-top: 20px;
+            margin-top: 30px;
         }
         
         .pagination-dot {
             width: 8px;
             height: 8px;
             border-radius: 50%;
-            background-color: #ccc;
+            background-color: #ddd;
             cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+        
+        .pagination-dot:hover {
+            transform: scale(1.2);
         }
         
         .pagination-dot.active {
-            background-color: #3B82F6;
+            background-color: var(--primary-color);
+            width: 20px;
+            border-radius: 10px;
         }
         
         .highlighted {
-            fill: #3B82F6;
+            fill: var(--primary-color);
+            transition: fill 0.3s;
         }
         
         .normal {
-            fill: #6B7280;
+            fill: #9CA3AF;
+            transition: fill 0.3s;
         }
         
         .east-hall {
             fill: #D1D5DB;
+            transition: fill 0.3s;
         }
         
         #hall-1-circle, #hall-2-circle, #hall-3-circle {
-            display: none;
+            opacity: 0;
+            transition: opacity 0.3s;
         }
     </style>
 </head>
@@ -178,7 +241,7 @@
     <div class="container">
         <div class="header">
             <button class="back-button">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M15 18l-6-6 6-6"></path>
                 </svg>
             </button>
@@ -189,45 +252,45 @@
             <div class="map">
                 <svg viewBox="0 0 400 200">
                     <!-- Base map layout -->
-                    <rect x="50" y="20" width="300" height="160" fill="#E5E5E5" />
+                    <rect x="50" y="20" width="300" height="160" rx="10" fill="#F3F4F6" />
                     
                     <!-- Exhibition halls -->
                     <g id="hall-1">
-                        <rect x="60" y="30" width="80" height="60" class="east-hall" />
-                        <text x="100" y="60" text-anchor="middle" fill="white" font-size="14">東展示棟</text>
+                        <rect x="60" y="30" width="80" height="60" rx="8" class="east-hall" />
+                        <text x="100" y="60" text-anchor="middle" fill="white" font-size="14" font-weight="600">東展示棟</text>
                         <g id="hall-1-circle">
-                            <circle cx="100" cy="40" r="12" fill="#3B82F6" stroke="white" />
-                            <text x="100" y="45" text-anchor="middle" fill="white" font-size="12">1</text>
+                            <circle cx="100" cy="40" r="12" fill="#3B82F6" stroke="white" stroke-width="2" />
+                            <text x="100" y="45" text-anchor="middle" fill="white" font-size="12" font-weight="600">1</text>
                         </g>
                     </g>
                     
                     <g id="hall-2">
-                        <rect x="160" y="70" width="80" height="60" class="normal" />
-                        <text x="200" y="100" text-anchor="middle" fill="white" font-size="14">会議棟</text>
+                        <rect x="160" y="70" width="80" height="60" rx="8" class="normal" />
+                        <text x="200" y="100" text-anchor="middle" fill="white" font-size="14" font-weight="600">会議棟</text>
                         <g id="hall-2-circle">
-                            <circle cx="200" cy="80" r="12" fill="#3B82F6" stroke="white" />
-                            <text x="200" y="85" text-anchor="middle" fill="white" font-size="12">2</text>
+                            <circle cx="200" cy="80" r="12" fill="#3B82F6" stroke="white" stroke-width="2" />
+                            <text x="200" y="85" text-anchor="middle" fill="white" font-size="12" font-weight="600">2</text>
                         </g>
                     </g>
                     
                     <g id="hall-3">
-                        <rect x="260" y="30" width="80" height="60" class="normal" />
-                        <text x="300" y="60" text-anchor="middle" fill="white" font-size="14">南展示棟</text>
+                        <rect x="260" y="30" width="80" height="60" rx="8" class="normal" />
+                        <text x="300" y="60" text-anchor="middle" fill="white" font-size="14" font-weight="600">南展示棟</text>
                         <g id="hall-3-circle">
-                            <circle cx="300" cy="40" r="12" fill="#3B82F6" stroke="white" />
-                            <text x="300" y="45" text-anchor="middle" fill="white" font-size="12">3</text>
+                            <circle cx="300" cy="40" r="12" fill="#3B82F6" stroke="white" stroke-width="2" />
+                            <text x="300" y="45" text-anchor="middle" fill="white" font-size="12" font-weight="600">3</text>
                         </g>
                     </g>
                     
                     <g id="hall-4">
-                        <rect x="260" y="110" width="80" height="60" class="normal" />
-                        <text x="300" y="140" text-anchor="middle" fill="white" font-size="14">西展示棟</text>
+                        <rect x="260" y="110" width="80" height="60" rx="8" class="normal" />
+                        <text x="300" y="140" text-anchor="middle" fill="white" font-size="14" font-weight="600">西展示棟</text>
                     </g>
                     
-                    <!-- Connection paths -->
-                    <path d="M140 60 L160 100" stroke="#3B82F6" stroke-width="3" />
-                    <path d="M240 100 L260 60" stroke="#3B82F6" stroke-width="3" />
-                    <path d="M300 90 L300 110" stroke="#3B82F6" stroke-width="3" />
+                    <!-- Connection paths with animation -->
+                    <path d="M140 60 L160 100" stroke="#3B82F6" stroke-width="3" stroke-linecap="round" />
+                    <path d="M240 100 L260 60" stroke="#3B82F6" stroke-width="3" stroke-linecap="round" />
+                    <path d="M300 90 L300 110" stroke="#3B82F6" stroke-width="3" stroke-linecap="round" />
                 </svg>
             </div>
         </div>
@@ -244,22 +307,22 @@
                 <a href="#" class="detail-button" id="detail-button"></a>
             </div>
             
-            <div class="navigation-buttons">
-                <button class="nav-button prev-button">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M15 18l-6-6 6-6"></path>
-                    </svg>
-                </button>
-                <button class="nav-button next-button">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M9 18l6-6-6-6"></path>
-                    </svg>
-                </button>
-            </div>
-            
             <div class="pagination" id="pagination">
                 <!-- Pagination dots will be added by JavaScript -->
             </div>
+        </div>
+        
+        <div class="navigation-buttons">
+            <button class="nav-button prev-button">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M15 18l-6-6 6-6"></path>
+                </svg>
+            </button>
+            <button class="nav-button next-button">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 18l6-6-6-6"></path>
+                </svg>
+            </button>
         </div>
     </div>
 
@@ -270,7 +333,7 @@
                 title: "タレントXXコース",
                 description: "XX氏おすすめコース！ここを見ておけば大丈夫。JMS初心者向けコース。メーカーの最新車＆未来のコンセプトカーを見物しよう！",
                 mapHighlights: [1, 2, 3],
-                image: "/api/placeholder/240/160",
+                image: "https://images.pexels.com/photos/845457/pexels-photo-845457.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
                 buttonText: "このコースの詳細を見る",
                 url: "./b_plus.html"
             },
@@ -278,7 +341,7 @@
                 title: "テクノロジーコース",
                 description: "次世代技術が集結！自動運転、EV技術、新素材など未来のモビリティ技術を重点的に体験できるコース。技術好きな方におすすめです。",
                 mapHighlights: [2, 3],
-                image: "/api/placeholder/240/160",
+                image: "https://images.pexels.com/photos/925786/pexels-photo-925786.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
                 buttonText: "このコースの詳細を見る",
                 url: "/courses/technology-course.html"
             },
@@ -337,30 +400,46 @@
             });
             
             // Hide all circles
-            document.getElementById('hall-1-circle').style.display = 'none';
-            document.getElementById('hall-2-circle').style.display = 'none';
-            document.getElementById('hall-3-circle').style.display = 'none';
+            document.getElementById('hall-1-circle').style.opacity = '0';
+            document.getElementById('hall-2-circle').style.opacity = '0';
+            document.getElementById('hall-3-circle').style.opacity = '0';
             
-            // Highlight selected halls
-            courses[currentPage].mapHighlights.forEach(hallNumber => {
-                const hall = document.getElementById(`hall-${hallNumber}`);
-                if (hall) {
-                    hall.querySelector('rect').className.baseVal = 'highlighted';
-                    document.getElementById(`hall-${hallNumber}-circle`).style.display = 'block';
-                }
-            });
+            // Highlight selected halls with animation
+            setTimeout(() => {
+                courses[currentPage].mapHighlights.forEach(hallNumber => {
+                    const hall = document.getElementById(`hall-${hallNumber}`);
+                    if (hall) {
+                        hall.querySelector('rect').className.baseVal = 'highlighted';
+                        document.getElementById(`hall-${hallNumber}-circle`).style.opacity = '1';
+                    }
+                });
+            }, 50);
         }
         
-        // Update course content
+        // Update course content with transition
         function updateCourseContent() {
             const course = courses[currentPage];
             
-            courseTitle.textContent = course.title;
-            courseDescription.textContent = course.description;
-            courseImage.src = course.image;
-            courseImage.alt = course.title;
-            detailButton.textContent = course.buttonText;
-            detailButton.href = course.url;
+            // Fade out
+            courseTitle.style.opacity = '0';
+            courseDescription.style.opacity = '0';
+            courseImage.style.opacity = '0';
+            detailButton.style.opacity = '0';
+            
+            setTimeout(() => {
+                courseTitle.textContent = course.title;
+                courseDescription.textContent = course.description;
+                courseImage.src = course.image;
+                courseImage.alt = course.title;
+                detailButton.textContent = course.buttonText;
+                detailButton.href = course.url;
+                
+                // Fade in
+                courseTitle.style.opacity = '1';
+                courseDescription.style.opacity = '1';
+                courseImage.style.opacity = '1';
+                detailButton.style.opacity = '1';
+            }, 300);
         }
         
         // Go to specific page
@@ -389,8 +468,20 @@
             goToPage(currentPage);
         }
         
+        // Add transition styles
+        function addTransitionStyles() {
+            const style = document.createElement('style');
+            style.textContent = `
+                .course-title, .course-description, .course-image, .detail-button {
+                    transition: opacity 0.3s ease;
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
         // Initialize
         function init() {
+            addTransitionStyles();
             createPagination();
             updateMapHighlights();
             updateCourseContent();

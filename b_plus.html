@@ -311,6 +311,10 @@
             font-weight: bold;
             font-size: 14px;
             cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
         
         .preference-setting {
@@ -342,47 +346,44 @@
             margin-bottom: 15px;
         }
         
-        .toggle-item {
+        .checkbox-item {
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 8px;
             background: #f5f5f5;
             padding: 8px 12px;
             border-radius: 20px;
             cursor: pointer;
         }
         
-        .toggle-item.active {
+        .checkbox-item.active {
             background: #e1f0ff;
             color: #0066cc;
         }
         
-        .toggle-checkbox {
+        .checkbox {
+            width: 18px;
+            height: 18px;
+            border: 2px solid #ccc;
+            border-radius: 4px;
             position: relative;
-            width: 36px;
-            height: 20px;
-            border-radius: 10px;
-            background: #ccc;
+            background-color: white;
         }
         
-        .toggle-checkbox::after {
-            content: '';
+        .checkbox-item.active .checkbox {
+            border-color: #0066cc;
+            background-color: #0066cc;
+        }
+        
+        .checkbox-item.active .checkbox::after {
+            content: '✓';
             position: absolute;
-            top: 2px;
-            left: 2px;
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            background: white;
-            transition: 0.2s;
-        }
-        
-        .toggle-item.active .toggle-checkbox {
-            background: #0066cc;
-        }
-        
-        .toggle-item.active .toggle-checkbox::after {
-            left: 18px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -407,30 +408,6 @@
             <div class="starting-point">
                 <div class="starting-point-icon">🚩</div>
                 <div class="starting-point-text">スタート地点: Mobility Culture Area</div>
-            </div>
-
-            <h3 class="section-title">おすすめのテーマを見つける</h3>
-            <div class="slider-container">
-                <div class="slider-item">
-                    <div class="slider-label">
-                        <span>エンタメ度</span>
-                    </div>
-                    <input type="range" min="1" max="100" value="85" class="slider">
-                </div>
-
-                <div class="slider-item">
-                    <div class="slider-label">
-                        <span>ビジネス度</span>
-                    </div>
-                    <input type="range" min="1" max="100" value="90" class="slider">
-                </div>
-
-                <div class="slider-item">
-                    <div class="slider-label">
-                        <span>体験の多さ</span>
-                    </div>
-                    <input type="range" min="1" max="100" value="75" class="slider">
-                </div>
             </div>
 
             <h3 class="section-title">獲得リワード</h3>
@@ -489,24 +466,24 @@
         <div class="preference-setting">
             <h3 class="preference-title">コース調整オプション</h3>
             <div class="toggle-container">
-                <div class="toggle-item active">
-                    <div class="toggle-checkbox"></div>
+                <div class="checkbox-item active">
+                    <div class="checkbox"></div>
                     <div>体験重視</div>
                 </div>
-                <div class="toggle-item">
-                    <div class="toggle-checkbox"></div>
+                <div class="checkbox-item">
+                    <div class="checkbox"></div>
                     <div>歴史・文化</div>
                 </div>
-                <div class="toggle-item active">
-                    <div class="toggle-checkbox"></div>
+                <div class="checkbox-item active">
+                    <div class="checkbox"></div>
                     <div>子ども向け</div>
                 </div>
-                <div class="toggle-item active">
-                    <div class="toggle-checkbox"></div>
+                <div class="checkbox-item active">
+                    <div class="checkbox"></div>
                     <div>技術紹介</div>
                 </div>
-                <div class="toggle-item">
-                    <div class="toggle-checkbox"></div>
+                <div class="checkbox-item">
+                    <div class="checkbox"></div>
                     <div>買い物</div>
                 </div>
             </div>
@@ -519,8 +496,8 @@
     </div>
 
     <script>
-        // トグルアイテムのクリックイベントを追加
-        document.querySelectorAll('.toggle-item').forEach(item => {
+        // チェックボックスアイテムのクリックイベントを追加
+        document.querySelectorAll('.checkbox-item').forEach(item => {
             item.addEventListener('click', function() {
                 this.classList.toggle('active');
             });

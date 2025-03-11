@@ -17,6 +17,14 @@
             background-color: #ffffff;
             color: #333;
             line-height: 1.6;
+            height: 100%;
+            position: relative;
+            overflow-y: auto;
+        }
+        
+        html {
+            height: 100%;
+            overflow-y: auto;
         }
         
         .container {
@@ -24,7 +32,8 @@
             margin: 0 auto;
             min-height: 100vh;
             position: relative;
-            padding-bottom: 80px;
+            padding-bottom: 100px;
+            overflow-y: auto;
         }
         
         /* 黄色い枠のスタイル */
@@ -493,6 +502,158 @@
             cursor: pointer;
             transition: background-color 0.2s;
         }
+
+        /* 新しく追加するプラスボタンとカメラボタンのスタイル */
+        .action-buttons {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 99;
+        }
+        
+        .action-button {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            border: none;
+            font-size: 24px;
+        }
+        
+        .plus-button {
+            background-color: #DE5021;
+            color: white;
+        }
+        
+        .camera-button {
+            background-color: #0066cc;
+            color: white;
+        }
+
+        /* テーマ選択モーダルのスタイル */
+        .theme-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            overflow-y: auto;
+        }
+        
+        .theme-modal-content {
+            background-color: white;
+            border-radius: 15px;
+            padding: 20px;
+            width: 90%;
+            max-width: 480px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+        
+        .theme-modal-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .theme-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+            max-height: 60vh;
+            overflow-y: auto;
+            padding: 5px;
+        }
+        
+        .theme-option {
+            position: relative;
+            border-radius: 10px;
+            overflow: hidden;
+            aspect-ratio: 7/5;
+        }
+        
+        .theme-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .theme-check {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: white;
+            border: 2px solid #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .theme-check.checked {
+            background-color: #0066cc;
+            border-color: #0066cc;
+            color: white;
+        }
+        
+        .theme-name {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        .theme-buttons {
+            display: flex;
+            justify-content: space-between;
+            padding: 0 20px;
+        }
+        
+        .theme-button {
+            padding: 12px 30px;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            /* width: 45%; */
+        }
+        
+        .cancel-button {
+            background-color: #f0f0f0;
+            color: #666;
+        }
+        
+        .confirm-button {
+            background-color: #0066cc;
+            color: white;
+        }
     </style>
 </head>
 
@@ -697,6 +858,12 @@
             
             <!-- フローティングボタン -->
             <button class="floating-button" id="registerCourseBtn">このコースを登録する</button>
+
+            <!-- 追加するアクションボタン -->
+            <div class="action-buttons">
+                <button class="action-button camera-button" id="openCameraBtn">📷</button>
+                <button class="action-button plus-button" id="openThemeBtn">+</button>
+            </div>
         </div>
     </div>
     
@@ -712,8 +879,49 @@
         </div>
     </div>
 
+    <!-- テーマ選択モーダル -->
+    <div class="theme-modal" id="themeModal">
+        <div class="theme-modal-content">
+            <div class="theme-modal-title">興味のあるテーマを選択</div>
+            <div class="theme-options">
+                <!-- テーマオプション1: エコカーと環境技術 -->
+                <div class="theme-option">
+                    <img src="https://www.jama.or.jp/release/docs/release/2023/20230830_03.jpg" alt="エコカーと環境技術" class="theme-image">
+                    <div class="theme-check" data-theme="eco">✓</div>
+                    <div class="theme-name">エコカーと環境技術</div>
+                </div>
+                
+                <!-- テーマオプション2: 自動運転技術 -->
+                <div class="theme-option">
+                    <img src="https://global.toyota/pages/news/images/2023/10/jms_toyota/jms_toyota_01_kv_w1920.jpg" alt="自動運転技術" class="theme-image">
+                    <div class="theme-check" data-theme="autonomous">✓</div>
+                    <div class="theme-name">自動運転技術</div>
+                </div>
+                
+                <!-- テーマオプション3: 未来の乗り物 -->
+                <div class="theme-option">
+                    <img src="https://www.nissan.co.jp/JMS/2023/IMAGES/OGP/opengraph-image.png" alt="未来の乗り物" class="theme-image">
+                    <div class="theme-check" data-theme="future">✓</div>
+                    <div class="theme-name">未来の乗り物</div>
+                </div>
+                
+                <!-- テーマオプション4: エンターテイメント -->
+                <div class="theme-option">
+                    <img src="https://s.response.jp/imgs/thumb_h2/1948561.jpg" alt="エンターテイメント" class="theme-image">
+                    <div class="theme-check" data-theme="entertainment">✓</div>
+                    <div class="theme-name">エンターテイメント</div>
+                </div>
+            </div>
+            <div class="theme-buttons">
+                <button class="theme-button cancel-button" id="cancelThemeBtn">キャンセル</button>
+                <button class="theme-button confirm-button" id="confirmThemeBtn">確認</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // 既存の要素
             const mobilityRewardBtn = document.getElementById('mobilityReward');
             const oemRewardBtn = document.getElementById('oemReward');
             const cameraModal = document.getElementById('cameraModal');
@@ -721,6 +929,14 @@
             const cameraView = document.getElementById('cameraView');
             const cameraPlaceholder = document.getElementById('cameraPlaceholder');
             const registerCourseBtn = document.getElementById('registerCourseBtn');
+            
+            // 新しく追加する要素
+            const openCameraBtn = document.getElementById('openCameraBtn');
+            const openThemeBtn = document.getElementById('openThemeBtn');
+            const themeModal = document.getElementById('themeModal');
+            const cancelThemeBtn = document.getElementById('cancelThemeBtn');
+            const confirmThemeBtn = document.getElementById('confirmThemeBtn');
+            const themeChecks = document.querySelectorAll('.theme-check');
             
             // リワードアイコンをクリックしたときの処理
             function openCamera() {
@@ -755,6 +971,25 @@
                 }
             }
             
+            // テーマ選択モーダルを開く
+            function openThemeModal() {
+                themeModal.style.display = 'flex';
+                // スクロールを有効にするため、bodyのスクロールを無効にしない
+                document.body.style.overflow = 'auto';
+            }
+            
+            // テーマ選択モーダルを閉じる
+            function closeThemeModal() {
+                themeModal.style.display = 'none';
+            }
+            
+            // テーマのチェックボックスをトグル
+            themeChecks.forEach(check => {
+                check.addEventListener('click', function() {
+                    this.classList.toggle('checked');
+                });
+            });
+            
             // コース登録ボタンの処理
             registerCourseBtn.addEventListener('click', function() {
                 alert('このコースを登録しました！');
@@ -764,6 +999,17 @@
             mobilityRewardBtn.addEventListener('click', openCamera);
             oemRewardBtn.addEventListener('click', openCamera);
             closeCameraModalBtn.addEventListener('click', closeCamera);
+            openCameraBtn.addEventListener('click', openCamera);
+            openThemeBtn.addEventListener('click', openThemeModal);
+            cancelThemeBtn.addEventListener('click', closeThemeModal);
+            confirmThemeBtn.addEventListener('click', function() {
+                // 選択されたテーマを処理する
+                const selectedThemes = Array.from(document.querySelectorAll('.theme-check.checked'))
+                    .map(check => check.dataset.theme);
+                
+                alert(`選択されたテーマ: ${selectedThemes.join(', ')}`);
+                closeThemeModal();
+            });
         });
     </script>
 </body>
