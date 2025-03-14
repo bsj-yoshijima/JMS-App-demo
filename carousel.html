@@ -15,16 +15,13 @@
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background-color: transparent;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
             padding: 10px;
+            min-height: 160px;
+            overflow: hidden;
         }
         
         .carousel-container {
             width: 100%;
-            max-width: 100%;
             overflow: hidden;
             position: relative;
             border-radius: 8px;
@@ -56,12 +53,6 @@
             position: relative;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             cursor: pointer;
-            transition: transform 0.2s ease;
-        }
-        
-        .banner:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
         
         .banner-image {
@@ -92,10 +83,6 @@
             text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
             z-index: 2;
         }
-        
-        .banner-track:hover {
-            animation-play-state: paused;
-        }
     </style>
 </head>
 
@@ -107,7 +94,8 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+        // DOMContentLoadedに依存せず、即時実行関数を使用
+        (function() {
             // バナーデータ
             const banners = [{
                 image: '/api/placeholder/300/150',
@@ -141,11 +129,6 @@
                 return newArray;
             }
 
-            // バナーをシャッフル
-            const shuffledBanners = shuffleArray(banners);
-
-            const bannerTrack = document.getElementById('bannerTrack');
-
             // バナーを生成する関数
             function createBanner(banner) {
                 const bannerElement = document.createElement('a');
@@ -176,6 +159,16 @@
                 return bannerElement;
             }
 
+            // シャッフルしたバナーを取得
+            const shuffledBanners = shuffleArray(banners);
+
+            // DOM要素の取得
+            const bannerTrack = document.getElementById('bannerTrack');
+            if (!bannerTrack) {
+                console.error('Banner track element not found');
+                return;
+            }
+
             // 初期バナーの追加
             function initBanners() {
                 // 最初のセット
@@ -189,9 +182,23 @@
                 });
             }
 
-            // カルーセルの初期化
+            // 初期化を実行
             initBanners();
-        });
+
+            // DOMContentLoadedも一応リスナーとして残しておく（バックアップ）
+            document.addEventListener('DOMContentLoaded', function() {
+                if (bannerTrack.children.length === 0) {
+                    initBanners();
+                }
+            });
+
+            // ウィンドウロード時のバックアップ
+            window.addEventListener('load', function() {
+                if (bannerTrack.children.length === 0) {
+                    initBanners();
+                }
+            });
+        })();
     </script>
 </body>
 
