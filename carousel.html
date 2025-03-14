@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>画像付き自動スクロールバナー</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: transparent;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 10px;
+        }
+        
+        .carousel-container {
+            width: 100%;
+            max-width: 100%;
+            overflow: hidden;
+            position: relative;
+            border-radius: 8px;
+            background-color: white;
+        }
+        
+        .banner-track {
+            display: flex;
+            animation: scroll 25s linear infinite;
+            width: max-content;
+        }
+        
+        @keyframes scroll {
+            0% {
+                transform: translateX(0);
+            }
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+        
+        .banner {
+            flex: 0 0 auto;
+            width: 280px;
+            height: 140px;
+            margin: 10px;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        
+        .banner:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .banner-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        
+        .banner-gradient {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, 0.7) 100%);
+        }
+        
+        .banner-title {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            color: white;
+            padding: 8px 12px;
+            font-size: 14px;
+            font-weight: 600;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+            z-index: 2;
+        }
+        
+        .banner-track:hover {
+            animation-play-state: paused;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="carousel-container">
+        <div class="banner-track" id="bannerTrack">
+            <!-- バナーはJavaScriptで動的に生成されます -->
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // バナーデータ
+            const banners = [{
+                image: '/api/placeholder/300/150',
+                title: 'トヨタ公式ページ',
+                url: 'https://toyota.jp/'
+            }, {
+                image: '/api/placeholder/300/150',
+                title: '日産公式ページ',
+                url: 'https://www.nissan.co.jp/'
+            }, {
+                image: '/api/placeholder/300/150',
+                title: 'ホンダ公式ページ',
+                url: 'https://www.honda.co.jp/'
+            }, {
+                image: '/api/placeholder/300/150',
+                title: '夏の特別コレクション発売中',
+                url: 'https://example.com/summer'
+            }, {
+                image: '/api/placeholder/300/150',
+                title: 'アプリ限定クーポン配布中',
+                url: 'https://example.com/coupon'
+            }];
+
+            // バナーをシャッフルする関数
+            function shuffleArray(array) {
+                const newArray = [...array];
+                for (let i = newArray.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+                }
+                return newArray;
+            }
+
+            // バナーをシャッフル
+            const shuffledBanners = shuffleArray(banners);
+
+            const bannerTrack = document.getElementById('bannerTrack');
+
+            // バナーを生成する関数
+            function createBanner(banner) {
+                const bannerElement = document.createElement('a');
+                bannerElement.className = 'banner';
+                bannerElement.href = banner.url;
+                // iframeから親ウィンドウを開く設定
+                bannerElement.target = '_top';
+
+                // 画像を追加
+                const imageElement = document.createElement('img');
+                imageElement.className = 'banner-image';
+                imageElement.src = banner.image;
+                imageElement.alt = banner.title;
+
+                // グラデーションオーバーレイ
+                const gradientElement = document.createElement('div');
+                gradientElement.className = 'banner-gradient';
+
+                // タイトル
+                const titleElement = document.createElement('div');
+                titleElement.className = 'banner-title';
+                titleElement.textContent = banner.title;
+
+                bannerElement.appendChild(imageElement);
+                bannerElement.appendChild(gradientElement);
+                bannerElement.appendChild(titleElement);
+
+                return bannerElement;
+            }
+
+            // 初期バナーの追加
+            function initBanners() {
+                // 最初のセット
+                shuffledBanners.forEach(banner => {
+                    bannerTrack.appendChild(createBanner(banner));
+                });
+
+                // 二つ目のセット（シームレスなループのため）
+                shuffledBanners.forEach(banner => {
+                    bannerTrack.appendChild(createBanner(banner));
+                });
+            }
+
+            // カルーセルの初期化
+            initBanners();
+        });
+    </script>
+</body>
+
+</html>
