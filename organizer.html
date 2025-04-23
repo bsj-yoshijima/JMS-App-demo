@@ -1,0 +1,1620 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>出展社管理システム</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4a85dc;
+            --primary-light: #eef4fe;
+            --primary-dark: #3a6fc0;
+            --secondary-color: #f5f7fa;
+            --accent-color: #3c5bb5;
+            --text-color: #333;
+            --border-color: #ddd;
+            --header-height: 60px;
+            --sidebar-width: 200px;
+            
+            /* ステータス用の色 */
+            --status-not-logged-in: #e1ecf7;
+            --status-not-filled: #e8f2fb;
+            --status-in-progress: #b6d3f5;
+            --status-submitted: #7cb2f0;
+            --status-published: #4a85dc;
+            
+            /* ステータス用のテキスト色 */
+            --status-not-logged-in-text: #4873a0;
+            --status-not-filled-text: #5880a8;
+            --status-in-progress-text: #3a6da3;
+            --status-submitted-text: #2c5686;
+            --status-published-text: #ffffff;
+            
+            /* アクションボタン色 */
+            --edit-color: #4a85dc;
+            --delete-color: #f44336;
+            
+            --platinum-color: #e5e9ef;
+            --silver-color: #d8dde4;
+            --bronze-color: #d8c2a7;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            color: var(--text-color);
+            background-color: #f9f9f9;
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        /* ヘッダー */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--header-height);
+            background-color: #2c3e50;
+            color: white;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+        
+        .header-title {
+            margin-right: auto;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        /* サイドバー（左側メニュー） */
+        .sidebar {
+            position: fixed;
+            top: var(--header-height);
+            left: 0;
+            bottom: 0;
+            width: var(--sidebar-width);
+            background-color: white;
+            border-right: 1px solid var(--border-color);
+            z-index: 90;
+            overflow-y: auto;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        .nav-menu {
+            list-style: none;
+            padding: 10px 0;
+        }
+        
+        .nav-item {
+            padding: 0;
+            cursor: pointer;
+        }
+        
+        .nav-link {
+            display: block;
+            padding: 12px 20px;
+            text-decoration: none;
+            color: var(--text-color);
+            transition: background-color 0.2s, color 0.2s;
+            border-left: 3px solid transparent;
+        }
+        
+        .nav-link:hover {
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+        }
+        
+        .nav-link.active {
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+            border-left-color: var(--primary-color);
+            font-weight: 600;
+        }
+        
+        .nav-link i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        /* メインコンテンツ */
+        .main-content {
+            margin-top: var(--header-height);
+            margin-left: var(--sidebar-width);
+            padding: 20px;
+            flex: 1;
+        }
+        
+        /* ダッシュボードセクション */
+        .dashboard-section {
+            margin-bottom: 20px;
+        }
+        
+        .status-cards {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .status-card {
+            flex: 1;
+            min-width: 180px;
+            background-color: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .status-card-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        
+        .status-card-count {
+            font-size: 28px;
+            font-weight: 700;
+        }
+        
+        .status-card.not-logged-in {
+            border-left-color: var(--status-not-logged-in);
+        }
+        
+        .status-card.not-filled {
+            border-left-color: var(--status-not-filled);
+        }
+        
+        .status-card.in-progress {
+            border-left-color: var(--status-in-progress);
+        }
+        
+        .status-card.submitted {
+            border-left-color: var(--status-submitted);
+        }
+        
+        .status-card.published {
+            border-left-color: var(--status-published);
+        }
+        
+        /* フィルターセクション */
+        .filter-section {
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+        
+        .filter-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .filter-label {
+            font-size: 14px;
+            margin-bottom: 5px;
+            color: #666;
+        }
+        
+        .filter-buttons {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 15px;
+            gap: 10px;
+        }
+        
+        /* ページヘッダー */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        /* テーブルセクション */
+        .table-section {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            overflow-x: auto;
+        }
+        
+        .exhibitor-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1200px; /* 横スクロールするための最小幅 */
+        }
+        
+        .exhibitor-table th,
+        .exhibitor-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .exhibitor-table th {
+            background-color: var(--secondary-color);
+            font-weight: 600;
+            color: #555;
+            position: sticky;
+            top: 0;
+        }
+        
+        .exhibitor-table tr:hover {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+        
+        /* ステータスバッジ */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .status-not-logged-in {
+            background-color: var(--status-not-logged-in);
+            color: var(--status-not-logged-in-text);
+        }
+        
+        .status-not-filled {
+            background-color: var(--status-not-filled);
+            color: var(--status-not-filled-text);
+        }
+        
+        .status-in-progress {
+            background-color: var(--status-in-progress);
+            color: var(--status-in-progress-text);
+        }
+        
+        .status-submitted {
+            background-color: var(--status-submitted);
+            color: var(--status-submitted-text);
+        }
+        
+        .status-published {
+            background-color: var(--status-published);
+            color: var(--status-published-text);
+        }
+        
+        /* プランバッジ */
+        .plan-badge {
+            display: inline-block;
+            padding: 3px 7px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .plan-platinum {
+            background-color: var(--platinum-color);
+            color: #333;
+        }
+        
+        .plan-silver {
+            background-color: var(--silver-color);
+            color: #333;
+        }
+        
+        .plan-bronze {
+            background-color: var(--bronze-color);
+            color: #333;
+        }
+        
+        /* アクションボタン */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: background-color 0.2s, transform 0.1s, color 0.2s;
+            text-align: center;
+        }
+        
+        .btn-icon-preview {
+            color: #4a85dc;
+        }
+
+        .btn-icon-preview:hover {
+            color: #3a6fc0;
+        }
+        
+        .btn:active {
+            transform: translateY(1px);
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .btn-outline {
+            background-color: white;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+        
+        .btn-outline:hover {
+            background-color: var(--primary-light);
+        }
+        
+        .btn-success {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .btn-danger {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-color: #e53935;
+        }
+        
+        .btn-sm {
+            padding: 6px;
+            font-size: 12px;
+        }
+        
+        .btn-icon {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            border-radius: 4px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: transparent;
+        }
+        
+        .btn-icon-release {
+            color: #aaa;
+            cursor: not-allowed;
+        }
+        
+        .btn-icon-release.active {
+            color: var(--primary-color);
+            cursor: pointer;
+        }
+        
+        .btn-icon-release.active:hover {
+            color: var(--primary-dark);
+        }
+        
+        .btn-icon-edit {
+            color: var(--edit-color);
+        }
+        
+        .btn-icon-edit:hover {
+            color: var(--primary-dark);
+        }
+        
+        .btn-icon-delete {
+            color: var(--delete-color);
+        }
+        
+        .btn-icon-delete:hover {
+            color: #e53935;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        /* 入力フォーム要素 */
+        .form-control {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(74, 133, 220, 0.2);
+        }
+        
+        select.form-control {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+            background-size: 16px;
+            padding-right: 32px;
+        }
+        
+        /* チェックボックス */
+        .checkbox-custom {
+            position: relative;
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            margin: 0;
+            cursor: pointer;
+        }
+        
+        .checkbox-custom input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .checkbox-mark {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 18px;
+            height: 18px;
+            border: 1px solid var(--border-color);
+            border-radius: 3px;
+            background-color: white;
+        }
+        
+        .checkbox-custom input:checked ~ .checkbox-mark {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .checkbox-mark:after {
+            content: "";
+            position: absolute;
+            display: none;
+        }
+        
+        .checkbox-custom input:checked ~ .checkbox-mark:after {
+            display: block;
+        }
+        
+        .checkbox-custom .checkbox-mark:after {
+            left: 6px;
+            top: 2px;
+            width: 4px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+        
+        .checkbox-all {
+            margin: 0 auto;
+        }
+        
+        /* モーダル */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0s linear 0.25s, opacity 0.25s;
+        }
+        
+        .modal-overlay.active {
+            visibility: visible;
+            opacity: 1;
+            transition-delay: 0s;
+        }
+        
+        .modal {
+            background-color: white;
+            border-radius: 8px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #888;
+        }
+        
+        .modal-body {
+            padding: 20px;
+        }
+        
+        .modal-footer {
+            padding: 15px 20px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .form-hint {
+            display: block;
+            margin-top: 5px;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        /* ハーフモーダル（下から出てくるモーダル） */
+        .half-modal-overlay {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(24, 119, 242, 0.9);
+            z-index: 1000;
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0s linear 0.25s, opacity 0.25s;
+        }
+        
+        .half-modal-overlay.active {
+            visibility: visible;
+            opacity: 1;
+            transition-delay: 0s;
+        }
+        
+        .half-modal {
+            width: 100%;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .half-modal-overlay.active .half-modal {
+            transform: translateY(0);
+        }
+        
+        .half-modal p {
+            color: white;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        
+        /* ハーフモーダル内のボタン中央配置 */
+        .half-modal .modal-body {
+            text-align: center;
+        }
+
+        .half-modal-buttons {
+            display: flex;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        #bulk-publish-btn {
+            margin: 0 auto;
+            min-width: 250px;
+            background-color: white;
+            color: #1877f2;
+        }
+
+        #bulk-publish-btn:hover {
+            background-color: #f0f2f5;
+        }
+        
+        /* 確認モーダル */
+        .confirm-modal {
+            text-align: center;
+            max-width: 400px;
+        }
+        
+        .confirm-modal .modal-body {
+            padding-top: 30px;
+            padding-bottom: 30px;
+        }
+        
+        .confirm-icon {
+            font-size: 48px;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+        
+        .confirm-message {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        
+        .confirm-description {
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        /* 非表示要素 */
+        .content-page {
+            display: none;
+        }
+        
+        .content-page.active {
+            display: block;
+        }
+        
+        /* ページネーション */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin-top: 20px;
+        }
+        
+        .pagination-item {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .pagination-item:hover {
+            background-color: var(--secondary-color);
+        }
+        
+        .pagination-item.active {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- ヘッダー -->
+    <header>
+        <div class="header-title">出展社管理システム</div>
+        <div class="header-buttons" id="account-management-buttons" style="display: none;">
+            <button id="add-organizer-btn" class="btn btn-primary">
+                <i class="fas fa-user-shield" style="margin-right: 5px;"></i>主催者アカウント登録
+            </button>
+            <button id="add-exhibitor-btn" class="btn btn-outline">
+                <i class="fas fa-user-plus" style="margin-right: 5px;"></i>出展社アカウント登録
+            </button>
+        </div>
+    </header>
+    
+    <!-- サイドバー（左側メニュー） -->
+    <aside class="sidebar">
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a href="#account-management" class="nav-link" data-page="account-management">
+                    <i class="fas fa-user"></i>アカウント管理
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#release-management" class="nav-link active" data-page="release-management">
+                    <i class="fas fa-upload"></i>リリース管理
+                </a>
+            </li>
+        </ul>
+    </aside>
+    
+    <!-- メインコンテンツ -->
+    <main class="main-content">
+        <!-- リリース管理ページ -->
+        <div id="release-management-page" class="content-page active">
+            <!-- ダッシュボードセクション -->
+            <section class="dashboard-section">
+                <div class="status-cards">
+                    <div class="status-card not-logged-in">
+                        <div class="status-card-title">未ログイン</div>
+                        <div class="status-card-count">12</div>
+                    </div>
+                    <div class="status-card not-filled">
+                        <div class="status-card-title">未入力</div>
+                        <div class="status-card-count">3</div>
+                    </div>
+                    <div class="status-card in-progress">
+                        <div class="status-card-title">入力中</div>
+                        <div class="status-card-count">8</div>
+                    </div>
+                    <div class="status-card submitted">
+                        <div class="status-card-title">提出済み</div>
+                        <div class="status-card-count">5</div>
+                    </div>
+                    <div class="status-card published">
+                        <div class="status-card-title">公開済み</div>
+                        <div class="status-card-count">23</div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- フィルターセクション -->
+            <section class="filter-section">
+                <form class="filter-form">
+                    <div class="filter-group">
+                        <label class="filter-label">企業名</label>
+                        <input type="text" class="form-control" placeholder="企業名で検索">
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">担当者名</label>
+                        <input type="text" class="form-control" placeholder="担当者名で検索">
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">小間番号</label>
+                        <input type="text" class="form-control" placeholder="小間番号で検索">
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">プラン</label>
+                        <select class="form-control">
+                            <option value="">すべて</option>
+                            <option value="platinum">プラチナ</option>
+                            <option value="silver">シルバー</option>
+                            <option value="bronze">ブロンズ</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">ステータス</label>
+                        <select class="form-control">
+                            <option value="">すべて</option>
+                            <option value="not-logged-in">未ログイン</option>
+                            <option value="not-filled">未入力</option>
+                            <option value="in-progress">入力中</option>
+                            <option value="submitted">提出済み</option>
+                            <option value="published">公開済み</option>
+                        </select>
+                    </div>
+                </form>
+                <div class="filter-buttons">
+                    <button class="btn btn-outline">リセット</button>
+                    <button class="btn btn-primary">検索</button>
+                </div>
+            </section>
+            
+            <!-- テーブルセクション -->
+            <section class="table-section">
+                <table class="exhibitor-table">
+                    <thead>
+                        <tr>
+                            <th>
+                                <label class="checkbox-custom checkbox-all">
+                                    <input type="checkbox" id="check-all">
+                                    <span class="checkbox-mark"></span>
+                                </label>
+                            </th>
+                            <th>ID</th>
+                            <th>企業名</th>
+                            <th>担当者名</th>
+                            <th>メールアドレス</th>
+                            <th>小間番号</th>
+                            <th>プラン</th>
+                            <th>ステータス</th>
+                            <th>管理メモ</th>
+                            <th>アクション</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- サンプルデータ -->
+                        <tr>
+                            <td>
+                                <label class="checkbox-custom">
+                                    <input type="checkbox" class="exhibitor-check" data-id="1001">
+                                    <span class="checkbox-mark"></span>
+                                </label>
+                            </td>
+                            <td>1001</td>
+                            <td>株式会社テクノソリューション</td>
+                            <td>山田太郎</td>
+                            <td>yamada@example.com</td>
+                            <td>A-01</td>
+                            <td><span class="plan-badge plan-platinum">プラチナ</span></td>
+                            <td><span class="status-badge status-published">公開済み</span></td>
+                            <td>2023年より継続出展</td>
+                            <td class="action-buttons">
+                                <button class="btn btn-icon btn-icon-preview" title="プレビュー">
+                                    <i class="fas fa-globe"></i>
+                                </button>
+                                <button class="btn btn-icon btn-icon-release" disabled title="リリース">
+                                    <i class="fas fa-arrow-up"></i>
+                                </button>
+                                <button class="btn btn-icon btn-icon-edit edit-btn" data-id="1001" title="編集">
+                                    <i class="fas fa-pencil-alt"></i>
+                                </button>
+                                <button class="btn btn-icon btn-icon-delete" title="削除">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label class="checkbox-custom">
+                                    <input type="checkbox" class="exhibitor-check" data-id="1002">
+                                    <span class="checkbox-mark"></span>
+                                </label>
+                            </td>
+                            <td>1002</td>
+                            <td>グローバルエンジニアリング株式会社</td>
+                            <td>佐藤健太</td>
+                            <td>sato@example.com</td>
+                            <td>B-05</td>
+                            <td><span class="plan-badge plan-silver">シルバー</span></td>
+                            <td><span class="status-badge status-submitted">提出済み</span></td>
+                            <td>ロゴデータ待ち</td>
+                            <td class="action-buttons">
+                                <button class="btn btn-icon btn-icon-preview" title="プレビュー">
+                                    <i class="fas fa-globe"></i>
+                                </button>
+                                <button class="btn btn-icon btn-icon-release active release-btn" data-id="1002" title="リリース">
+                                    <i class="fas fa-arrow-up"></i>
+                                </button>
+                                <button class="btn btn-icon btn-icon-edit edit-btn" data-id="1002" title="編集">
+                                    <i class="fas fa-pencil-alt"></i>
+                                </button>
+                                <button class="btn btn-icon btn-icon-delete" title="削除">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label class="checkbox-custom">
+                                    <input type="checkbox" class="exhibitor-check" data-id="1003">
+                                    <span class="checkbox-mark"></span>
+                                </label>
+                            </td>
+                            <td>1003</td>
+                            <td>ネクストイノベーション合同会社</td>
+                            <td>鈴木花子</td>
+                            <td>suzuki@example.com</td>
+                            <td>C-12</td>
+                            <td><span class="plan-badge plan-bronze">ブロンズ</span></td>
+                            <td><span class="status-badge status-in-progress">入力中</span></td>
+                            <td>2/15に電話確認予定</td>
+                            <td class="action-buttons">
+                                <button class="btn btn-icon btn-icon-preview" title="プレビュー">
+                                    <i class="fas fa-globe"></i>
+                                </button>
+                                <button class="btn btn-icon btn-icon-release" disabled title="リリース">
+                                    <i class="fas fa-arrow-up"></i>
+                                </button>
+                                <button class="btn btn-icon btn-icon-edit edit-btn" data-id="1003" title="編集">
+                                    <i class="fas fa-pencil-alt"></i>
+                                </button>
+                                <button class="btn btn-icon btn-icon-delete" title="削除">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label class="checkbox-custom">
+                                    <input type="checkbox" class="exhibitor-check" data-id="1004">
+                                    <span class="checkbox-mark"></span>
+                                </label>
+                            </td>
+                            <td>1004</td>
+                            <td>デジタルフューチャー株式会社</td>
+                            <td>高橋誠</td>
+                            <td>takahashi@example.com</td>
+                            <td>A-08</td>
+                            <td><span class="plan-badge plan-platinum">プラチナ</span></td>
+                            <td><span class="status-badge status-not-logged-in">未ログイン</span></td>
+                            <td>初出展、フォローが必要</td>
+                            <td class="action-buttons">
+                                <button class="btn btn-icon btn-icon-preview" title="プレビュー">
+                                    <i class="fas fa-globe"></i>
+                                </button>
+                                <button class="btn btn-icon btn-icon-release" disabled title="リリース">
+                                    <i class="fas fa-arrow-up"></i>
+                                </button>
+                                <button class="btn btn-icon btn-icon-edit edit-btn" data-id="1004" title="編集">
+                                    <i class="fas fa-pencil-alt"></i>
+                                </button>
+                                <button class="btn btn-icon btn-icon-delete" title="削除">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label class="checkbox-custom">
+                                    <input type="checkbox" class="exhibitor-check" data-id="1005">
+                                    <span class="checkbox-mark"></span>
+                                </label>
+                            </td>
+                            <td>1005</td>
+                            <td>スマートテクノロジー株式会社</td>
+                            <td>伊藤直樹</td>
+                            <td>ito@example.com</td>
+                            <td>B-10</td>
+                            <td><span class="plan-badge plan-silver">シルバー</span></td>
+                            <td><span class="status-badge status-published">公開済み</span></td>
+                            <td></td>
+                            <td class="action-buttons">
+                                <button class="btn btn-icon btn-icon-preview" title="プレビュー">
+                                    <i class="fas fa-globe"></i>
+                                </button>
+                                <button class="btn btn-icon btn-icon-release" disabled title="リリース">
+                                    <i class="fas fa-arrow-up"></i>
+                                </button>
+                                <button class="btn btn-icon btn-icon-edit edit-btn" data-id="1005" title="編集">
+                                    <i class="fas fa-pencil-alt"></i>
+                                </button>
+                                <button class="btn btn-icon btn-icon-delete" title="削除">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label class="checkbox-custom">
+                                    <input type="checkbox" class="exhibitor-check" data-id="1006">
+                                    <span class="checkbox-mark"></span>
+                                </label>
+                            </td>
+                            <td>1006</td>
+                            <td>イノベーションテック株式会社</td>
+                            <td>中村健太</td>
+                            <td>nakamura@example.com</td>
+                            <td>D-03</td>
+                            <td><span class="plan-badge plan-bronze">ブロンズ</span></td>
+                            <td><span class="status-badge status-not-filled">未入力</span></td>
+                            <td>初出展</td>
+                            <td class="action-buttons">
+                                <button class="btn btn-icon btn-icon-preview" title="プレビュー">
+                                    <i class="fas fa-globe"></i>
+                                </button>
+                                <button class="btn btn-icon btn-icon-release" disabled title="リリース">
+                                    <i class="fas fa-arrow-up"></i>
+                                </button>
+                                <button class="btn btn-icon btn-icon-edit edit-btn" data-id="1006" title="編集">
+                                    <i class="fas fa-pencil-alt"></i>
+                                </button>
+                                <button class="btn btn-icon btn-icon-delete" title="削除">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <!-- ページネーション -->
+                <div class="pagination">
+                    <div class="pagination-item">←</div>
+                    <div class="pagination-item active">1</div>
+                    <div class="pagination-item">2</div>
+                    <div class="pagination-item">3</div>
+                    <div class="pagination-item">→</div>
+                </div>
+            </section>
+        </div>
+        
+        <!-- アカウント管理ページ -->
+        <div id="account-management-page" class="content-page">
+            <div class="page-header">
+                <h1 class="page-title">アカウント管理</h1>
+            </div>
+            
+            <!-- アカウント一覧テーブル -->
+            <section class="table-section">
+                <table class="exhibitor-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>アカウント種別</th>
+                            <th>企業名/管理名</th>
+                            <th>担当者名</th>
+                            <th>メールアドレス</th>
+                            <th>小間番号</th>
+                            <th>プラン</th>
+                            <th>最終ログイン</th>
+                            <th>アクション</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- サンプルデータ（主催者） -->
+                        <tr>
+                            <td>O001</td>
+                            <td>主催者</td>
+                            <td>システム管理者</td>
+                            <td>-</td>
+                            <td>admin@example.com</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>2023/12/15 15:30</td>
+                            <td class="action-buttons">
+                                <button class="btn btn-icon btn-icon-edit" title="編集">
+                                    <i class="fas fa-pencil-alt"></i>
+                                </button>
+                                <button class="btn btn-icon btn-icon-delete" title="削除">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>O002</td>
+                            <td>主催者</td>
+                            <td>イベント担当者</td>
+                            <td>-</td>
+                            <td>event@example.com</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>2023/12/20 09:45</td>
+                            <td class="action-buttons">
+                                <button class="btn btn-icon btn-icon-edit" title="編集">
+                                    <i class="fas fa-pencil-alt"></i>
+                                </button>
+                                <button class="btn btn-icon btn-icon-delete" title="削除">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <!-- サンプルデータ（出展社） -->
+                        <tr>
+                            <td>E001</td>
+                            <td>出展社</td>
+                            <td>株式会社テクノソリューション</td>
+                            <td>山田太郎</td>
+                            <td>yamada@example.com</td>
+                            <td>A-01</td>
+                            <td><span class="plan-badge plan-platinum">プラチナ</span></td>
+                            <td>2023/12/21 14:20</td>
+                            <td class="action-buttons">
+                                <button class="btn btn-icon btn-icon-edit" title="編集">
+                                    <i class="fas fa-pencil-alt"></i>
+                                </button>
+                                <button class="btn btn-icon btn-icon-delete" title="削除">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>E002</td>
+                            <td>出展社</td>
+                            <td>グローバルエンジニアリング株式会社</td>
+                            <td>佐藤健太</td>
+                            <td>sato@example.com</td>
+                            <td>B-05</td>
+                            <td><span class="plan-badge plan-silver">シルバー</span></td>
+                            <td>2023/12/18 11:10</td>
+                            <td class="action-buttons">
+                                <button class="btn btn-icon btn-icon-edit" title="編集">
+                                    <i class="fas fa-pencil-alt"></i>
+                                </button>
+                                <button class="btn btn-icon btn-icon-delete" title="削除">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>E003</td>
+                            <td>出展社</td>
+                            <td>ネクストイノベーション合同会社</td>
+                            <td>鈴木花子</td>
+                            <td>suzuki@example.com</td>
+                            <td>C-12</td>
+                            <td><span class="plan-badge plan-bronze">ブロンズ</span></td>
+                            <td>2023/12/19 16:40</td>
+                            <td class="action-buttons">
+                                <button class="btn btn-icon btn-icon-edit" title="編集">
+                                    <i class="fas fa-pencil-alt"></i>
+                                </button>
+                                <button class="btn btn-icon btn-icon-delete" title="削除">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <!-- ページネーション -->
+                <div class="pagination">
+                    <div class="pagination-item">←</div>
+                    <div class="pagination-item active">1</div>
+                    <div class="pagination-item">2</div>
+                    <div class="pagination-item">3</div>
+                    <div class="pagination-item">→</div>
+                </div>
+            </section>
+        </div>
+    </main>
+    
+    <!-- チェックボックス選択時のハーフモーダル -->
+    <div id="bulk-action-modal" class="half-modal-overlay">
+        <div class="half-modal">
+            <div class="modal-body">
+                <p>チェックした企業の情報を</p>
+                <div class="half-modal-buttons">
+                    <button id="bulk-publish-btn" class="btn">
+                        公開する
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 主催者アカウント登録モーダル -->
+    <div id="organizer-modal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">主催者アカウント登録</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="organizer-form">
+                    <div class="form-group">
+                        <label class="form-label">管理名 <span style="color: red">*</span></label>
+                        <input type="text" class="form-control" name="organizer_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">メールアドレス <span style="color: red">*</span></label>
+                        <input type="email" class="form-control" name="organizer_email" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">パスワード <span style="color: red">*</span></label>
+                        <input type="password" class="form-control" name="organizer_password" required>
+                        <span class="form-hint">8文字以上で、英字、数字、記号を含めてください</span>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline modal-close-btn">キャンセル</button>
+                <button id="organizer-register-btn" class="btn btn-primary">登録</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 主催者登録確認モーダル -->
+    <div id="organizer-confirm-modal" class="modal-overlay">
+        <div class="modal confirm-modal">
+            <div class="modal-header">
+                <h3 class="modal-title">登録確認</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="confirm-icon">
+                    <i class="fas fa-question-circle"></i>
+                </div>
+                <div class="confirm-message">以上の内容で登録しますか？</div>
+                <div id="organizer-confirm-content" class="confirm-description" style="text-align: left; margin-bottom: 20px;">
+                    <!-- ここに登録内容が動的に挿入されます -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="organizer-back-btn" class="btn btn-outline">戻る</button>
+                <button id="organizer-submit-btn" class="btn btn-primary">登録</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 出展社アカウント登録モーダル -->
+    <div id="exhibitor-modal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">出展社アカウント登録</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="exhibitor-form">
+                    <div class="form-group">
+                        <label class="form-label">企業名 <span style="color: red">*</span></label>
+                        <input type="text" class="form-control" name="company" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">担当者名 <span style="color: red">*</span></label>
+                        <input type="text" class="form-control" name="contact_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">担当者メールアドレス <span style="color: red">*</span></label>
+                        <input type="email" class="form-control" name="email" required>
+                        <span class="form-hint">登録後、このメールアドレスに招待メールが送信されます</span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">小間番号 <span style="color: red">*</span></label>
+                        <input type="text" class="form-control" name="booth" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">プラン <span style="color: red">*</span></label>
+                        <select class="form-control" name="plan" required>
+                            <option value="" disabled selected>選択してください</option>
+                            <option value="platinum">プラチナ</option>
+                            <option value="silver">シルバー</option>
+                            <option value="bronze">ブロンズ</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">管理メモ</label>
+                        <textarea class="form-control" name="memo" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline modal-close-btn">キャンセル</button>
+                <button id="exhibitor-register-btn" class="btn btn-primary">登録</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 出展社登録確認モーダル -->
+    <div id="exhibitor-confirm-modal" class="modal-overlay">
+        <div class="modal confirm-modal">
+            <div class="modal-header">
+                <h3 class="modal-title">登録確認</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="confirm-icon">
+                    <i class="fas fa-question-circle"></i>
+                </div>
+                <div class="confirm-message">以上の内容で登録しますか？</div>
+                <div id="exhibitor-confirm-content" class="confirm-description" style="text-align: left; margin-bottom: 20px;">
+                    <!-- ここに登録内容が動的に挿入されます -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="exhibitor-back-btn" class="btn btn-outline">戻る</button>
+                <button id="exhibitor-submit-btn" class="btn btn-primary">登録</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- リリース確認モーダル -->
+    <div id="release-confirm-modal" class="modal-overlay">
+        <div class="modal confirm-modal">
+            <div class="modal-header">
+                <h3 class="modal-title">リリース確認</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="confirm-icon">
+                    <i class="fas fa-arrow-circle-up"></i>
+                </div>
+                <div class="confirm-message">リリースしますか？</div>
+                <div class="confirm-description">ステータスが「公開済み」に変更されます。</div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline modal-close-btn">キャンセル</button>
+                <button id="confirm-release-btn" class="btn btn-primary">OK</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // ナビゲーションメニュー
+            const navLinks = document.querySelectorAll('.nav-link');
+            const contentPages = document.querySelectorAll('.content-page');
+            const accountButtons = document.getElementById('account-management-buttons');
+            
+            // メニュークリック処理
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // アクティブなリンクとページを更新
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const targetPage = this.getAttribute('data-page');
+                    contentPages.forEach(page => {
+                        page.classList.remove('active');
+                    });
+                    
+                    document.getElementById(`${targetPage}-page`).classList.add('active');
+                    
+                    // ヘッダーボタンの表示/非表示切り替え
+                    if (targetPage === 'account-management') {
+                        accountButtons.style.display = 'flex';
+                    } else {
+                        accountButtons.style.display = 'none';
+                    }
+                });
+            });
+            
+            // チェックボックス関連
+            const checkAll = document.getElementById('check-all');
+            const exhibitorChecks = document.querySelectorAll('.exhibitor-check');
+            const bulkActionModal = document.getElementById('bulk-action-modal');
+            
+            if (checkAll) {
+                // 全選択チェックボックス
+                checkAll.addEventListener('change', function() {
+                    exhibitorChecks.forEach(function(check) {
+                        check.checked = checkAll.checked;
+                    });
+                    
+                    updateBulkActionModal();
+                });
+                
+                // 個別チェックボックス
+                exhibitorChecks.forEach(function(check) {
+                    check.addEventListener('change', function() {
+                        updateBulkActionModal();
+                        
+                        // 全てのチェックボックスが選択されているかチェック
+                        const allChecked = Array.from(exhibitorChecks).every(function(ch) {
+                            return ch.checked;
+                        });
+                        
+                        checkAll.checked = allChecked;
+                    });
+                });
+                
+                // 一括操作モーダルの更新
+                function updateBulkActionModal() {
+                    const checkedCount = document.querySelectorAll('.exhibitor-check:checked').length;
+                    
+                    if (checkedCount > 0) {
+                        bulkActionModal.classList.add('active');
+                    } else {
+                        bulkActionModal.classList.remove('active');
+                    }
+                }
+                
+                // 一括公開ボタン
+                const bulkPublishBtn = document.getElementById('bulk-publish-btn');
+                if (bulkPublishBtn) {
+                    bulkPublishBtn.addEventListener('click', function() {
+                        const checkedIds = Array.from(document.querySelectorAll('.exhibitor-check:checked')).map(function(check) {
+                            return check.getAttribute('data-id');
+                        });
+                        
+                        alert(`選択された出展社ID: ${checkedIds.join(', ')} を公開します`);
+                        
+                        bulkActionModal.classList.remove('active');
+                        
+                        checkAll.checked = false;
+                        exhibitorChecks.forEach(function(check) {
+                            check.checked = false;
+                        });
+                    });
+                }
+            }
+            
+            // リリースボタン関連
+            const releaseButtons = document.querySelectorAll('.release-btn');
+            const releaseConfirmModal = document.getElementById('release-confirm-modal');
+            let currentReleaseId = null;
+            
+            // リリースボタンクリック時の処理
+            releaseButtons.forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    currentReleaseId = this.getAttribute('data-id');
+                    releaseConfirmModal.classList.add('active');
+                });
+            });
+            
+            // リリース確認ボタンクリック時の処理
+            const confirmReleaseBtn = document.getElementById('confirm-release-btn');
+            if (confirmReleaseBtn) {
+                confirmReleaseBtn.addEventListener('click', function() {
+                    if (currentReleaseId) {
+                        alert(`ID: ${currentReleaseId} の出展社をリリースしました`);
+                        
+                        releaseConfirmModal.classList.remove('active');
+                        currentReleaseId = null;
+                    }
+                });
+            }
+            
+            // 主催者アカウント登録
+            const addOrganizerBtn = document.getElementById('add-organizer-btn');
+            const organizerModal = document.getElementById('organizer-modal');
+            const organizerForm = document.getElementById('organizer-form');
+            const organizerConfirmModal = document.getElementById('organizer-confirm-modal');
+            const organizerRegisterBtn = document.getElementById('organizer-register-btn');
+            const organizerBackBtn = document.getElementById('organizer-back-btn');
+            const organizerSubmitBtn = document.getElementById('organizer-submit-btn');
+            
+            // 主催者アカウント登録ボタンクリック
+            if (addOrganizerBtn) {
+                addOrganizerBtn.addEventListener('click', function() {
+                    organizerModal.classList.add('active');
+                });
+            }
+            
+            // 主催者登録確認ボタンクリック
+            if (organizerRegisterBtn) {
+                organizerRegisterBtn.addEventListener('click', function() {
+                    // フォームのバリデーション
+                    if (organizerForm.checkValidity()) {
+                        // フォームの内容を取得
+                        const formData = new FormData(organizerForm);
+                        let confirmContent = '';
+                        
+                        // 確認内容の構築
+                        confirmContent += `<p><strong>管理名:</strong> ${formData.get('organizer_name')}</p>`;
+                        confirmContent += `<p><strong>メールアドレス:</strong> ${formData.get('organizer_email')}</p>`;
+                        confirmContent += `<p><strong>パスワード:</strong> ${'*'.repeat(formData.get('organizer_password').length)}</p>`;
+                        
+                        // 確認内容をモーダルに設定
+                        document.getElementById('organizer-confirm-content').innerHTML = confirmContent;
+                        
+                        // モーダル切り替え
+                        organizerModal.classList.remove('active');
+                        organizerConfirmModal.classList.add('active');
+                    } else {
+                        organizerForm.reportValidity();
+                    }
+                });
+            }
+            
+            // 主催者登録「戻る」ボタンクリック
+            if (organizerBackBtn) {
+                organizerBackBtn.addEventListener('click', function() {
+                    organizerConfirmModal.classList.remove('active');
+                    organizerModal.classList.add('active');
+                });
+            }
+            
+            // 主催者登録「登録」ボタンクリック
+            if (organizerSubmitBtn) {
+                organizerSubmitBtn.addEventListener('click', function() {
+                    alert('主催者アカウントを登録しました');
+                    
+                    organizerForm.reset();
+                    organizerConfirmModal.classList.remove('active');
+                });
+            }
+            
+            // 出展社アカウント登録
+            const addExhibitorBtn = document.getElementById('add-exhibitor-btn');
+            const exhibitorModal = document.getElementById('exhibitor-modal');
+            const exhibitorForm = document.getElementById('exhibitor-form');
+            const exhibitorConfirmModal = document.getElementById('exhibitor-confirm-modal');
+            const exhibitorRegisterBtn = document.getElementById('exhibitor-register-btn');
+            const exhibitorBackBtn = document.getElementById('exhibitor-back-btn');
+            const exhibitorSubmitBtn = document.getElementById('exhibitor-submit-btn');
+            
+            // 出展社アカウント登録ボタンクリック
+            if (addExhibitorBtn) {
+                addExhibitorBtn.addEventListener('click', function() {
+                    exhibitorModal.classList.add('active');
+                });
+            }
+            
+            // 出展社登録確認ボタンクリック
+            if (exhibitorRegisterBtn) {
+                exhibitorRegisterBtn.addEventListener('click', function() {
+                    // フォームのバリデーション
+                    if (exhibitorForm.checkValidity()) {
+                        // フォームの内容を取得
+                        const formData = new FormData(exhibitorForm);
+                        let confirmContent = '';
+                        
+                        // プラン名の取得
+                        const planSelect = exhibitorForm.querySelector('[name="plan"]');
+                        const planText = planSelect.options[planSelect.selectedIndex].text;
+                        
+                        // 確認内容の構築
+                        confirmContent += `<p><strong>企業名:</strong> ${formData.get('company')}</p>`;
+                        confirmContent += `<p><strong>担当者名:</strong> ${formData.get('contact_name')}</p>`;
+                        confirmContent += `<p><strong>メールアドレス:</strong> ${formData.get('email')}</p>`;
+                        confirmContent += `<p><strong>小間番号:</strong> ${formData.get('booth')}</p>`;
+                        confirmContent += `<p><strong>プラン:</strong> ${planText}</p>`;
+                        
+                        if (formData.get('memo')) {
+                            confirmContent += `<p><strong>管理メモ:</strong> ${formData.get('memo')}</p>`;
+                        }
+                        
+                        // 確認内容をモーダルに設定
+                        document.getElementById('exhibitor-confirm-content').innerHTML = confirmContent;
+                        
+                        // モーダル切り替え
+                        exhibitorModal.classList.remove('active');
+                        exhibitorConfirmModal.classList.add('active');
+                    } else {
+                        exhibitorForm.reportValidity();
+                    }
+                });
+            }
+            
+            // 出展社登録「戻る」ボタンクリック
+            if (exhibitorBackBtn) {
+                exhibitorBackBtn.addEventListener('click', function() {
+                    exhibitorConfirmModal.classList.remove('active');
+                    exhibitorModal.classList.add('active');
+                });
+            }
+            
+            // 出展社登録「登録」ボタンクリック
+            if (exhibitorSubmitBtn) {
+                exhibitorSubmitBtn.addEventListener('click', function() {
+                    alert('出展社アカウントを登録しました');
+                    
+                    exhibitorForm.reset();
+                    exhibitorConfirmModal.classList.remove('active');
+                });
+            }
+            
+            // モーダルを閉じるボタン
+            const modalCloseButtons = document.querySelectorAll('.modal-close, .modal-close-btn');
+            modalCloseButtons.forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.modal-overlay, .half-modal-overlay').forEach(function(modal) {
+                        modal.classList.remove('active');
+                    });
+                });
+            });
+            
+            // モーダル外クリックで閉じる
+            document.querySelectorAll('.modal-overlay').forEach(function(modal) {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        modal.classList.remove('active');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
