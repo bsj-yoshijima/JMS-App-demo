@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript制御の自動スクロールバナー</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: transparent;
+            padding: 10px;
+            min-height: 160px;
+            overflow: hidden;
+        }
+        
+        .carousel-container {
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+            border-radius: 8px;
+            background-color: white;
+        }
+        
+        .banner-track {
+            display: flex;
+            width: max-content;
+            position: relative;
+            left: 0;
+        }
+        
+        .banner {
+            flex: 0 0 auto;
+            width: 280px;
+            height: 140px;
+            margin: 10px;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+        }
+        
+        .banner-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        
+        .banner-gradient {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, 0.7) 100%);
+        }
+        
+        .banner-title {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            color: white;
+            padding: 8px 12px;
+            font-size: 14px;
+            font-weight: 600;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+            z-index: 2;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="carousel-container">
+        <div class="banner-track" id="bannerTrack">
+            <!-- バナーはJavaScriptで動的に生成されます -->
+        </div>
+    </div>
+
+    <script>
+        // 即時実行関数
+        (function() {
+            // バナーデータ
+            const banners = [{
+                image: '/api/placeholder/300/150',
+                title: 'トヨタ公式ページ',
+                url: 'https://toyota.jp/'
+            }, {
+                image: '/api/placeholder/300/150',
+                title: '日産公式ページ',
+                url: 'https://www.nissan.co.jp/'
+            }, {
+                image: '/api/placeholder/300/150',
+                title: 'ホンダ公式ページ',
+                url: 'https://www.honda.co.jp/'
+            }, {
+                image: '/api/placeholder/300/150',
+                title: '夏の特別コレクション発売中',
+                url: 'https://example.com/summer'
+            }, {
+                image: '/api/placeholder/300/150',
+                title: 'アプリ限定クーポン配布中',
+                url: 'https://example.com/coupon'
+            }];
+
+            // バナーをシャッフルする関数
+            function shuffleArray(array) {
+                const newArray = [...array];
+                for (let i = newArray.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+                }
+                return newArray;
+            }
+
+            // バナーを生成する関数
+            function createBanner(banner) {
+                const bannerElement = document.createElement('a');
+                bannerElement.className = 'banner';
+                bannerElement.href = banner.url;
+                // iframeから親ウィンドウを開く設定
+                bannerElement.target = '_top';
+
+                // 画像を追加
+                const imageElement = document.createElement('img');
+                imageElement.className = 'banner-image';
+                imageElement.src = banner.image;
+                imageElement.alt = banner.title;
+                // 画像の読み込みエラー時の処理
+                imageElement.onerror = function() {
+                    // 画像が読み込めない場合はグラデーション背景で代用
+                    this.style.display = 'none';
+                    bannerElement.style.background = 'linear-gradient(135deg, #' +
+                        Math.floor(Math.random() * 16777215).toString(16) + ', #' +
+                        Math.floor(Math.random() * 16777215).toString(16) + ')';
+                };
+
+                // グラデーションオーバーレイ
+                const gradientElement = document.createElement('div');
+                gradientElement.className = 'banner-gradient';
+
+                // タイトル
+                const titleElement = document.createElement('div');
+                titleElement.className = 'banner-title';
+                titleElement.textContent = banner.title;
+
+                bannerElement.appendChild(imageElement);
+                bannerElement.appendChild(gradientElement);
+                bannerElement.appendChild(titleElement);
+
+                return bannerElement;
+            }
+
+            // シャッフルしたバナーを取得
+            const shuffledBanners = shuffleArray(banners);
+
+            // トラック要素の取得またはポーリングによる待機
+            let bannerTrack = document.getElementById('bannerTrack');
+            let animationActive = false;
+
+            function checkAndInitialize() {
+                bannerTrack = document.getElementById('bannerTrack');
+                if (bannerTrack) {
+                    initBanners();
+                    startAnimation();
+                } else {
+                    // DOMがまだ準備できていない場合は再試行
+                    setTimeout(checkAndInitialize, 50);
+                }
+            }
+
+            // 初期バナーの追加
+            function initBanners() {
+                if (!bannerTrack || bannerTrack.children.length > 0) {
+                    return; // すでに初期化されている場合は何もしない
+                }
+
+                console.log('Initializing banners');
+
+                // 最初のセット
+                shuffledBanners.forEach(banner => {
+                    bannerTrack.appendChild(createBanner(banner));
+                });
+
+                // 二つ目のセット
+                shuffledBanners.forEach(banner => {
+                    bannerTrack.appendChild(createBanner(banner));
+                });
+            }
+
+            // JavaScript駆動のアニメーション
+            function startAnimation() {
+                if (animationActive || !bannerTrack) {
+                    return;
+                }
+
+                console.log('Starting animation');
+                animationActive = true;
+
+                let position = 0;
+                const speed = 1; // 移動速度（px/フレーム）
+                const bannerWidth = bannerTrack.firstChild ? bannerTrack.firstChild.offsetWidth + 20 : 300; // バナー幅+マージン
+                const totalWidth = bannerWidth * shuffledBanners.length;
+
+                function animate() {
+                    position -= speed;
+
+                    // 前半のバナーセットが完全に見えなくなったら位置をリセット
+                    if (position <= -totalWidth) {
+                        position = 0;
+                    }
+
+                    bannerTrack.style.transform = `translateX(${position}px)`;
+
+                    // アニメーションループ
+                    requestAnimationFrame(animate);
+                }
+
+                // アニメーションスタート
+                animate();
+            }
+
+            // 初期化処理開始
+            checkAndInitialize();
+
+            // バックアップとして、ウィンドウロード時にも確認
+            window.addEventListener('load', function() {
+                if (!animationActive) {
+                    checkAndInitialize();
+                }
+            });
+        })();
+    </script>
+</body>
+
+</html>
