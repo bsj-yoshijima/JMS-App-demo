@@ -15,7 +15,7 @@
             --text-color: #333;
             --border-color: #ddd;
             --header-height: 60px;
-            --sidebar-width: 200px;
+            --sidebar-width: 220px;
             
             /* ステータス用の色 */
             --status-not-logged-in: #e1ecf7;
@@ -51,9 +51,6 @@
             color: var(--text-color);
             background-color: #f9f9f9;
             line-height: 1.6;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
         }
         
         /* ヘッダー */
@@ -83,18 +80,17 @@
             gap: 10px;
         }
         
-        /* サイドバー（左側メニュー） */
+        /* サイドバー */
         .sidebar {
             position: fixed;
             top: var(--header-height);
             left: 0;
-            bottom: 0;
             width: var(--sidebar-width);
+            height: calc(100vh - var(--header-height));
             background-color: white;
-            border-right: 1px solid var(--border-color);
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
             z-index: 90;
             overflow-y: auto;
-            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
         }
         
         .nav-menu {
@@ -103,32 +99,26 @@
         }
         
         .nav-item {
-            padding: 0;
+            display: block;
+            padding: 12px 20px;
+            color: var(--text-color);
+            text-decoration: none;
+            transition: background-color 0.2s;
             cursor: pointer;
         }
         
-        .nav-link {
-            display: block;
-            padding: 12px 20px;
-            text-decoration: none;
-            color: var(--text-color);
-            transition: background-color 0.2s, color 0.2s;
-            border-left: 3px solid transparent;
+        .nav-item:hover {
+            background-color: var(--primary-light);
         }
         
-        .nav-link:hover {
+        .nav-item.active {
             background-color: var(--primary-light);
             color: var(--primary-color);
-        }
-        
-        .nav-link.active {
-            background-color: var(--primary-light);
-            color: var(--primary-color);
-            border-left-color: var(--primary-color);
             font-weight: 600;
+            border-left: 4px solid var(--primary-color);
         }
         
-        .nav-link i {
+        .nav-icon {
             margin-right: 10px;
             width: 20px;
             text-align: center;
@@ -136,10 +126,22 @@
         
         /* メインコンテンツ */
         .main-content {
-            margin-top: var(--header-height);
             margin-left: var(--sidebar-width);
+            margin-top: var(--header-height);
             padding: 20px;
-            flex: 1;
+            min-height: calc(100vh - var(--header-height));
+        }
+        
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .page-title {
+            font-size: 22px;
+            font-weight: 600;
         }
         
         /* ダッシュボードセクション */
@@ -155,7 +157,7 @@
         
         .status-card {
             flex: 1;
-            min-width: 180px;
+            min-width: 200px;
             background-color: white;
             border-radius: 8px;
             padding: 15px;
@@ -228,19 +230,6 @@
             justify-content: flex-end;
             margin-top: 15px;
             gap: 10px;
-        }
-        
-        /* ページヘッダー */
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        
-        .page-title {
-            font-size: 24px;
-            font-weight: 600;
         }
         
         /* テーブルセクション */
@@ -698,13 +687,64 @@
             margin-bottom: 20px;
         }
         
-        /* 非表示要素 */
-        .content-page {
-            display: none;
+        /* CSVインポートモーダル */
+        .csv-option {
+            background-color: var(--secondary-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
         }
         
-        .content-page.active {
-            display: block;
+        .csv-option:hover {
+            background-color: var(--primary-light);
+        }
+        
+        .csv-option-icon {
+            font-size: 24px;
+            margin-right: 15px;
+            color: var(--primary-color);
+        }
+        
+        .csv-option-content {
+            flex: 1;
+        }
+        
+        .csv-option-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .csv-option-description {
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .csv-import-area {
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            padding: 25px;
+            text-align: center;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        
+        .csv-import-area:hover {
+            border-color: var(--primary-color);
+        }
+        
+        .csv-import-icon {
+            font-size: 36px;
+            color: #888;
+            margin-bottom: 10px;
+        }
+        
+        .csv-import-text {
+            color: #666;
         }
         
         /* ページネーション */
@@ -736,49 +776,283 @@
             border-color: var(--primary-color);
             color: white;
         }
+        
+        /* コンテンツページ */
+        .content-page {
+            display: none;
+        }
+        
+        .content-page.active {
+            display: block;
+        }
     </style>
 </head>
 <body>
     <!-- ヘッダー -->
     <header>
         <div class="header-title">出展社管理システム</div>
-        <div class="header-buttons" id="account-management-buttons" style="display: none;">
-            <button id="add-organizer-btn" class="btn btn-primary">
-                <i class="fas fa-user-shield" style="margin-right: 5px;"></i>主催者アカウント登録
-            </button>
-            <button id="add-exhibitor-btn" class="btn btn-outline">
-                <i class="fas fa-user-plus" style="margin-right: 5px;"></i>出展社アカウント登録
-            </button>
+        <div class="header-buttons" id="page-header-buttons">
+            <!-- ボタンは各ページごとに動的に表示 -->
         </div>
     </header>
     
-    <!-- サイドバー（左側メニュー） -->
+    <!-- サイドバー -->
     <aside class="sidebar">
         <ul class="nav-menu">
-            <li class="nav-item">
-                <a href="#account-management" class="nav-link" data-page="account-management">
-                    <i class="fas fa-user"></i>アカウント管理
-                </a>
+            <li class="nav-item" data-page="exhibitor-account-page">
+                <i class="fas fa-users nav-icon"></i>出展社アカウント管理
             </li>
-            <li class="nav-item">
-                <a href="#release-management" class="nav-link active" data-page="release-management">
-                    <i class="fas fa-upload"></i>リリース管理
-                </a>
+            <li class="nav-item" data-page="organizer-account-page">
+                <i class="fas fa-user-tie nav-icon"></i>主催者アカウント管理
+            </li>
+            <li class="nav-item active" data-page="release-management-page">
+                <i class="fas fa-upload nav-icon"></i>リリース管理
             </li>
         </ul>
     </aside>
     
     <!-- メインコンテンツ -->
     <main class="main-content">
+        <!-- 出展社アカウント管理ページ -->
+        <div id="exhibitor-account-page" class="content-page">
+            <div class="content-header">
+                <h1 class="page-title">出展社アカウント管理</h1>
+                <div class="header-buttons">
+                    <button id="add-exhibitor-account-btn" class="btn btn-primary">
+                        <i class="fas fa-plus" style="margin-right: 5px;"></i>出展社アカウント登録
+                    </button>
+                </div>
+            </div>
+            
+            <!-- フィルターセクション -->
+            <section class="filter-section">
+                <form class="filter-form">
+                    <div class="filter-group">
+                        <label class="filter-label">企業名</label>
+                        <input type="text" class="form-control" placeholder="企業名で検索">
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">担当者名</label>
+                        <input type="text" class="form-control" placeholder="担当者名で検索">
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">小間番号</label>
+                        <input type="text" class="form-control" placeholder="小間番号で検索">
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">プラン</label>
+                        <select class="form-control">
+                            <option value="">すべて</option>
+                            <option value="platinum">プラチナ</option>
+                            <option value="silver">シルバー</option>
+                            <option value="bronze">ブロンズ</option>
+                        </select>
+                    </div>
+                </form>
+                <div class="filter-buttons">
+                    <button class="btn btn-outline">リセット</button>
+                    <button class="btn btn-primary">検索</button>
+                </div>
+            </section>
+            
+            <!-- テーブルセクション -->
+            <section class="table-section">
+                <table class="exhibitor-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>企業名</th>
+                            <th>担当者名</th>
+                            <th>メールアドレス</th>
+                            <th>小間番号</th>
+                            <th>プラン</th>
+                            <th>ステータス</th>
+                            <th>管理メモ</th>
+                            <th>アクション</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- サンプルデータ -->
+                        <tr>
+                            <td>1001</td>
+                            <td>株式会社テクノソリューション</td>
+                            <td>山田太郎</td>
+                            <td>yamada@example.com</td>
+                            <td>A-01</td>
+                            <td><span class="plan-badge plan-platinum">プラチナ</span></td>
+                            <td><span class="status-badge status-published">公開済み</span></td>
+                            <td>2023年より継続出展</td>
+                            <td class="action-buttons">
+                                <button class="btn btn-icon btn-icon-edit edit-exhibitor-btn" data-id="1001" title="編集">
+                                    <i class="fas fa-pencil-alt"></i>
+                                </button>
+                                <button class="btn btn-icon btn-icon-delete" title="削除">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>1002</td>
+                            <td>グローバルエンジニアリング株式会社</td>
+                            <td>佐藤健太</td>
+                            <td>sato@example.com</td>
+                            <td>B-05</td>
+                            <td><span class="plan-badge plan-silver">シルバー</span></td>
+                            <td><span class="status-badge status-submitted">提出済み</span></td>
+                            <td>ロゴデータ待ち</td>
+                            <td class="action-buttons">
+                                <button class="btn btn-icon btn-icon-edit edit-exhibitor-btn" data-id="1002" title="編集">
+                                    <i class="fas fa-pencil-alt"></i>
+                                </button>
+                                <button class="btn btn-icon btn-icon-delete" title="削除">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>1003</td>
+                            <td>ネクストイノベーション合同会社</td>
+                            <td>鈴木花子</td>
+                            <td>suzuki@example.com</td>
+                            <td>C-12</td>
+                            <td><span class="plan-badge plan-bronze">ブロンズ</span></td>
+                            <td><span class="status-badge status-in-progress">入力中</span></td>
+                            <td>2/15に電話確認予定</td>
+                            <td class="action-buttons">
+                                <button class="btn btn-icon btn-icon-edit edit-exhibitor-btn" data-id="1003" title="編集">
+                                    <i class="fas fa-pencil-alt"></i>
+                                </button>
+                                <button class="btn btn-icon btn-icon-delete" title="削除">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>1004</td>
+                            <td>デジタルフューチャー株式会社</td>
+                            <td>高橋誠</td>
+                            <td>takahashi@example.com</td>
+                            <td>A-08</td>
+                            <td><span class="plan-badge plan-platinum">プラチナ</span></td>
+                            <td><span class="status-badge status-not-filled">未入力</span></td>
+                            <td>初出展、フォローが必要</td>
+                            <td class="action-buttons">
+                                <button class="btn btn-icon btn-icon-edit edit-exhibitor-btn" data-id="1004" title="編集">
+                                    <i class="fas fa-pencil-alt"></i>
+                                </button>
+                                <button class="btn btn-icon btn-icon-delete" title="削除">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <!-- ページネーション -->
+                <div class="pagination">
+                    <div class="pagination-item">←</div>
+                    <div class="pagination-item active">1</div>
+                    <div class="pagination-item">2</div>
+                    <div class="pagination-item">3</div>
+                    <div class="pagination-item">→</div>
+                </div>
+            </section>
+        </div>
+        
+        <!-- 主催者アカウント管理ページ -->
+        <div id="organizer-account-page" class="content-page">
+            <div class="content-header">
+                <h1 class="page-title">主催者アカウント管理</h1>
+                <div class="header-buttons">
+                    <button id="add-organizer-account-btn" class="btn btn-primary">
+                        <i class="fas fa-plus" style="margin-right: 5px;"></i>主催者アカウント登録
+                    </button>
+                </div>
+            </div>
+            
+            <!-- フィルターセクション -->
+            <section class="filter-section">
+                <form class="filter-form">
+                    <div class="filter-group">
+                        <label class="filter-label">管理名</label>
+                        <input type="text" class="form-control" placeholder="管理名で検索">
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">メールアドレス</label>
+                        <input type="email" class="form-control" placeholder="メールアドレスで検索">
+                    </div>
+                </form>
+                <div class="filter-buttons">
+                    <button class="btn btn-outline">リセット</button>
+                    <button class="btn btn-primary">検索</button>
+                </div>
+            </section>
+            
+            <!-- テーブルセクション -->
+            <section class="table-section">
+                <table class="exhibitor-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>管理名</th>
+                            <th>メールアドレス</th>
+                            <th>最終ログイン</th>
+                            <th>アクション</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- サンプルデータ -->
+                        <tr>
+                            <td>101</td>
+                            <td>管理者1</td>
+                            <td>admin1@example.com</td>
+                            <td>2023/2/15 14:30</td>
+                            <td class="action-buttons">
+                                <button class="btn btn-icon btn-icon-edit edit-organizer-btn" data-id="101" title="編集">
+                                    <i class="fas fa-pencil-alt"></i>
+                                </button>
+                                <button class="btn btn-icon btn-icon-delete" title="削除">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>102</td>
+                            <td>管理者2</td>
+                            <td>admin2@example.com</td>
+                            <td>2023/2/14 10:15</td>
+                            <td class="action-buttons">
+                                <button class="btn btn-icon btn-icon-edit edit-organizer-btn" data-id="102" title="編集">
+                                    <i class="fas fa-pencil-alt"></i>
+                                </button>
+                                <button class="btn btn-icon btn-icon-delete" title="削除">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <!-- ページネーション -->
+                <div class="pagination">
+                    <div class="pagination-item">←</div>
+                    <div class="pagination-item active">1</div>
+                    <div class="pagination-item">2</div>
+                    <div class="pagination-item">3</div>
+                    <div class="pagination-item">→</div>
+                </div>
+            </section>
+        </div>
+        
         <!-- リリース管理ページ -->
         <div id="release-management-page" class="content-page active">
+            <div class="content-header">
+                <h1 class="page-title">リリース管理</h1>
+            </div>
+            
             <!-- ダッシュボードセクション -->
             <section class="dashboard-section">
                 <div class="status-cards">
-                    <div class="status-card not-logged-in">
-                        <div class="status-card-title">未ログイン</div>
-                        <div class="status-card-count">12</div>
-                    </div>
                     <div class="status-card not-filled">
                         <div class="status-card-title">未入力</div>
                         <div class="status-card-count">3</div>
@@ -826,7 +1100,6 @@
                         <label class="filter-label">ステータス</label>
                         <select class="form-control">
                             <option value="">すべて</option>
-                            <option value="not-logged-in">未ログイン</option>
                             <option value="not-filled">未入力</option>
                             <option value="in-progress">入力中</option>
                             <option value="submitted">提出済み</option>
@@ -886,9 +1159,6 @@
                                 <button class="btn btn-icon btn-icon-release" disabled title="リリース">
                                     <i class="fas fa-arrow-up"></i>
                                 </button>
-                                <button class="btn btn-icon btn-icon-edit edit-btn" data-id="1001" title="編集">
-                                    <i class="fas fa-pencil-alt"></i>
-                                </button>
                                 <button class="btn btn-icon btn-icon-delete" title="削除">
                                     <i class="fas fa-trash-alt"></i>
                                 </button>
@@ -915,9 +1185,6 @@
                                 </button>
                                 <button class="btn btn-icon btn-icon-release active release-btn" data-id="1002" title="リリース">
                                     <i class="fas fa-arrow-up"></i>
-                                </button>
-                                <button class="btn btn-icon btn-icon-edit edit-btn" data-id="1002" title="編集">
-                                    <i class="fas fa-pencil-alt"></i>
                                 </button>
                                 <button class="btn btn-icon btn-icon-delete" title="削除">
                                     <i class="fas fa-trash-alt"></i>
@@ -946,9 +1213,6 @@
                                 <button class="btn btn-icon btn-icon-release" disabled title="リリース">
                                     <i class="fas fa-arrow-up"></i>
                                 </button>
-                                <button class="btn btn-icon btn-icon-edit edit-btn" data-id="1003" title="編集">
-                                    <i class="fas fa-pencil-alt"></i>
-                                </button>
                                 <button class="btn btn-icon btn-icon-delete" title="削除">
                                     <i class="fas fa-trash-alt"></i>
                                 </button>
@@ -967,7 +1231,7 @@
                             <td>takahashi@example.com</td>
                             <td>A-08</td>
                             <td><span class="plan-badge plan-platinum">プラチナ</span></td>
-                            <td><span class="status-badge status-not-logged-in">未ログイン</span></td>
+                            <td><span class="status-badge status-not-filled">未入力</span></td>
                             <td>初出展、フォローが必要</td>
                             <td class="action-buttons">
                                 <button class="btn btn-icon btn-icon-preview" title="プレビュー">
@@ -975,198 +1239,6 @@
                                 </button>
                                 <button class="btn btn-icon btn-icon-release" disabled title="リリース">
                                     <i class="fas fa-arrow-up"></i>
-                                </button>
-                                <button class="btn btn-icon btn-icon-edit edit-btn" data-id="1004" title="編集">
-                                    <i class="fas fa-pencil-alt"></i>
-                                </button>
-                                <button class="btn btn-icon btn-icon-delete" title="削除">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <label class="checkbox-custom">
-                                    <input type="checkbox" class="exhibitor-check" data-id="1005">
-                                    <span class="checkbox-mark"></span>
-                                </label>
-                            </td>
-                            <td>1005</td>
-                            <td>スマートテクノロジー株式会社</td>
-                            <td>伊藤直樹</td>
-                            <td>ito@example.com</td>
-                            <td>B-10</td>
-                            <td><span class="plan-badge plan-silver">シルバー</span></td>
-                            <td><span class="status-badge status-published">公開済み</span></td>
-                            <td></td>
-                            <td class="action-buttons">
-                                <button class="btn btn-icon btn-icon-preview" title="プレビュー">
-                                    <i class="fas fa-globe"></i>
-                                </button>
-                                <button class="btn btn-icon btn-icon-release" disabled title="リリース">
-                                    <i class="fas fa-arrow-up"></i>
-                                </button>
-                                <button class="btn btn-icon btn-icon-edit edit-btn" data-id="1005" title="編集">
-                                    <i class="fas fa-pencil-alt"></i>
-                                </button>
-                                <button class="btn btn-icon btn-icon-delete" title="削除">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <label class="checkbox-custom">
-                                    <input type="checkbox" class="exhibitor-check" data-id="1006">
-                                    <span class="checkbox-mark"></span>
-                                </label>
-                            </td>
-                            <td>1006</td>
-                            <td>イノベーションテック株式会社</td>
-                            <td>中村健太</td>
-                            <td>nakamura@example.com</td>
-                            <td>D-03</td>
-                            <td><span class="plan-badge plan-bronze">ブロンズ</span></td>
-                            <td><span class="status-badge status-not-filled">未入力</span></td>
-                            <td>初出展</td>
-                            <td class="action-buttons">
-                                <button class="btn btn-icon btn-icon-preview" title="プレビュー">
-                                    <i class="fas fa-globe"></i>
-                                </button>
-                                <button class="btn btn-icon btn-icon-release" disabled title="リリース">
-                                    <i class="fas fa-arrow-up"></i>
-                                </button>
-                                <button class="btn btn-icon btn-icon-edit edit-btn" data-id="1006" title="編集">
-                                    <i class="fas fa-pencil-alt"></i>
-                                </button>
-                                <button class="btn btn-icon btn-icon-delete" title="削除">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-                
-                <!-- ページネーション -->
-                <div class="pagination">
-                    <div class="pagination-item">←</div>
-                    <div class="pagination-item active">1</div>
-                    <div class="pagination-item">2</div>
-                    <div class="pagination-item">3</div>
-                    <div class="pagination-item">→</div>
-                </div>
-            </section>
-        </div>
-        
-        <!-- アカウント管理ページ -->
-        <div id="account-management-page" class="content-page">
-            <div class="page-header">
-                <h1 class="page-title">アカウント管理</h1>
-            </div>
-            
-            <!-- アカウント一覧テーブル -->
-            <section class="table-section">
-                <table class="exhibitor-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>アカウント種別</th>
-                            <th>企業名/管理名</th>
-                            <th>担当者名</th>
-                            <th>メールアドレス</th>
-                            <th>小間番号</th>
-                            <th>プラン</th>
-                            <th>最終ログイン</th>
-                            <th>アクション</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- サンプルデータ（主催者） -->
-                        <tr>
-                            <td>O001</td>
-                            <td>主催者</td>
-                            <td>システム管理者</td>
-                            <td>-</td>
-                            <td>admin@example.com</td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td>2023/12/15 15:30</td>
-                            <td class="action-buttons">
-                                <button class="btn btn-icon btn-icon-edit" title="編集">
-                                    <i class="fas fa-pencil-alt"></i>
-                                </button>
-                                <button class="btn btn-icon btn-icon-delete" title="削除">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>O002</td>
-                            <td>主催者</td>
-                            <td>イベント担当者</td>
-                            <td>-</td>
-                            <td>event@example.com</td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td>2023/12/20 09:45</td>
-                            <td class="action-buttons">
-                                <button class="btn btn-icon btn-icon-edit" title="編集">
-                                    <i class="fas fa-pencil-alt"></i>
-                                </button>
-                                <button class="btn btn-icon btn-icon-delete" title="削除">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
-                            </td>
-                        </tr>
-                        <!-- サンプルデータ（出展社） -->
-                        <tr>
-                            <td>E001</td>
-                            <td>出展社</td>
-                            <td>株式会社テクノソリューション</td>
-                            <td>山田太郎</td>
-                            <td>yamada@example.com</td>
-                            <td>A-01</td>
-                            <td><span class="plan-badge plan-platinum">プラチナ</span></td>
-                            <td>2023/12/21 14:20</td>
-                            <td class="action-buttons">
-                                <button class="btn btn-icon btn-icon-edit" title="編集">
-                                    <i class="fas fa-pencil-alt"></i>
-                                </button>
-                                <button class="btn btn-icon btn-icon-delete" title="削除">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>E002</td>
-                            <td>出展社</td>
-                            <td>グローバルエンジニアリング株式会社</td>
-                            <td>佐藤健太</td>
-                            <td>sato@example.com</td>
-                            <td>B-05</td>
-                            <td><span class="plan-badge plan-silver">シルバー</span></td>
-                            <td>2023/12/18 11:10</td>
-                            <td class="action-buttons">
-                                <button class="btn btn-icon btn-icon-edit" title="編集">
-                                    <i class="fas fa-pencil-alt"></i>
-                                </button>
-                                <button class="btn btn-icon btn-icon-delete" title="削除">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>E003</td>
-                            <td>出展社</td>
-                            <td>ネクストイノベーション合同会社</td>
-                            <td>鈴木花子</td>
-                            <td>suzuki@example.com</td>
-                            <td>C-12</td>
-                            <td><span class="plan-badge plan-bronze">ブロンズ</span></td>
-                            <td>2023/12/19 16:40</td>
-                            <td class="action-buttons">
-                                <button class="btn btn-icon btn-icon-edit" title="編集">
-                                    <i class="fas fa-pencil-alt"></i>
                                 </button>
                                 <button class="btn btn-icon btn-icon-delete" title="削除">
                                     <i class="fas fa-trash-alt"></i>
@@ -1202,69 +1274,15 @@
         </div>
     </div>
     
-    <!-- 主催者アカウント登録モーダル -->
-    <div id="organizer-modal" class="modal-overlay">
-        <div class="modal">
-            <div class="modal-header">
-                <h3 class="modal-title">主催者アカウント登録</h3>
-                <button class="modal-close">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="organizer-form">
-                    <div class="form-group">
-                        <label class="form-label">管理名 <span style="color: red">*</span></label>
-                        <input type="text" class="form-control" name="organizer_name" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">メールアドレス <span style="color: red">*</span></label>
-                        <input type="email" class="form-control" name="organizer_email" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">パスワード <span style="color: red">*</span></label>
-                        <input type="password" class="form-control" name="organizer_password" required>
-                        <span class="form-hint">8文字以上で、英字、数字、記号を含めてください</span>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-outline modal-close-btn">キャンセル</button>
-                <button id="organizer-register-btn" class="btn btn-primary">登録</button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- 主催者登録確認モーダル -->
-    <div id="organizer-confirm-modal" class="modal-overlay">
-        <div class="modal confirm-modal">
-            <div class="modal-header">
-                <h3 class="modal-title">登録確認</h3>
-                <button class="modal-close">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="confirm-icon">
-                    <i class="fas fa-question-circle"></i>
-                </div>
-                <div class="confirm-message">以上の内容で登録しますか？</div>
-                <div id="organizer-confirm-content" class="confirm-description" style="text-align: left; margin-bottom: 20px;">
-                    <!-- ここに登録内容が動的に挿入されます -->
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button id="organizer-back-btn" class="btn btn-outline">戻る</button>
-                <button id="organizer-submit-btn" class="btn btn-primary">登録</button>
-            </div>
-        </div>
-    </div>
-    
     <!-- 出展社アカウント登録モーダル -->
-    <div id="exhibitor-modal" class="modal-overlay">
+    <div id="add-exhibitor-modal" class="modal-overlay">
         <div class="modal">
             <div class="modal-header">
                 <h3 class="modal-title">出展社アカウント登録</h3>
                 <button class="modal-close">&times;</button>
             </div>
             <div class="modal-body">
-                <form id="exhibitor-form">
+                <form id="add-exhibitor-form">
                     <div class="form-group">
                         <label class="form-label">企業名 <span style="color: red">*</span></label>
                         <input type="text" class="form-control" name="company" required>
@@ -1299,30 +1317,141 @@
             </div>
             <div class="modal-footer">
                 <button class="btn btn-outline modal-close-btn">キャンセル</button>
-                <button id="exhibitor-register-btn" class="btn btn-primary">登録</button>
+                <button id="add-exhibitor-confirm-btn" class="btn btn-primary">確認</button>
             </div>
         </div>
     </div>
     
-    <!-- 出展社登録確認モーダル -->
-    <div id="exhibitor-confirm-modal" class="modal-overlay">
+    <!-- 出展社アカウント編集モーダル -->
+    <div id="edit-exhibitor-modal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">出展社情報編集</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="edit-exhibitor-form">
+                    <input type="hidden" name="id" id="edit-exhibitor-id">
+                    <div class="form-group">
+                        <label class="form-label">企業名 <span style="color: red">*</span></label>
+                        <input type="text" class="form-control" id="edit-exhibitor-company" name="company" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">担当者名 <span style="color: red">*</span></label>
+                        <input type="text" class="form-control" id="edit-exhibitor-contact-name" name="contact_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">担当者メールアドレス <span style="color: red">*</span></label>
+                        <input type="email" class="form-control" id="edit-exhibitor-email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">小間番号 <span style="color: red">*</span></label>
+                        <input type="text" class="form-control" id="edit-exhibitor-booth" name="booth" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">プラン <span style="color: red">*</span></label>
+                        <select class="form-control" id="edit-exhibitor-plan" name="plan" required>
+                            <option value="" disabled>選択してください</option>
+                            <option value="platinum">プラチナ</option>
+                            <option value="silver">シルバー</option>
+                            <option value="bronze">ブロンズ</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">管理メモ</label>
+                        <textarea class="form-control" id="edit-exhibitor-memo" name="memo" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline modal-close-btn">キャンセル</button>
+                <button id="edit-exhibitor-confirm-btn" class="btn btn-primary">確認</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 主催者アカウント登録モーダル -->
+    <div id="add-organizer-modal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">主催者アカウント登録</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="add-organizer-form">
+                    <div class="form-group">
+                        <label class="form-label">管理名 <span style="color: red">*</span></label>
+                        <input type="text" class="form-control" name="organizer_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">メールアドレス <span style="color: red">*</span></label>
+                        <input type="email" class="form-control" name="organizer_email" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">パスワード <span style="color: red">*</span></label>
+                        <input type="password" class="form-control" name="organizer_password" required>
+                        <span class="form-hint">8文字以上で、英字、数字、記号を含めてください</span>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline modal-close-btn">キャンセル</button>
+                <button id="add-organizer-confirm-btn" class="btn btn-primary">確認</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 主催者アカウント編集モーダル -->
+    <div id="edit-organizer-modal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">主催者情報編集</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="edit-organizer-form">
+                    <input type="hidden" name="id" id="edit-organizer-id">
+                    <div class="form-group">
+                        <label class="form-label">管理名 <span style="color: red">*</span></label>
+                        <input type="text" class="form-control" id="edit-organizer-name" name="organizer_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">メールアドレス <span style="color: red">*</span></label>
+                        <input type="email" class="form-control" id="edit-organizer-email" name="organizer_email" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">パスワード</label>
+                        <input type="password" class="form-control" id="edit-organizer-password" name="organizer_password">
+                        <span class="form-hint">変更する場合のみ入力してください</span>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline modal-close-btn">キャンセル</button>
+                <button id="edit-organizer-confirm-btn" class="btn btn-primary">確認</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 確認モーダル -->
+    <div id="confirm-modal" class="modal-overlay">
         <div class="modal confirm-modal">
             <div class="modal-header">
-                <h3 class="modal-title">登録確認</h3>
+                <h3 class="modal-title" id="confirm-title">確認</h3>
                 <button class="modal-close">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="confirm-icon">
                     <i class="fas fa-question-circle"></i>
                 </div>
-                <div class="confirm-message">以上の内容で登録しますか？</div>
-                <div id="exhibitor-confirm-content" class="confirm-description" style="text-align: left; margin-bottom: 20px;">
-                    <!-- ここに登録内容が動的に挿入されます -->
+                <div class="confirm-message" id="confirm-message">以上の内容で登録しますか？</div>
+                <div id="confirm-content" class="confirm-description" style="text-align: left; margin-bottom: 20px;">
+                    <!-- ここに確認内容が動的に挿入されます -->
                 </div>
             </div>
             <div class="modal-footer">
-                <button id="exhibitor-back-btn" class="btn btn-outline">戻る</button>
-                <button id="exhibitor-submit-btn" class="btn btn-primary">登録</button>
+                <button id="back-to-form-btn" class="btn btn-outline">戻る</button>
+                <button id="confirm-action-btn" class="btn btn-primary">登録</button>
             </div>
         </div>
     </div>
@@ -1350,100 +1479,390 @@
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // ナビゲーションメニュー
-            const navLinks = document.querySelectorAll('.nav-link');
+            // サイドメニュー関連
+            const navItems = document.querySelectorAll('.nav-item');
             const contentPages = document.querySelectorAll('.content-page');
-            const accountButtons = document.getElementById('account-management-buttons');
             
-            // メニュークリック処理
-            navLinks.forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    
-                    // アクティブなリンクとページを更新
-                    navLinks.forEach(l => l.classList.remove('active'));
+            // サイドメニュー項目のクリック処理
+            navItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    // アクティブなメニュー項目を設定
+                    navItems.forEach(item => item.classList.remove('active'));
                     this.classList.add('active');
                     
-                    const targetPage = this.getAttribute('data-page');
+                    // ページの表示切替
+                    const pageId = this.getAttribute('data-page');
                     contentPages.forEach(page => {
                         page.classList.remove('active');
+                        if (page.id === pageId) {
+                            page.classList.add('active');
+                        }
                     });
-                    
-                    document.getElementById(`${targetPage}-page`).classList.add('active');
-                    
-                    // ヘッダーボタンの表示/非表示切り替え
-                    if (targetPage === 'account-management') {
-                        accountButtons.style.display = 'flex';
-                    } else {
-                        accountButtons.style.display = 'none';
-                    }
                 });
             });
             
-            // チェックボックス関連
+            // 出展社アカウント登録モーダル関連
+            const addExhibitorAccountBtn = document.getElementById('add-exhibitor-account-btn');
+            const addExhibitorModal = document.getElementById('add-exhibitor-modal');
+            const addExhibitorForm = document.getElementById('add-exhibitor-form');
+            
+            addExhibitorAccountBtn.addEventListener('click', function() {
+                addExhibitorModal.classList.add('active');
+            });
+            
+            // 出展社アカウント編集モーダル関連
+            const editExhibitorBtns = document.querySelectorAll('.edit-exhibitor-btn');
+            const editExhibitorModal = document.getElementById('edit-exhibitor-modal');
+            
+            // ダミーデータ（実際にはAPIやバックエンドから取得）
+            const exhibitorsData = {
+                '1001': {
+                    company: '株式会社テクノソリューション',
+                    contact_name: '山田太郎',
+                    email: 'yamada@example.com',
+                    booth: 'A-01',
+                    plan: 'platinum',
+                    memo: '2023年より継続出展'
+                },
+                '1002': {
+                    company: 'グローバルエンジニアリング株式会社',
+                    contact_name: '佐藤健太',
+                    email: 'sato@example.com',
+                    booth: 'B-05',
+                    plan: 'silver',
+                    memo: 'ロゴデータ待ち'
+                },
+                '1003': {
+                    company: 'ネクストイノベーション合同会社',
+                    contact_name: '鈴木花子',
+                    email: 'suzuki@example.com',
+                    booth: 'C-12',
+                    plan: 'bronze',
+                    memo: '2/15に電話確認予定'
+                },
+                '1004': {
+                    company: 'デジタルフューチャー株式会社',
+                    contact_name: '高橋誠',
+                    email: 'takahashi@example.com',
+                    booth: 'A-08',
+                    plan: 'platinum',
+                    memo: '初出展、フォローが必要'
+                }
+            };
+            
+            // 編集ボタンクリック時の処理
+            editExhibitorBtns.forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    const id = this.getAttribute('data-id');
+                    const data = exhibitorsData[id];
+                    
+                    // フォームに値をセット
+                    document.getElementById('edit-exhibitor-id').value = id;
+                    document.getElementById('edit-exhibitor-company').value = data.company;
+                    document.getElementById('edit-exhibitor-contact-name').value = data.contact_name;
+                    document.getElementById('edit-exhibitor-email').value = data.email;
+                    document.getElementById('edit-exhibitor-booth').value = data.booth;
+                    document.getElementById('edit-exhibitor-plan').value = data.plan;
+                    document.getElementById('edit-exhibitor-memo').value = data.memo;
+                    
+                    // モーダルを表示
+                    editExhibitorModal.classList.add('active');
+                });
+            });
+            
+            // 主催者アカウント関連
+            const addOrganizerAccountBtn = document.getElementById('add-organizer-account-btn');
+            const addOrganizerModal = document.getElementById('add-organizer-modal');
+            const editOrganizerBtns = document.querySelectorAll('.edit-organizer-btn');
+            const editOrganizerModal = document.getElementById('edit-organizer-modal');
+            
+            // 主催者アカウント登録ボタンクリック時
+            addOrganizerAccountBtn.addEventListener('click', function() {
+                addOrganizerModal.classList.add('active');
+            });
+            
+            // 主催者アカウントのダミーデータ
+            const organizersData = {
+                '101': {
+                    name: '管理者1',
+                    email: 'admin1@example.com'
+                },
+                '102': {
+                    name: '管理者2',
+                    email: 'admin2@example.com'
+                }
+            };
+            
+            // 主催者アカウント編集ボタンクリック時
+            editOrganizerBtns.forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    const id = this.getAttribute('data-id');
+                    const data = organizersData[id];
+                    
+                    // フォームに値をセット
+                    document.getElementById('edit-organizer-id').value = id;
+                    document.getElementById('edit-organizer-name').value = data.name;
+                    document.getElementById('edit-organizer-email').value = data.email;
+                    document.getElementById('edit-organizer-password').value = '';
+                    
+                    // モーダルを表示
+                    editOrganizerModal.classList.add('active');
+                });
+            });
+            
+            // 確認モーダル関連
+            const confirmModal = document.getElementById('confirm-modal');
+            const confirmTitle = document.getElementById('confirm-title');
+            const confirmMessage = document.getElementById('confirm-message');
+            const confirmContent = document.getElementById('confirm-content');
+            const backToFormBtn = document.getElementById('back-to-form-btn');
+            const confirmActionBtn = document.getElementById('confirm-action-btn');
+            
+            // 出展社アカウント登録確認ボタンクリック時
+            document.getElementById('add-exhibitor-confirm-btn').addEventListener('click', function() {
+                if (addExhibitorForm.checkValidity()) {
+                    // フォームの内容を取得
+                    const formData = new FormData(addExhibitorForm);
+                    let confirmContentHTML = '';
+                    
+                    // プラン名の取得
+                    const planSelect = addExhibitorForm.querySelector('[name="plan"]');
+                    const planText = planSelect.options[planSelect.selectedIndex].text;
+                    
+                    // 確認内容の構築
+                    confirmContentHTML += `<p><strong>企業名:</strong> ${formData.get('company')}</p>`;
+                    confirmContentHTML += `<p><strong>担当者名:</strong> ${formData.get('contact_name')}</p>`;
+                    confirmContentHTML += `<p><strong>メールアドレス:</strong> ${formData.get('email')}</p>`;
+                    confirmContentHTML += `<p><strong>小間番号:</strong> ${formData.get('booth')}</p>`;
+                    confirmContentHTML += `<p><strong>プラン:</strong> ${planText}</p>`;
+                    
+                    if (formData.get('memo')) {
+                        confirmContentHTML += `<p><strong>管理メモ:</strong> ${formData.get('memo')}</p>`;
+                    }
+                    
+                    // 確認モーダルの設定
+                    confirmTitle.textContent = '出展社アカウント登録確認';
+                    confirmMessage.textContent = '以上の内容で登録しますか？';
+                    confirmContent.innerHTML = confirmContentHTML;
+                    confirmActionBtn.textContent = '登録';
+                    
+                    // モーダルの表示切替
+                    addExhibitorModal.classList.remove('active');
+                    confirmModal.classList.add('active');
+                    
+                    // 戻るボタンの設定
+                    backToFormBtn.onclick = function() {
+                        confirmModal.classList.remove('active');
+                        addExhibitorModal.classList.add('active');
+                    };
+                    
+                    // 登録ボタンの設定
+                    confirmActionBtn.onclick = function() {
+                        alert('出展社アカウントを登録しました');
+                        addExhibitorForm.reset();
+                        confirmModal.classList.remove('active');
+                    };
+                } else {
+                    addExhibitorForm.reportValidity();
+                }
+            });
+            
+            // 出展社アカウント編集確認ボタンクリック時
+            document.getElementById('edit-exhibitor-confirm-btn').addEventListener('click', function() {
+                const editForm = document.getElementById('edit-exhibitor-form');
+                if (editForm.checkValidity()) {
+                    // フォームの内容を取得
+                    const formData = new FormData(editForm);
+                    const id = formData.get('id');
+                    let confirmContentHTML = '';
+                    
+                    // プラン名の取得
+                    const planSelect = editForm.querySelector('[name="plan"]');
+                    const planText = planSelect.options[planSelect.selectedIndex].text;
+                    
+                    // 確認内容の構築
+                    confirmContentHTML += `<p><strong>企業名:</strong> ${formData.get('company')}</p>`;
+                    confirmContentHTML += `<p><strong>担当者名:</strong> ${formData.get('contact_name')}</p>`;
+                    confirmContentHTML += `<p><strong>メールアドレス:</strong> ${formData.get('email')}</p>`;
+                    confirmContentHTML += `<p><strong>小間番号:</strong> ${formData.get('booth')}</p>`;
+                    confirmContentHTML += `<p><strong>プラン:</strong> ${planText}</p>`;
+                    
+                    if (formData.get('memo')) {
+                        confirmContentHTML += `<p><strong>管理メモ:</strong> ${formData.get('memo')}</p>`;
+                    }
+                    
+                    // 確認モーダルの設定
+                    confirmTitle.textContent = '出展社アカウント編集確認';
+                    confirmMessage.textContent = '以上の内容で更新しますか？';
+                    confirmContent.innerHTML = confirmContentHTML;
+                    confirmActionBtn.textContent = '更新';
+                    
+                    // モーダルの表示切替
+                    editExhibitorModal.classList.remove('active');
+                    confirmModal.classList.add('active');
+                    
+                    // 戻るボタンの設定
+                    backToFormBtn.onclick = function() {
+                        confirmModal.classList.remove('active');
+                        editExhibitorModal.classList.add('active');
+                    };
+                    
+                    // 更新ボタンの設定
+                    confirmActionBtn.onclick = function() {
+                        alert(`ID: ${id} の出展社アカウント情報を更新しました`);
+                        confirmModal.classList.remove('active');
+                    };
+                } else {
+                    editForm.reportValidity();
+                }
+            });
+            
+            // 主催者アカウント登録確認ボタンクリック時
+            document.getElementById('add-organizer-confirm-btn').addEventListener('click', function() {
+                const organizerForm = document.getElementById('add-organizer-form');
+                if (organizerForm.checkValidity()) {
+                    // フォームの内容を取得
+                    const formData = new FormData(organizerForm);
+                    let confirmContentHTML = '';
+                    
+                    // 確認内容の構築
+                    confirmContentHTML += `<p><strong>管理名:</strong> ${formData.get('organizer_name')}</p>`;
+                    confirmContentHTML += `<p><strong>メールアドレス:</strong> ${formData.get('organizer_email')}</p>`;
+                    confirmContentHTML += `<p><strong>パスワード:</strong> ********</p>`;
+                    
+                    // 確認モーダルの設定
+                    confirmTitle.textContent = '主催者アカウント登録確認';
+                    confirmMessage.textContent = '以上の内容で登録しますか？';
+                    confirmContent.innerHTML = confirmContentHTML;
+                    confirmActionBtn.textContent = '登録';
+                    
+                    // モーダルの表示切替
+                    addOrganizerModal.classList.remove('active');
+                    confirmModal.classList.add('active');
+                    
+                    // 戻るボタンの設定
+                    backToFormBtn.onclick = function() {
+                        confirmModal.classList.remove('active');
+                        addOrganizerModal.classList.add('active');
+                    };
+                    
+                    // 登録ボタンの設定
+                    confirmActionBtn.onclick = function() {
+                        alert('主催者アカウントを登録しました');
+                        organizerForm.reset();
+                        confirmModal.classList.remove('active');
+                    };
+                } else {
+                    organizerForm.reportValidity();
+                }
+            });
+            
+            // 主催者アカウント編集確認ボタンクリック時
+            document.getElementById('edit-organizer-confirm-btn').addEventListener('click', function() {
+                const editOrganizerForm = document.getElementById('edit-organizer-form');
+                if (editOrganizerForm.checkValidity()) {
+                    // フォームの内容を取得
+                    const formData = new FormData(editOrganizerForm);
+                    const id = formData.get('id');
+                    let confirmContentHTML = '';
+                    
+                    // 確認内容の構築
+                    confirmContentHTML += `<p><strong>管理名:</strong> ${formData.get('organizer_name')}</p>`;
+                    confirmContentHTML += `<p><strong>メールアドレス:</strong> ${formData.get('organizer_email')}</p>`;
+                    
+                    const password = formData.get('organizer_password');
+                    if (password) {
+                        confirmContentHTML += `<p><strong>パスワード:</strong> 変更あり</p>`;
+                    } else {
+                        confirmContentHTML += `<p><strong>パスワード:</strong> 変更なし</p>`;
+                    }
+                    
+                    // 確認モーダルの設定
+                    confirmTitle.textContent = '主催者アカウント編集確認';
+                    confirmMessage.textContent = '以上の内容で更新しますか？';
+                    confirmContent.innerHTML = confirmContentHTML;
+                    confirmActionBtn.textContent = '更新';
+                    
+                    // モーダルの表示切替
+                    editOrganizerModal.classList.remove('active');
+                    confirmModal.classList.add('active');
+                    
+                    // 戻るボタンの設定
+                    backToFormBtn.onclick = function() {
+                        confirmModal.classList.remove('active');
+                        editOrganizerModal.classList.add('active');
+                    };
+                    
+                    // 更新ボタンの設定
+                    confirmActionBtn.onclick = function() {
+                        alert(`ID: ${id} の主催者アカウント情報を更新しました`);
+                        confirmModal.classList.remove('active');
+                    };
+                } else {
+                    editOrganizerForm.reportValidity();
+                }
+            });
+            
+            // リリース管理関連
             const checkAll = document.getElementById('check-all');
             const exhibitorChecks = document.querySelectorAll('.exhibitor-check');
             const bulkActionModal = document.getElementById('bulk-action-modal');
-            
-            if (checkAll) {
-                // 全選択チェックボックス
-                checkAll.addEventListener('change', function() {
-                    exhibitorChecks.forEach(function(check) {
-                        check.checked = checkAll.checked;
-                    });
-                    
-                    updateBulkActionModal();
-                });
-                
-                // 個別チェックボックス
-                exhibitorChecks.forEach(function(check) {
-                    check.addEventListener('change', function() {
-                        updateBulkActionModal();
-                        
-                        // 全てのチェックボックスが選択されているかチェック
-                        const allChecked = Array.from(exhibitorChecks).every(function(ch) {
-                            return ch.checked;
-                        });
-                        
-                        checkAll.checked = allChecked;
-                    });
-                });
-                
-                // 一括操作モーダルの更新
-                function updateBulkActionModal() {
-                    const checkedCount = document.querySelectorAll('.exhibitor-check:checked').length;
-                    
-                    if (checkedCount > 0) {
-                        bulkActionModal.classList.add('active');
-                    } else {
-                        bulkActionModal.classList.remove('active');
-                    }
-                }
-                
-                // 一括公開ボタン
-                const bulkPublishBtn = document.getElementById('bulk-publish-btn');
-                if (bulkPublishBtn) {
-                    bulkPublishBtn.addEventListener('click', function() {
-                        const checkedIds = Array.from(document.querySelectorAll('.exhibitor-check:checked')).map(function(check) {
-                            return check.getAttribute('data-id');
-                        });
-                        
-                        alert(`選択された出展社ID: ${checkedIds.join(', ')} を公開します`);
-                        
-                        bulkActionModal.classList.remove('active');
-                        
-                        checkAll.checked = false;
-                        exhibitorChecks.forEach(function(check) {
-                            check.checked = false;
-                        });
-                    });
-                }
-            }
-            
-            // リリースボタン関連
             const releaseButtons = document.querySelectorAll('.release-btn');
             const releaseConfirmModal = document.getElementById('release-confirm-modal');
             let currentReleaseId = null;
+            
+            // 全選択チェックボックス
+            checkAll.addEventListener('change', function() {
+                exhibitorChecks.forEach(function(check) {
+                    check.checked = checkAll.checked;
+                });
+                
+                updateBulkActionModal();
+            });
+            
+            // 個別チェックボックス
+            exhibitorChecks.forEach(function(check) {
+                check.addEventListener('change', function() {
+                    updateBulkActionModal();
+                    
+                    // 全てのチェックボックスが選択されているかチェック
+                    const allChecked = Array.from(exhibitorChecks).every(function(ch) {
+                        return ch.checked;
+                    });
+                    
+                    checkAll.checked = allChecked;
+                });
+            });
+            
+            // 一括操作モーダルの更新
+            function updateBulkActionModal() {
+                const checkedCount = document.querySelectorAll('.exhibitor-check:checked').length;
+                
+                if (checkedCount > 0) {
+                    bulkActionModal.classList.add('active');
+                } else {
+                    bulkActionModal.classList.remove('active');
+                }
+            }
+            
+            // 一括公開ボタン
+            const bulkPublishBtn = document.getElementById('bulk-publish-btn');
+            bulkPublishBtn.addEventListener('click', function() {
+                const checkedIds = Array.from(document.querySelectorAll('.exhibitor-check:checked')).map(function(check) {
+                    return check.getAttribute('data-id');
+                });
+                
+                alert(`選択された出展社ID: ${checkedIds.join(', ')} を公開します`);
+                
+                // モーダルを閉じる
+                bulkActionModal.classList.remove('active');
+                
+                // チェックボックスを全て解除
+                checkAll.checked = false;
+                exhibitorChecks.forEach(function(check) {
+                    check.checked = false;
+                });
+            });
             
             // リリースボタンクリック時の処理
             releaseButtons.forEach(function(btn) {
@@ -1454,147 +1873,16 @@
             });
             
             // リリース確認ボタンクリック時の処理
-            const confirmReleaseBtn = document.getElementById('confirm-release-btn');
-            if (confirmReleaseBtn) {
-                confirmReleaseBtn.addEventListener('click', function() {
-                    if (currentReleaseId) {
-                        alert(`ID: ${currentReleaseId} の出展社をリリースしました`);
-                        
-                        releaseConfirmModal.classList.remove('active');
-                        currentReleaseId = null;
-                    }
-                });
-            }
-            
-            // 主催者アカウント登録
-            const addOrganizerBtn = document.getElementById('add-organizer-btn');
-            const organizerModal = document.getElementById('organizer-modal');
-            const organizerForm = document.getElementById('organizer-form');
-            const organizerConfirmModal = document.getElementById('organizer-confirm-modal');
-            const organizerRegisterBtn = document.getElementById('organizer-register-btn');
-            const organizerBackBtn = document.getElementById('organizer-back-btn');
-            const organizerSubmitBtn = document.getElementById('organizer-submit-btn');
-            
-            // 主催者アカウント登録ボタンクリック
-            if (addOrganizerBtn) {
-                addOrganizerBtn.addEventListener('click', function() {
-                    organizerModal.classList.add('active');
-                });
-            }
-            
-            // 主催者登録確認ボタンクリック
-            if (organizerRegisterBtn) {
-                organizerRegisterBtn.addEventListener('click', function() {
-                    // フォームのバリデーション
-                    if (organizerForm.checkValidity()) {
-                        // フォームの内容を取得
-                        const formData = new FormData(organizerForm);
-                        let confirmContent = '';
-                        
-                        // 確認内容の構築
-                        confirmContent += `<p><strong>管理名:</strong> ${formData.get('organizer_name')}</p>`;
-                        confirmContent += `<p><strong>メールアドレス:</strong> ${formData.get('organizer_email')}</p>`;
-                        confirmContent += `<p><strong>パスワード:</strong> ${'*'.repeat(formData.get('organizer_password').length)}</p>`;
-                        
-                        // 確認内容をモーダルに設定
-                        document.getElementById('organizer-confirm-content').innerHTML = confirmContent;
-                        
-                        // モーダル切り替え
-                        organizerModal.classList.remove('active');
-                        organizerConfirmModal.classList.add('active');
-                    } else {
-                        organizerForm.reportValidity();
-                    }
-                });
-            }
-            
-            // 主催者登録「戻る」ボタンクリック
-            if (organizerBackBtn) {
-                organizerBackBtn.addEventListener('click', function() {
-                    organizerConfirmModal.classList.remove('active');
-                    organizerModal.classList.add('active');
-                });
-            }
-            
-            // 主催者登録「登録」ボタンクリック
-            if (organizerSubmitBtn) {
-                organizerSubmitBtn.addEventListener('click', function() {
-                    alert('主催者アカウントを登録しました');
+            document.getElementById('confirm-release-btn').addEventListener('click', function() {
+                if (currentReleaseId) {
+                    // ここにリリース処理を追加
+                    alert(`ID: ${currentReleaseId} の出展社をリリースしました`);
                     
-                    organizerForm.reset();
-                    organizerConfirmModal.classList.remove('active');
-                });
-            }
-            
-            // 出展社アカウント登録
-            const addExhibitorBtn = document.getElementById('add-exhibitor-btn');
-            const exhibitorModal = document.getElementById('exhibitor-modal');
-            const exhibitorForm = document.getElementById('exhibitor-form');
-            const exhibitorConfirmModal = document.getElementById('exhibitor-confirm-modal');
-            const exhibitorRegisterBtn = document.getElementById('exhibitor-register-btn');
-            const exhibitorBackBtn = document.getElementById('exhibitor-back-btn');
-            const exhibitorSubmitBtn = document.getElementById('exhibitor-submit-btn');
-            
-            // 出展社アカウント登録ボタンクリック
-            if (addExhibitorBtn) {
-                addExhibitorBtn.addEventListener('click', function() {
-                    exhibitorModal.classList.add('active');
-                });
-            }
-            
-            // 出展社登録確認ボタンクリック
-            if (exhibitorRegisterBtn) {
-                exhibitorRegisterBtn.addEventListener('click', function() {
-                    // フォームのバリデーション
-                    if (exhibitorForm.checkValidity()) {
-                        // フォームの内容を取得
-                        const formData = new FormData(exhibitorForm);
-                        let confirmContent = '';
-                        
-                        // プラン名の取得
-                        const planSelect = exhibitorForm.querySelector('[name="plan"]');
-                        const planText = planSelect.options[planSelect.selectedIndex].text;
-                        
-                        // 確認内容の構築
-                        confirmContent += `<p><strong>企業名:</strong> ${formData.get('company')}</p>`;
-                        confirmContent += `<p><strong>担当者名:</strong> ${formData.get('contact_name')}</p>`;
-                        confirmContent += `<p><strong>メールアドレス:</strong> ${formData.get('email')}</p>`;
-                        confirmContent += `<p><strong>小間番号:</strong> ${formData.get('booth')}</p>`;
-                        confirmContent += `<p><strong>プラン:</strong> ${planText}</p>`;
-                        
-                        if (formData.get('memo')) {
-                            confirmContent += `<p><strong>管理メモ:</strong> ${formData.get('memo')}</p>`;
-                        }
-                        
-                        // 確認内容をモーダルに設定
-                        document.getElementById('exhibitor-confirm-content').innerHTML = confirmContent;
-                        
-                        // モーダル切り替え
-                        exhibitorModal.classList.remove('active');
-                        exhibitorConfirmModal.classList.add('active');
-                    } else {
-                        exhibitorForm.reportValidity();
-                    }
-                });
-            }
-            
-            // 出展社登録「戻る」ボタンクリック
-            if (exhibitorBackBtn) {
-                exhibitorBackBtn.addEventListener('click', function() {
-                    exhibitorConfirmModal.classList.remove('active');
-                    exhibitorModal.classList.add('active');
-                });
-            }
-            
-            // 出展社登録「登録」ボタンクリック
-            if (exhibitorSubmitBtn) {
-                exhibitorSubmitBtn.addEventListener('click', function() {
-                    alert('出展社アカウントを登録しました');
-                    
-                    exhibitorForm.reset();
-                    exhibitorConfirmModal.classList.remove('active');
-                });
-            }
+                    // モーダルを閉じる
+                    releaseConfirmModal.classList.remove('active');
+                    currentReleaseId = null;
+                }
+            });
             
             // モーダルを閉じるボタン
             const modalCloseButtons = document.querySelectorAll('.modal-close, .modal-close-btn');
