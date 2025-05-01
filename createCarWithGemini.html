@@ -1,0 +1,1605 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>車カスタマイザー</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            width: 100vw;
+        }
+        /* ヘッダー */
+        
+        .header {
+            background: linear-gradient(135deg, #4a90e2, #63b3ed);
+            color: white;
+            text-align: center;
+            padding: 15px 10px;
+            position: relative;
+            z-index: 10;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .logo {
+            width: 40px;
+            height: 40px;
+            margin-bottom: 5px;
+        }
+        /* メインコンテンツ */
+        
+        .main-content {
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+        }
+        /* ステップインジケーター */
+        
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            padding: 10px 0;
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .step {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #d1d5db;
+            margin: 0 5px;
+            transition: all 0.3s ease;
+        }
+        
+        .step.active {
+            background-color: #4a90e2;
+            transform: scale(1.2);
+        }
+        /* ステップコンテンツ */
+        
+        .steps-container {
+            display: flex;
+            height: calc(100% - 32px);
+            transition: transform 0.5s ease;
+        }
+        
+        .step-content {
+            min-width: 100%;
+            height: 100%;
+            padding: 15px;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+        }
+        /* 写真選択ステップ */
+        
+        .photo-uploader {
+            padding: 15px 0;
+        }
+        
+        .photos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .photo-box {
+            aspect-ratio: 1;
+            background-color: #e2e8f0;
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .photo-box:active {
+            transform: scale(0.97);
+        }
+        
+        .photo-box.has-image {
+            background-color: #fff;
+        }
+        
+        .photo-add-icon {
+            font-size: 30px;
+            color: #64748b;
+        }
+        
+        .photo-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 12px;
+        }
+        
+        .photo-remove {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 24px;
+            height: 24px;
+            background-color: #ef4444;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            transform: scale(0);
+            transition: all 0.2s ease;
+        }
+        
+        .photo-box.has-image .photo-remove {
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        .input-file {
+            display: none;
+        }
+        /* スタイル選択ステップ */
+        
+        .style-selector {
+            padding: 15px 0;
+        }
+        
+        .styles-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .style-option {
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+        
+        .style-option.selected {
+            border-color: #4a90e2;
+            background-color: rgba(74, 144, 226, 0.1);
+            transform: scale(1.02);
+        }
+        
+        .style-icon {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #4a90e2;
+        }
+        
+        .style-name {
+            font-size: 14px;
+            font-weight: 600;
+        }
+        /* 結果ステップ */
+        
+        .result-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            justify-content: space-between;
+        }
+        
+        .result-image-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #e2e8f0;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .result-image {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        
+        .result-placeholder {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: #64748b;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 4px solid #e2e8f0;
+            border-top: 4px solid #4a90e2;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+        
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        
+        .result-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        /* ナビゲーションボタン */
+        
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            padding: 15px 20px;
+            border-radius: 50px;
+            border: none;
+            font-weight: 600;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-next {
+            background-color: #4a90e2;
+            color: white;
+            width: 100%;
+        }
+        
+        .btn-back {
+            background-color: #f1f5f9;
+            color: #64748b;
+        }
+        
+        .btn-icon {
+            margin-right: 8px;
+        }
+        
+        .btn-action {
+            background-color: #4a90e2;
+            color: white;
+        }
+        
+        .btn-retry {
+            background-color: #f1f5f9;
+            color: #64748b;
+        }
+        /* カスタマイズステップのアイコンとテキスト */
+        
+        .customize-options {
+            display: flex;
+            flex-direction: column;
+            padding: 15px 0;
+        }
+        
+        .customize-option {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background-color: white;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease;
+        }
+        
+        .customize-option:active {
+            transform: scale(0.98);
+            background-color: #f8fafc;
+        }
+        
+        .customize-option.selected {
+            border: 2px solid #4a90e2;
+        }
+        
+        .customize-icon {
+            font-size: 24px;
+            color: #4a90e2;
+            width: 40px;
+            text-align: center;
+            margin-right: 15px;
+        }
+        
+        .customize-text {
+            flex: 1;
+        }
+        
+        .customize-name {
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+        
+        .customize-desc {
+            font-size: 14px;
+            color: #64748b;
+        }
+        /* キラキラアニメーション */
+        
+        .sparkle {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 100;
+            animation: sparkle-animation 0.8s ease-out forwards;
+        }
+        
+        @keyframes sparkle-animation {
+            0% {
+                transform: scale(0);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
+        /* 吹き出しヘルプ */
+        
+        .help-tooltip {
+            position: absolute;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #333;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            max-width: 90%;
+            text-align: center;
+            z-index: 100;
+        }
+        
+        .help-tooltip::after {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 0 8px 8px 8px;
+            border-style: solid;
+            border-color: transparent transparent #333 transparent;
+        }
+        
+        .help-tooltip.visible {
+            opacity: 1;
+        }
+        /* 成功アニメーション */
+        
+        .success-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        .success-animation.visible {
+            opacity: 1;
+        }
+        
+        .success-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: white;
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 80%;
+            text-align: center;
+            animation: pop-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        
+        @keyframes pop-in {
+            0% {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        .success-icon {
+            font-size: 48px;
+            color: #10b981;
+            margin-bottom: 15px;
+            animation: bounce 1s ease infinite;
+        }
+        
+        @keyframes bounce {
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+        /* ツールチップ表示エリア */
+        
+        .tooltip-area {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 80%;
+        }
+        
+        .tooltip-bubble {
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            text-align: center;
+            animation: fade-in-up 0.3s ease forwards;
+            max-width: 100%;
+        }
+        
+        @keyframes fade-in-up {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        /* アピアランスとアクセシビリティの微調整 */
+        
+        .visually-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+        /* 表示中で無効なボタン */
+        
+        .btn[disabled] {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+        /* スワイプナビゲーションのヒント */
+        
+        .swipe-hint {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .swipe-hint.visible {
+            opacity: 1;
+            animation: swipe-animation 1.5s ease-in-out infinite;
+        }
+        
+        .swipe-icon {
+            font-size: 40px;
+            color: rgba(74, 144, 226, 0.7);
+        }
+        
+        @keyframes swipe-animation {
+            0% {
+                transform: translate(-50%, -50%) translateX(-20px);
+            }
+            50% {
+                transform: translate(-50%, -50%) translateX(20px);
+            }
+            100% {
+                transform: translate(-50%, -50%) translateX(-20px);
+            }
+        }
+        /* ヘルプボタン */
+        
+        .help-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background-color: #4a90e2;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+            font-size: 24px;
+        }
+        
+        .help-button:active {
+            transform: scale(0.95);
+        }
+
+        .gemini-result-badge {
+        display: flex;
+        align-items: center;
+        background: linear-gradient(135deg, #202124, #303134);
+        padding: 12px 16px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    }
+    
+    .gemini-result-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #8e44ad, #4a90e2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 12px;
+        color: white;
+        font-size: 18px;
+    }
+    
+    .gemini-result-text {
+        color: white;
+        font-size: 16px;
+        font-weight: 500;
+    }
+    
+    .gemini-name {
+        color: #fbbc04;
+        font-weight: 700;
+        font-size: 18px;
+        letter-spacing: 0.5px;
+    }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <header class="header">
+            <i class="fa-solid fa-car logo"></i>
+        </header>
+
+        <div class="step-indicator">
+            <div class="step active" data-step="0"></div>
+            <div class="step" data-step="1"></div>
+            <div class="step" data-step="2"></div>
+        </div>
+
+        <div class="main-content">
+            <div class="steps-container">
+                <!-- ステップ1: 写真のアップロード -->
+                <div class="step-content" id="step-1">
+                    <div class="photo-uploader">
+                        <div class="photos-grid">
+                            <div class="photo-box" data-index="0">
+                                <i class="fa-solid fa-plus photo-add-icon"></i>
+                                <div class="photo-remove">
+                                    <i class="fa-solid fa-times"></i>
+                                </div>
+                            </div>
+                            <div class="photo-box" data-index="1">
+                                <i class="fa-solid fa-plus photo-add-icon"></i>
+                                <div class="photo-remove">
+                                    <i class="fa-solid fa-times"></i>
+                                </div>
+                            </div>
+                            <div class="photo-box" data-index="2">
+                                <i class="fa-solid fa-plus photo-add-icon"></i>
+                                <div class="photo-remove">
+                                    <i class="fa-solid fa-times"></i>
+                                </div>
+                            </div>
+                            <div class="photo-box" data-index="3">
+                                <i class="fa-solid fa-plus photo-add-icon"></i>
+                                <div class="photo-remove">
+                                    <i class="fa-solid fa-times"></i>
+                                </div>
+                            </div>
+                            <div class="photo-box" data-index="4">
+                                <i class="fa-solid fa-plus photo-add-icon"></i>
+                                <div class="photo-remove">
+                                    <i class="fa-solid fa-times"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="nav-buttons">
+                        <button class="btn btn-next" id="step-1-next">
+                            <i class="fa-solid fa-arrow-right btn-icon"></i>
+                        </button>
+                    </div>
+
+                    <input type="file" class="input-file" accept="image/*" capture="camera">
+                </div>
+
+                <!-- ステップ2: カスタマイズオプション -->
+                <div class="step-content" id="step-2">
+                    <div class="customize-options">
+                        <div class="customize-option" data-style="sport">
+                            <div class="customize-icon">
+                                <i class="fa-solid fa-fire"></i>
+                            </div>
+                            <div class="customize-text">
+                                <div class="customize-name">スポーツ</div>
+                                <div class="customize-desc">レーシング・スタイル</div>
+                            </div>
+                        </div>
+
+                        <div class="customize-option" data-style="cyber">
+                            <div class="customize-icon">
+                                <i class="fa-solid fa-robot"></i>
+                            </div>
+                            <div class="customize-text">
+                                <div class="customize-name">サイバー</div>
+                                <div class="customize-desc">未来的なデザイン</div>
+                            </div>
+                        </div>
+
+                        <div class="customize-option" data-style="luxury">
+                            <div class="customize-icon">
+                                <i class="fa-solid fa-gem"></i>
+                            </div>
+                            <div class="customize-text">
+                                <div class="customize-name">高級感</div>
+                                <div class="customize-desc">上品で豪華な仕上げ</div>
+                            </div>
+                        </div>
+
+                        <div class="customize-option" data-style="retro">
+                            <div class="customize-icon">
+                                <i class="fa-solid fa-clock-rotate-left"></i>
+                            </div>
+                            <div class="customize-text">
+                                <div class="customize-name">レトロ</div>
+                                <div class="customize-desc">クラシックなデザイン</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="nav-buttons">
+                        <button class="btn btn-back" id="step-2-back">
+                            <i class="fa-solid fa-arrow-left btn-icon"></i>
+                        </button>
+                        <button class="btn btn-next" id="step-2-next">
+                            <i class="fa-solid fa-arrow-right btn-icon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ステップ3: 結果表示 -->
+                <div class="step-content" id="step-3">
+                    <div class="result-container">
+                        <div class="result-image-container">
+                            <img src="" alt="" class="result-image" id="result-image" style="display: none;">
+                            <div class="result-placeholder" id="loading-placeholder">
+                                <div class="loading-spinner"></div>
+                                <div>カスタマイズ中...</div>
+                            </div>
+                        </div>
+
+                        <div class="result-actions">
+                            <button class="btn btn-retry" id="retry-btn">
+                                <i class="fa-solid fa-rotate-left btn-icon"></i> やり直す
+                            </button>
+                            <button class="btn btn-action" id="share-btn">
+                                <i class="fa-solid fa-share-alt btn-icon"></i> シェア
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ツールチップ表示エリア -->
+    <div class="tooltip-area" id="tooltip-area"></div>
+
+    <!-- スワイプヒント -->
+    <div class="swipe-hint" id="swipe-hint">
+        <i class="fa-solid fa-chevron-right swipe-icon"></i>
+    </div>
+
+    <!-- ヘルプボタン -->
+    <button class="help-button" id="help-button">
+        <i class="fa-solid fa-question"></i>
+    </button>
+
+    <!-- 成功アニメーション -->
+    <div class="success-animation" id="success-animation">
+        <div class="success-content">
+            <i class="fa-solid fa-check success-icon"></i>
+            <div>完成！</div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 要素の参照を取得
+            const photoBoxes = document.querySelectorAll('.photo-box');
+            const inputFile = document.querySelector('.input-file');
+            const removePhotoButtons = document.querySelectorAll('.photo-remove');
+            const customizeOptions = document.querySelectorAll('.customize-option');
+            const stepsContainer = document.querySelector('.steps-container');
+            const stepIndicators = document.querySelectorAll('.step');
+            const nextButtons = document.querySelectorAll('[id$="-next"]');
+            const backButtons = document.querySelectorAll('[id$="-back"]');
+            const resultImage = document.getElementById('result-image');
+            const loadingPlaceholder = document.getElementById('loading-placeholder');
+            const retryBtn = document.getElementById('retry-btn');
+            const shareBtn = document.getElementById('share-btn');
+            const tooltipArea = document.getElementById('tooltip-area');
+            const swipeHint = document.getElementById('swipe-hint');
+            const helpButton = document.getElementById('help-button');
+            const successAnimation = document.getElementById('success-animation');
+
+            // 写真アップロード関連
+            let selectedPhotos = Array(5).fill(null);
+            let activePhotoIndex = null;
+
+            // カスタマイズスタイル
+            let selectedStyle = null;
+
+            // 現在のステップ
+            let currentStep = 0;
+
+            // チュートリアルの表示状態
+            let firstTimeUser = true;
+
+            // ページが読み込まれたときにチュートリアルを表示
+            if (firstTimeUser) {
+                showTooltip('写真をタップして車の画像を追加 👆', 3000);
+                setTimeout(() => {
+                    showSwipeHint();
+                }, 4000);
+            }
+
+            // 写真ボックスのクリックイベント
+            photoBoxes.forEach(box => {
+                box.addEventListener('click', function() {
+                    activePhotoIndex = parseInt(this.getAttribute('data-index'));
+                    inputFile.click();
+                    createSparkle(event);
+                });
+            });
+
+            // 写真削除ボタンのイベント
+            removePhotoButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.stopPropagation();
+
+                    const parentBox = this.parentElement;
+                    const boxIndex = parseInt(parentBox.getAttribute('data-index'));
+
+                    // 画像を削除
+                    const existingImg = parentBox.querySelector('img');
+                    if (existingImg) {
+                        existingImg.remove();
+                    }
+
+                    // 状態をリセット
+                    parentBox.querySelector('.photo-add-icon').style.display = 'block';
+                    parentBox.classList.remove('has-image');
+
+                    // 配列から削除
+                    selectedPhotos[boxIndex] = null;
+
+                    createSparkle(event);
+
+                    // 「次へ」ボタンの状態を更新
+                    updateNextButtonState();
+                });
+            });
+
+            // ファイル選択時の処理
+            inputFile.addEventListener('change', function(e) {
+                if (e.target.files.length > 0) {
+                    const file = e.target.files[0];
+                    const reader = new FileReader();
+
+                    reader.onload = function(e) {
+                        const boxIndex = activePhotoIndex;
+                        const targetBox = photoBoxes[boxIndex];
+
+                        // 既存の画像を削除
+                        const existingImg = targetBox.querySelector('img');
+                        if (existingImg) {
+                            existingImg.remove();
+                        }
+
+                        // 新しい画像を追加
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        targetBox.appendChild(img);
+
+                        // 状態を更新
+                        targetBox.querySelector('.photo-add-icon').style.display = 'none';
+                        targetBox.classList.add('has-image');
+
+                        // 選択された写真を配列に保存
+                        selectedPhotos[boxIndex] = {
+                            file: file,
+                            dataUrl: e.target.result
+                        };
+
+                        // 「次へ」ボタンの状態を更新
+                        updateNextButtonState();
+                    };
+
+                    reader.readAsDataURL(file);
+                }
+
+                // 入力をリセット
+                this.value = '';
+            });
+
+            // カスタマイズオプションの選択イベント
+            customizeOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    // 現在選択されているオプションがあれば解除
+                    document.querySelector('.customize-option.selected') ?.classList.remove('selected');
+
+                    // このオプションを選択
+                    this.classList.add('selected');
+                    selectedStyle = this.getAttribute('data-style');
+
+                    // クリックアニメーション
+                    createSparkle(event);
+
+                    // 「次へ」ボタンの状態を更新
+                    updateNextButtonState();
+                });
+            });
+
+            // 次へボタンのクリックイベント
+            nextButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // ボタンが無効なら処理しない
+                    if (this.hasAttribute('disabled')) return;
+
+                    goToNextStep();
+                    createSparkle(event);
+                });
+            });
+
+            // 戻るボタンのクリックイベント
+            backButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    goToPreviousStep();
+                    createSparkle(event);
+                });
+            });
+
+            // やり直しボタンのクリックイベント
+            retryBtn.addEventListener('click', function() {
+                resetApp();
+                createSparkle(event);
+                showTooltip('もう一度やり直しましょう！', 2000);
+            });
+
+            // シェアボタンのクリックイベント
+            shareBtn.addEventListener('click', function() {
+                // シェア機能のシミュレーション
+                showSuccessAnimation();
+                createSparkle(event);
+                showTooltip('シェアしました！', 2000);
+            });
+
+            // ヘルプボタンのクリックイベント
+            helpButton.addEventListener('click', function() {
+                showTooltip('写真を選んで、スタイルを選ぶだけ！簡単にカスタマイズできるよ', 3000);
+                createSparkle(event);
+            });
+
+            // スワイプ検出
+            let touchStartX = 0;
+            let touchEndX = 0;
+
+            document.addEventListener('touchstart', function(e) {
+                touchStartX = e.changedTouches[0].screenX;
+            });
+
+            document.addEventListener('touchend', function(e) {
+                touchEndX = e.changedTouches[0].screenX;
+                handleSwipe();
+            });
+
+            function handleSwipe() {
+                const swipeThreshold = 50;
+
+                if (touchEndX < touchStartX - swipeThreshold) {
+                    // 左スワイプ（次へ）
+                    if (currentStep < 2) {
+                        goToNextStep();
+                    }
+                }
+
+                if (touchEndX > touchStartX + swipeThreshold) {
+                    // 右スワイプ（前へ）
+                    if (currentStep > 0) {
+                        goToPreviousStep();
+                    }
+                }
+            }
+
+            // ステップを次に進める関数
+            function goToNextStep() {
+                if (currentStep === 0 && !hasAtLeastOnePhoto()) {
+                    showTooltip('少なくとも1枚の写真を追加してください', 2000);
+                    return;
+                }
+
+                if (currentStep === 1 && !selectedStyle) {
+                    showTooltip('スタイルを選んでください', 2000);
+                    return;
+                }
+
+                if (currentStep < 2) {
+                    currentStep++;
+                    updateStepDisplay();
+
+                    // ステップ3に進んだ場合は生成処理を開始
+                    if (currentStep === 2) {
+                        simulateImageGeneration();
+                    }
+                }
+            }
+
+            // ステップを前に戻す関数
+            function goToPreviousStep() {
+                if (currentStep > 0) {
+                    currentStep--;
+                    updateStepDisplay();
+                }
+            }
+
+            // ステップ表示を更新する関数
+            function updateStepDisplay() {
+                // ステップインジケーターの更新
+                stepIndicators.forEach((indicator, index) => {
+                    if (index === currentStep) {
+                        indicator.classList.add('active');
+                    } else {
+                        indicator.classList.remove('active');
+                    }
+                });
+
+                // コンテンツ表示の更新
+                stepsContainer.style.transform = `translateX(-${currentStep * 100}%)`;
+
+                // 各ステップに入ったときの処理
+                if (currentStep === 0) {
+                    showTooltip('写真を追加してください', 2000);
+                } else if (currentStep === 1) {
+                    showTooltip('スタイルを選んでください', 2000);
+                }
+            }
+
+            setupDownloadButton();
+
+            // 「次へ」ボタンの状態を更新する関数
+            function updateNextButtonState() {
+                const step1Next = document.getElementById('step-1-next');
+                const step2Next = document.getElementById('step-2-next');
+
+                // ステップ1：少なくとも1枚の写真がアップロードされているか
+                if (hasAtLeastOnePhoto()) {
+                    step1Next.removeAttribute('disabled');
+                } else {
+                    step1Next.setAttribute('disabled', 'true');
+                }
+
+                // ステップ2：スタイルが選択されているか
+                if (selectedStyle) {
+                    step2Next.removeAttribute('disabled');
+                } else {
+                    step2Next.setAttribute('disabled', 'true');
+                }
+            }
+
+            // 少なくとも1枚の写真がアップロードされているか確認する関数
+            function hasAtLeastOnePhoto() {
+                return selectedPhotos.some(photo => photo !== null);
+            }
+
+// Lambdaに送信するコードを修正
+function simulateImageGeneration() {
+    // ローディング表示
+    loadingPlaceholder.style.display = 'flex';
+    resultImage.style.display = 'none';
+    
+    // 選択された写真とスタイルの情報を収集
+    const photos = selectedPhotos.filter(photo => photo !== null);
+    // ここでは最初の写真のみを利用
+    const firstPhoto = photos[0];
+    
+    // スタイルに基づいたプロンプトを構築
+    let prompt = '';
+    switch (selectedStyle) {
+        case 'sport':
+            prompt = 'スポーティで高性能なレーシングスタイル';
+            break;
+        case 'cyber':
+            prompt = '未来的なサイバーパンクデザイン、LEDライト、メタリック表面';
+            break;
+        case 'luxury':
+            prompt = '高級感あふれる上品な仕上げ、クロムディテール、高品質素材';
+            break;
+        case 'retro':
+            prompt = 'クラシックなレトロデザイン、ビンテージスタイル';
+            break;
+        default:
+            prompt = 'カスタマイズされた車';
+    }
+    
+    // Lambda関数のURL
+    const lambdaUrl = 'https://zgjdsu2h55mixnskwekldqyuwm0cjqkz.lambda-url.ap-northeast-1.on.aws/';
+    
+    // Lambda関数へのリクエストデータ
+    const requestData = {
+        prompt: prompt,
+        style: selectedStyle
+    };
+    
+    console.log('Lambda APIにリクエスト送信:', requestData);
+    
+    // Lambda関数を呼び出す
+    fetch(lambdaUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestData)
+    })
+    .then(response => {
+        console.log('Lambda APIからのレスポンス:', response.status);
+        if (!response.ok) {
+            return response.json().then(errorData => {
+                console.error('エラーデータ:', errorData);
+                throw new Error(errorData.error || 'APIエラーが発生しました');
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Lambda APIからの成功データ:', data);
+        // ローディング非表示、結果表示
+        loadingPlaceholder.style.display = 'none';
+        resultImage.src = data.imageUrl;
+        resultImage.style.display = 'block';
+        
+        // 成功メッセージ表示
+        showTooltip('カスタマイズ完了！', 2000);
+        
+        // ボタンを有効化
+        document.getElementById('share-btn').disabled = false;
+        document.getElementById('retry-btn').disabled = false;
+    })
+    .catch(error => {
+        console.error('画像生成エラー:', error);
+        
+        // エラー表示
+        loadingPlaceholder.style.display = 'none';
+        showTooltip(`エラー: ${error.message}`, 3000);
+        
+        // フォールバックとして、事前に用意された車の画像を表示
+        const fallbackImages = [
+            'https://images.unsplash.com/photo-1583121274602-3e2820c69888?q=80&w=1000&auto=format&fit=crop',
+            'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?q=80&w=1000&auto=format&fit=crop',
+            'https://images.unsplash.com/photo-1555353540-64580b51c258?q=80&w=1000&auto=format&fit=crop'
+        ];
+        const randomIndex = Math.floor(Math.random() * fallbackImages.length);
+        resultImage.src = fallbackImages[randomIndex];
+        resultImage.style.display = 'block';
+        
+        // ボタンを有効化
+        document.getElementById('share-btn').disabled = false;
+        document.getElementById('retry-btn').disabled = false;
+    });
+}
+
+async function uploadPhotoToLambda(photo) {
+    // Lambda関数のURL
+    const lambdaUrl = 'https://zgjdsu2h55mixnskwekldqyuwm0cjqkz.lambda-url.ap-northeast-1.on.aws/';  // 実際のLambda関数URLに置き換える
+    
+    // アップロードするデータ
+    const uploadData = {
+        image: photo.dataUrl.split(',')[1], // Base64データ部分のみ抽出
+        mimeType: photo.dataUrl.split(',')[0].split(':')[1].split(';')[0] // MIME Type
+    };
+    
+    try {
+        const response = await fetch(lambdaUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(uploadData)
+        });
+        
+        if (!response.ok) {
+            throw new Error('写真のアップロードに失敗しました');
+        }
+        
+        const data = await response.json();
+        return data.fileUrl; // Lambda関数が返すアップロードされた写真のURL
+    } catch (error) {
+        console.error('写真アップロードエラー:', error);
+        throw error;
+    }
+}
+
+// ダウンロードボタンのハンドラーも追加（必要に応じて）
+function setupDownloadButton() {
+    const downloadBtn = document.getElementById('share-btn');
+    if (downloadBtn) {
+        downloadBtn.addEventListener('click', function() {
+            if (resultImage.src) {
+                // ダウンロードリンクを作成
+                const a = document.createElement('a');
+                a.href = resultImage.src;
+                a.download = `custom-car-${Date.now()}.png`;
+                a.style.display = 'none';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                
+                // フィードバック表示
+                showTooltip('画像を保存しました！', 2000);
+                createSparkle(event);
+            }
+        });
+    }
+}
+
+async function generateImageWithGeminiAPI(prompt, apiKey) {
+    try {
+        // APIのエンドポイント
+        const endpoint = 'https://zgjdsu2h55mixnskwekldqyuwm0cjqkz.lambda-url.ap-northeast-1.on.aws/';
+        
+        // リクエストのボディ
+        const requestBody = {
+            prompt: prompt,
+            config: {
+                number_of_images: 1
+            }
+        };
+        
+        // API呼び出し
+        const response = await fetch(`${endpoint}?key=${apiKey}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestBody)
+        });
+        
+        // レスポンスの処理
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error?.message || 'API呼び出しエラー');
+        }
+        
+        const data = await response.json();
+        
+        // 生成された画像の取得
+        if (data.generated_images && data.generated_images.length > 0) {
+            const imageBytes = data.generated_images[0].image.image_bytes;
+            return `data:image/png;base64,${imageBytes}`;
+        } else {
+            throw new Error('画像が生成されませんでした');
+        }
+    } catch (error) {
+        console.error('画像生成エラー:', error);
+        throw error;
+    }
+}
+
+
+            // クリックした位置にキラキラエフェクトを作成
+            function createSparkle(event) {
+                const x = event.clientX || event.touches[0] ?.clientX || window.innerWidth / 2;
+                const y = event.clientY || event.touches[0] ?.clientY || window.innerHeight / 2;
+
+                for (let i = 0; i < 5; i++) {
+                    const sparkle = document.createElement('div');
+                    sparkle.className = 'sparkle';
+                    sparkle.style.width = `${Math.random() * 10 + 5}px`;
+                    sparkle.style.height = sparkle.style.width;
+                    sparkle.style.left = `${x - 10 + Math.random() * 20}px`;
+                    sparkle.style.top = `${y - 10 + Math.random() * 20}px`;
+
+                    document.body.appendChild(sparkle);
+
+                    // アニメーション終了後に要素を削除
+                    setTimeout(() => {
+                        sparkle.remove();
+                    }, 800);
+                }
+            }
+
+            // ツールチップを表示する関数
+            function showTooltip(message, duration = 2000) {
+                // 既存のツールチップがあれば削除
+                const existingTooltip = document.querySelector('.tooltip-bubble');
+                if (existingTooltip) {
+                    existingTooltip.remove();
+                }
+
+                // 新しいツールチップを作成
+                const tooltip = document.createElement('div');
+                tooltip.className = 'tooltip-bubble';
+                tooltip.textContent = message;
+
+                // ツールチップを表示
+                tooltipArea.appendChild(tooltip);
+
+                // 指定時間後に削除
+                setTimeout(() => {
+                    tooltip.remove();
+                }, duration);
+            }
+
+            // スワイプヒントを表示する関数
+            function showSwipeHint() {
+                swipeHint.classList.add('visible');
+
+                setTimeout(() => {
+                    swipeHint.classList.remove('visible');
+                }, 3000);
+            }
+
+            // 成功アニメーションを表示する関数
+            function showSuccessAnimation() {
+                successAnimation.classList.add('visible');
+
+                setTimeout(() => {
+                    successAnimation.classList.remove('visible');
+                }, 2000);
+            }
+
+            // アプリをリセットする関数
+            function resetApp() {
+                // 現在のステップをリセット
+                currentStep = 0;
+                updateStepDisplay();
+
+                // 写真をリセット
+                selectedPhotos = Array(5).fill(null);
+                photoBoxes.forEach(box => {
+                    const existingImg = box.querySelector('img');
+                    if (existingImg) {
+                        existingImg.remove();
+                    }
+
+                    box.querySelector('.photo-add-icon').style.display = 'block';
+                    box.classList.remove('has-image');
+                });
+
+                // スタイル選択をリセット
+                selectedStyle = null;
+                document.querySelector('.customize-option.selected') ?.classList.remove('selected');
+
+                // 「次へ」ボタンの状態を更新
+                updateNextButtonState();
+            }
+
+            // 初期状態で「次へ」ボタンの状態を更新
+            updateNextButtonState();
+
+            // ジェスチャーベースのチュートリアル（初回アクセス時のみ）
+            function showInitialTutorial() {
+                // 最初の写真ボックスを強調
+                const firstPhotoBox = photoBoxes[0];
+                setTimeout(() => {
+                    createPulsatingEffect(firstPhotoBox);
+                    showTooltip('ここをタップして写真を追加！', 3000);
+                }, 1000);
+
+                // スワイプヒントも表示
+                setTimeout(() => {
+                    showSwipeHint();
+                }, 4000);
+            }
+
+            // 要素をパルス状に強調するエフェクト
+            function createPulsatingEffect(element) {
+                // 既存のクラスがあれば削除
+                element.classList.remove('pulsate');
+
+                // 一度リフローを発生させるためのトリック
+                void element.offsetWidth;
+
+                // パルスエフェクトの追加（CSSで定義）
+                const pulsate = document.createElement('div');
+                pulsate.className = 'pulse-effect';
+                pulsate.style.position = 'absolute';
+                pulsate.style.top = '0';
+                pulsate.style.left = '0';
+                pulsate.style.width = '100%';
+                pulsate.style.height = '100%';
+                pulsate.style.borderRadius = '12px';
+                pulsate.style.boxShadow = '0 0 0 0 rgba(74, 144, 226, 0.7)';
+                pulsate.style.animation = 'pulse 1.5s ease-out infinite';
+
+                // アニメーションキーフレーム
+                const style = document.createElement('style');
+                style.textContent = `
+                    @keyframes pulse {
+                        0% {
+                            box-shadow: 0 0 0 0 rgba(74, 144, 226, 0.7);
+                        }
+                        70% {
+                            box-shadow: 0 0 0 10px rgba(74, 144, 226, 0);
+                        }
+                        100% {
+                            box-shadow: 0 0 0 0 rgba(74, 144, 226, 0);
+                        }
+                    }
+                `;
+
+                document.head.appendChild(style);
+                element.appendChild(pulsate);
+
+                // 数秒後に削除
+                setTimeout(() => {
+                    pulsate.remove();
+                }, 6000);
+            }
+
+            // 画面サイズに基づいたUIの最適化
+            function optimizeUIForScreenSize() {
+                const width = window.innerWidth;
+                const height = window.innerHeight;
+
+                // 小さな画面サイズの場合、グリッドの列数を調整
+                if (width < 360) {
+                    document.querySelector('.photos-grid').style.gridTemplateColumns = 'repeat(2, 1fr)';
+                }
+
+                // 画面の向きに応じたレイアウト最適化
+                if (width > height) {
+                    // 横向きの最適化
+                    document.querySelector('.step-content').style.padding = '10px';
+                    document.querySelectorAll('.btn').forEach(btn => {
+                        btn.style.padding = '10px 15px';
+                    });
+                }
+            }
+
+            // デバイス振動APIが利用可能であれば、アクションにフィードバックを追加
+            function triggerVibration() {
+                if ('vibrate' in navigator) {
+                    navigator.vibrate(50); // 50msの短い振動
+                }
+            }
+
+            // 写真ボックスのタップとアクションに振動フィードバックを追加
+            photoBoxes.forEach(box => {
+                box.addEventListener('click', function() {
+                    triggerVibration();
+                });
+            });
+
+            customizeOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    triggerVibration();
+                });
+            });
+
+            // ボタンにも振動フィードバックを追加
+            const allButtons = document.querySelectorAll('.btn');
+            allButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    triggerVibration();
+                });
+            });
+
+            // 言語検出と自動翻訳のためのサポート
+            // （言語が重要な場合のみ使用し、基本的にはアイコンと記号で通信）
+            function detectUserLanguage() {
+                return navigator.language || navigator.userLanguage || 'en';
+            }
+
+            // ブラウザの言語に基づいた最小限のテキスト翻訳
+            function initializeLocalization() {
+                const userLang = detectUserLanguage().substring(0, 2);
+
+                // 主要な言語のみサポート
+                const translations = {
+                    'en': {
+                        shareBtn: 'Share',
+                        retryBtn: 'Try again'
+                    },
+                    'ja': {
+                        shareBtn: 'シェア',
+                        retryBtn: 'やり直す'
+                    },
+                    'es': {
+                        shareBtn: 'Compartir',
+                        retryBtn: 'Reintentar'
+                    },
+                    'zh': {
+                        shareBtn: '分享',
+                        retryBtn: '重试'
+                    }
+                };
+
+                // サポートしている言語であれば適用
+                if (translations[userLang]) {
+                    document.getElementById('share-btn').innerHTML =
+                        `<i class="fa-solid fa-share-alt btn-icon"></i> ${translations[userLang].shareBtn}`;
+
+                    document.getElementById('retry-btn').innerHTML =
+                        `<i class="fa-solid fa-rotate-left btn-icon"></i> ${translations[userLang].retryBtn}`;
+                }
+            }
+
+            // アクセシビリティサポート
+            function setupAccessibility() {
+                // スクリーンリーダー用の非表示テキスト
+                const photoBoxes = document.querySelectorAll('.photo-box');
+                photoBoxes.forEach((box, index) => {
+                    const srLabel = document.createElement('span');
+                    srLabel.className = 'visually-hidden';
+                    srLabel.textContent = `写真 ${index + 1} を追加`;
+                    box.appendChild(srLabel);
+                });
+
+                // タッチターゲットのサイズを確保
+                document.querySelectorAll('.btn, .photo-box, .customize-option').forEach(el => {
+                    if (el.clientWidth < 44 || el.clientHeight < 44) {
+                        // アクセシビリティガイドラインでは44x44px以上が推奨
+                        el.style.minWidth = '44px';
+                        el.style.minHeight = '44px';
+                    }
+                });
+            }
+
+            // オフライン状態の検出と処理
+            function setupOfflineDetection() {
+                window.addEventListener('online', updateOnlineStatus);
+                window.addEventListener('offline', updateOnlineStatus);
+
+                function updateOnlineStatus() {
+                    if (!navigator.onLine) {
+                        showTooltip('オフラインです。接続を確認してください', 3000);
+                    }
+                }
+            }
+
+            // プログレッシブウェブアプリ機能のセットアップ
+            function setupPWASupport() {
+                // サービスワーカーが利用可能であれば登録
+                if ('serviceWorker' in navigator) {
+                    window.addEventListener('load', function() {
+                        // 実際のPWA実装ではサービスワーカーの登録コードを追加
+                        // navigator.serviceWorker.register('/sw.js');
+                    });
+                }
+            }
+
+            // アニメーションのパフォーマンス最適化
+            function optimizeAnimations() {
+                // 低パフォーマンスデバイスの検出
+                const isLowPerformance = window.navigator.deviceMemory < 4 ||
+                    /Android 4/.test(window.navigator.userAgent);
+
+                if (isLowPerformance) {
+                    // アニメーションを簡略化または無効化
+                    document.body.classList.add('reduce-animations');
+
+                    // CSSの調整（実際のアプリでは外部CSSファイルを使用）
+                    const style = document.createElement('style');
+                    style.textContent = `
+                        .reduce-animations .sparkle {
+                            display: none;
+                        }
+                        .reduce-animations .loading-spinner {
+                            animation-duration: 2s;
+                        }
+                    `;
+                    document.head.appendChild(style);
+                }
+            }
+
+            // アプリの初期化
+            function initializeApp() {
+                optimizeUIForScreenSize();
+                showInitialTutorial();
+                initializeLocalization();
+                setupAccessibility();
+                setupOfflineDetection();
+                setupPWASupport();
+                optimizeAnimations();
+
+                // ウィンドウサイズ変更時のレイアウト調整
+                window.addEventListener('resize', optimizeUIForScreenSize);
+            }
+
+            // アプリを初期化
+            initializeApp();
+        });
+    </script>
+</body>
+
+</html>
