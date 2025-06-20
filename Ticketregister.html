@@ -1048,88 +1048,207 @@
 
         // Gemini API呼び出し
         async function analyzeBarcodeWithGemini(base64Image) {
-            const endpoint = 'https://zgjdsu2h55mixnskwekldqyuwm0cjqkz.lambda-url.ap-northeast-1.on.aws/';
-            const requestData = {
-                prompt: 'この画像に含まれるバーコードまたはQRコードの内容をテキストで返してください。',
-                image: base64Image
-            };
-            const response = await fetch(endpoint, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(requestData)
-            });
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Gemini APIエラー');
-            }
-            const data = await response.json();
-            // 返却値はAPI仕様に応じて調整
-            // resultとrawResponse両方返す
-            return data;
+    const endpoint = 'https://zgjdsu2h55mixnskwekldqyuwm0cjqkz.lambda-url.ap-northeast-1.on.aws/';
+    const requestData = {
+        action: 'analyze',
+        image: base64Image,
+        generateEventosQR: true  // Eventos QRコードも生成するフラグ
+    };
+    const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestData)
+    });
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Gemini APIエラー');
+    }
+    const data = await response.json();
+    
+    // Eventos QRコードを生成
+    if (data.result && !data.eventosQR) {
+        data.eventosQR = generateClientSideEventosQR(data.result);
+    }
+    
+    return data;
+}
+
+function generateClientSideEventosQR(extractedCode) {
+    const eventosData = {
+        event_id: '359853',
+        ticket_id: Date.now().toString(),
+        purchased_ticket_id: Date.now().toString(),
+        qr_code: extractedCode,
+        type: 'general',
+        date: '2024-10-24',
+        time: '1000',
+        timestamp: new Date().toISOString()
+    };
+    return JSON.stringify(eventosData);
+}
+
+function showGeminiResultDialog(result) {
+    let extractedText = '';
+    let isValidCode = false;
+    let eventosQR = null;
+    
+    // Geminiのレスポンスからテキストを抽出
+    if (result && result.rawResponse && result.rawResponse.candidates && result.rawResponse.candidates[0]) {
+        const candidate = result.rawResponse.candidates[0];
+        if (candidate.content && candidate.content.parts && candidate.content.parts[0]) {
+            extractedText = candidate.content.parts[0].text.trim();
         }
+    } else if (result && result.result) {
+        extractedText = result.result.trim();
+    } else if (typeof result === 'string') {
+        extractedText = result.trim();
+    }
 
-        function showGeminiResultDialog(result) {
-            let extractedText = '';
-            let isValidCode = false;
-            
-            // Geminiのレスポンスからテキストを抽出
-            if (result && result.rawResponse && result.rawResponse.candidates && result.rawResponse.candidates[0]) {
-                const candidate = result.rawResponse.candidates[0];
-                if (candidate.content && candidate.content.parts && candidate.content.parts[0]) {
-                    extractedText = candidate.content.parts[0].text.trim();
+    // Eventos QRデータがある場合は取得
+    if (result && result.eventosQR) {
+        eventosQR = result.eventosQR;
+    }
+
+    // バーコードの種類を判定
+    let codeType = 'テキスト';
+    if (/^[A-Za-z0-9]{13}$/.test(extractedText)) {
+        codeType = 'QRコード';
+        isValidCode = true;
+    } else if (/^\d{13}$/.test(extractedText)) {
+        codeType = 'JANコード';
+        isValidCode = true;
+    } else if (/^[A-Za-z0-9-_]{8,}$/.test(extractedText)) {
+        codeType = 'バーコード';
+        isValidCode = true;
+    }
+
+    // 有効なコードの場合は必ずEventos QRコードを表示
+    if (isValidCode && !eventosQR) {
+        eventosQR = generateClientSideEventosQR(extractedText);
+    }
+
+    const dialogHtml = `
+        <div class="fixed inset-0 flex items-center justify-center z-50" style="background: rgba(0, 0, 0, 0.6);">
+            <div class="bg-white rounded-2xl w-[calc(100%-32px)] max-w-md mx-auto p-6 transform transition-all shadow-2xl max-h-[90vh] overflow-y-auto">
+                <div class="text-center">
+                    <div class="mb-6">
+                        <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M8 12h8M12 8v8"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-800">Gemini解析結果</h3>
+                    </div>
+                    
+                    <div class="mb-6 p-4 bg-gray-50 rounded-xl">
+                        <div class="text-sm text-gray-600 mb-2">検出されたコード</div>
+                        <div class="text-lg font-bold text-gray-800 mb-2" style="word-break: break-all; font-family: monospace;">
+                            ${extractedText || '検出されませんでした'}
+                        </div>
+                        <div class="inline-block px-3 py-1 rounded-full text-sm font-semibold ${isValidCode ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}">
+                            ${codeType}
+                        </div>
+                    </div>
+
+                    ${eventosQR ? `
+                    <div class="mb-6 p-4 bg-blue-50 rounded-xl">
+                        <div class="text-sm text-blue-600 mb-3 font-semibold">生成されたEventos QRコード</div>
+                        <div id="gemini-result-qr" class="flex justify-center mb-3"></div>
+                        <div class="text-xs text-blue-600 break-all">${eventosQR}</div>
+                    </div>
+                    ` : ''}
+
+                    ${isValidCode ? `
+                    <div class="mb-6">
+                        <button onclick="registerFromGemini('${extractedText}')" class="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 rounded-xl font-semibold mb-3 hover:shadow-lg transition-all">
+                            このコードでチケット登録
+                        </button>
+                        ${eventosQR ? `
+                        <button onclick="registerWithEventos('${extractedText}')" class="w-full bg-gradient-to-r from-green-500 to-blue-600 text-white py-3 rounded-xl font-semibold mb-3 hover:shadow-lg transition-all">
+                            Eventosでチケット登録
+                        </button>
+                        ` : ''}
+                    </div>
+                    ` : ''}
+                    
+                    <button onclick="closeGeminiResultDialog()" class="w-full bg-gray-200 text-gray-700 py-3 rounded-xl font-semibold hover:bg-gray-300 transition-all">
+                        閉じる
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    const dialogElement = document.createElement('div');
+    dialogElement.id = 'gemini-result-dialog';
+    dialogElement.innerHTML = dialogHtml;
+    document.body.appendChild(dialogElement);
+
+    // Eventos QRコードを表示（タイミングを調整）
+    if (eventosQR) {
+        // DOMが確実に追加されてから実行
+        requestAnimationFrame(() => {
+            const qrDisplay = document.getElementById('gemini-result-qr');
+            if (qrDisplay) {
+                try {
+                    new QRCode(qrDisplay, {
+                        text: eventosQR,
+                        width: 120,
+                        height: 120,
+                        colorDark: "#000000",
+                        colorLight: "#ffffff"
+                    });
+                } catch (error) {
+                    console.error('QRコード生成エラー:', error);
+                    qrDisplay.innerHTML = '<div class="text-red-500">QRコード生成に失敗しました</div>';
                 }
-            } else if (result && result.result) {
-                extractedText = result.result.trim();
-            } else if (typeof result === 'string') {
-                extractedText = result.trim();
             }
+        });
+    }
+}
 
-            // バーコードの種類を判定
-            let codeType = 'テキスト';
-            if (/^[A-Za-z0-9]{13}$/.test(extractedText)) {
-                codeType = 'QRコード';
-                isValidCode = true;
-            } else if (/^\d{13}$/.test(extractedText)) {
-                codeType = 'JANコード';
-                isValidCode = true;
-            } else if (/^[A-Za-z0-9-_]{8,}$/.test(extractedText)) {
-                codeType = 'バーコード';
-                isValidCode = true;
-            }
-
+        // Gemini解析成功時のモーダル（Eventos QRコード表示）
+        function showGeminiSuccessModal(extractedText, eventosQR) {
             const dialogHtml = `
                 <div class="fixed inset-0 flex items-center justify-center z-50" style="background: rgba(0, 0, 0, 0.6);">
                     <div class="bg-white rounded-2xl w-[calc(100%-32px)] max-w-md mx-auto p-6 transform transition-all shadow-2xl">
                         <div class="text-center">
                             <div class="mb-6">
-                                <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
+                                <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-green-500 flex items-center justify-center">
                                     <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <circle cx="12" cy="12" r="10"/>
-                                        <path d="M8 12h8M12 8v8"/>
+                                        <polyline points="20,6 9,17 4,12"></polyline>
                                     </svg>
                                 </div>
-                                <h3 class="text-2xl font-bold text-gray-800">Gemini解析結果</h3>
+                                <h3 class="text-2xl font-bold text-gray-800">Gemini解析成功</h3>
                             </div>
                             
-                            <div class="mb-6 p-4 bg-gray-50 rounded-xl">
-                                <div class="text-sm text-gray-600 mb-2">検出されたコード</div>
+                            <div class="mb-6 p-4 bg-green-50 rounded-xl">
+                                <div class="text-sm text-green-600 mb-2">検出されたコード</div>
                                 <div class="text-lg font-bold text-gray-800 mb-2" style="word-break: break-all; font-family: monospace;">
-                                    ${extractedText || '検出されませんでした'}
+                                    ${extractedText}
                                 </div>
-                                <div class="inline-block px-3 py-1 rounded-full text-sm font-semibold ${isValidCode ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}">
-                                    ${codeType}
+                                <div class="inline-block px-3 py-1 rounded-full text-sm font-semibold bg-green-100 text-green-800">
+                                    バーコード/QRコード
                                 </div>
                             </div>
 
-                            ${isValidCode ? `
+                            <div class="mb-6 p-4 bg-blue-50 rounded-xl">
+                                <div class="text-sm text-blue-600 mb-3 font-semibold">生成されたEventos QRコード</div>
+                                <div id="gemini-success-qr" class="flex justify-center mb-3"></div>
+                                <div class="text-xs text-blue-600 break-all">${eventosQR}</div>
+                            </div>
+                            
                             <div class="mb-6">
                                 <button onclick="registerFromGemini('${extractedText}')" class="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 rounded-xl font-semibold mb-3 hover:shadow-lg transition-all">
                                     このコードでチケット登録
                                 </button>
+                                <button onclick="registerWithEventos('${extractedText}')" class="w-full bg-gradient-to-r from-green-500 to-blue-600 text-white py-3 rounded-xl font-semibold mb-3 hover:shadow-lg transition-all">
+                                    Eventosでチケット登録
+                                </button>
                             </div>
-                            ` : ''}
                             
-                            <button onclick="closeGeminiResultDialog()" class="w-full bg-gray-200 text-gray-700 py-3 rounded-xl font-semibold hover:bg-gray-300 transition-all">
+                            <button onclick="closeGeminiSuccessModal()" class="w-full bg-gray-200 text-gray-700 py-3 rounded-xl font-semibold hover:bg-gray-300 transition-all">
                                 閉じる
                             </button>
                         </div>
@@ -1138,14 +1257,132 @@
             `;
             
             const dialogElement = document.createElement('div');
-            dialogElement.id = 'gemini-result-dialog';
+            dialogElement.id = 'gemini-success-modal';
             dialogElement.innerHTML = dialogHtml;
             document.body.appendChild(dialogElement);
+
+            // Eventos QRコードを表示
+            const qrDisplay = document.getElementById('gemini-success-qr');
+            if (qrDisplay) {
+                new QRCode(qrDisplay, {
+                    text: eventosQR,
+                    width: 120,
+                    height: 120
+                });
+            }
+        }
+
+        function closeGeminiSuccessModal() {
+            const dialog = document.getElementById('gemini-success-modal');
+            if (dialog) dialog.remove();
         }
 
         function closeGeminiResultDialog() {
             const dialog = document.getElementById('gemini-result-dialog');
             if (dialog) dialog.remove();
+        }
+
+        // Eventos APIでチケット登録
+        async function registerWithEventos(qrCode) {
+            try {
+                showGeminiLoading();
+                
+                const ticketData = {
+                    ticketId: Date.now().toString(),
+                    purchasedTicketId: Date.now().toString(),
+                    qrCode: qrCode,
+                    type: 'general',
+                    date: '2024-10-24',
+                    time: '1000'
+                };
+
+                const endpoint = 'https://zgjdsu2h55mixnskwekldqyuwm0cjqkz.lambda-url.ap-northeast-1.on.aws/';
+                const requestData = {
+                    action: 'register',
+                    ticketData: ticketData
+                };
+
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestData)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Eventos APIエラー');
+                }
+
+                const result = await response.json();
+                hideGeminiLoading();
+                
+                // 成功ダイアログ表示
+                showEventosSuccessDialog(result);
+                
+            } catch (error) {
+                hideGeminiLoading();
+                showErrorDialog('Eventos登録に失敗しました: ' + (error.message || error));
+            }
+        }
+
+        // Eventos登録成功ダイアログ
+        function showEventosSuccessDialog(result) {
+            const dialogHtml = `
+                <div class="fixed inset-0 flex items-center justify-center z-50" style="background: rgba(0, 0, 0, 0.6);">
+                    <div class="bg-white rounded-2xl w-[calc(100%-32px)] max-w-md mx-auto p-6 transform transition-all shadow-2xl">
+                        <div class="text-center">
+                            <div class="mb-6">
+                                <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-green-500 flex items-center justify-center">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="20,6 9,17 4,12"></polyline>
+                                    </svg>
+                                </div>
+                                <h3 class="text-2xl font-bold text-gray-800">Eventos登録完了</h3>
+                            </div>
+                            
+                            <div class="mb-6 p-4 bg-green-50 rounded-xl">
+                                <div class="text-sm text-green-600 mb-2">登録されたチケット</div>
+                                <div class="text-lg font-bold text-gray-800">${result.message || '登録完了'}</div>
+                            </div>
+
+                            ${result.eventosQR ? `
+                            <div class="mb-6 p-4 bg-blue-50 rounded-xl">
+                                <div class="text-sm text-blue-600 mb-3 font-semibold">Eventos QRコード</div>
+                                <div id="success-eventos-qr" class="flex justify-center mb-3"></div>
+                                <div class="text-xs text-blue-600 break-all">${result.eventosQR}</div>
+                            </div>
+                            ` : ''}
+                            
+                            <button onclick="closeEventosSuccessDialog()" class="w-full bg-green-600 text-white py-3 rounded-xl font-semibold hover:bg-green-700 transition-all">
+                                完了
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            const dialogElement = document.createElement('div');
+            dialogElement.id = 'eventos-success-dialog';
+            dialogElement.innerHTML = dialogHtml;
+            document.body.appendChild(dialogElement);
+
+            // Eventos QRコードを表示
+            if (result.eventosQR) {
+                const qrDisplay = document.getElementById('success-eventos-qr');
+                if (qrDisplay) {
+                    new QRCode(qrDisplay, {
+                        text: result.eventosQR,
+                        width: 120,
+                        height: 120
+                    });
+                }
+            }
+        }
+
+        function closeEventosSuccessDialog() {
+            const dialog = document.getElementById('eventos-success-dialog');
+            if (dialog) dialog.remove();
+            showScanOptions(); // スキャンオプション画面に戻る
         }
     </script>
 
