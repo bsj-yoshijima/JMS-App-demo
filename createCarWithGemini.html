@@ -1081,34 +1081,41 @@
                 return selectedPhotos.some(photo => photo !== null);
             }
 
-// Lambdaに送信するコードを修正
-function simulateImageGeneration() {
+            function simulateImageGeneration() {
     // ローディング表示
     loadingPlaceholder.style.display = 'flex';
     resultImage.style.display = 'none';
     
     // 選択された写真とスタイルの情報を収集
     const photos = selectedPhotos.filter(photo => photo !== null);
-    // ここでは最初の写真のみを利用
-    const firstPhoto = photos[0];
     
-    // スタイルに基づいたプロンプトを構築
+    if (photos.length === 0) {
+        // 写真が選択されていない場合はエラー表示
+        loadingPlaceholder.style.display = 'none';
+        showTooltip('少なくとも1枚の写真をアップロードしてください', 3000);
+        return;
+    }
+    
+    // 最大5枚の写真を選択
+    const selectedPhotosData = photos.slice(0, 5).map(photo => photo.dataUrl);
+    
+    // スタイルに基づいたプロンプト構築
     let prompt = '';
     switch (selectedStyle) {
         case 'sport':
-            prompt = 'スポーティで高性能なレーシングスタイル';
+            prompt = 'この車をスポーティで高性能なレーシングスタイルにカスタマイズしてください';
             break;
         case 'cyber':
-            prompt = '未来的なサイバーパンクデザイン、LEDライト、メタリック表面';
+            prompt = 'この車を未来的なサイバーパンクデザイン、LEDライト、メタリック表面でカスタマイズしてください';
             break;
         case 'luxury':
-            prompt = '高級感あふれる上品な仕上げ、クロムディテール、高品質素材';
+            prompt = 'この車を高級感あふれる上品な仕上げ、クロムディテール、高品質素材でカスタマイズしてください';
             break;
         case 'retro':
-            prompt = 'クラシックなレトロデザイン、ビンテージスタイル';
+            prompt = 'この車をクラシックなレトロデザイン、ビンテージスタイルでカスタマイズしてください';
             break;
         default:
-            prompt = 'カスタマイズされた車';
+            prompt = 'この車をカスタマイズしてください';
     }
     
     // Lambda関数のURL
@@ -1117,10 +1124,15 @@ function simulateImageGeneration() {
     // Lambda関数へのリクエストデータ
     const requestData = {
         prompt: prompt,
-        style: selectedStyle
+        style: selectedStyle,
+        images: selectedPhotosData  // 写真のBase64データを追加
     };
     
-    console.log('Lambda APIにリクエスト送信:', requestData);
+    console.log('Lambda APIにリクエスト送信:', {
+        prompt: requestData.prompt,
+        style: requestData.style,
+        imagesCount: requestData.images.length
+    });
     
     // Lambda関数を呼び出す
     fetch(lambdaUrl, {
@@ -1150,6 +1162,9 @@ function simulateImageGeneration() {
         // 成功メッセージ表示
         showTooltip('カスタマイズ完了！', 2000);
         
+        // Geminiバッジの追加
+        addGeminiBadge();
+        
         // ボタンを有効化
         document.getElementById('share-btn').disabled = false;
         document.getElementById('retry-btn').disabled = false;
@@ -1175,6 +1190,28 @@ function simulateImageGeneration() {
         document.getElementById('share-btn').disabled = false;
         document.getElementById('retry-btn').disabled = false;
     });
+}
+
+function addGeminiBadge() {
+    // 既存のバッジを確認
+    const existingBadge = document.querySelector('.gemini-result-badge');
+    if (existingBadge) return;
+    
+    // 結果イメージの上にバッジを追加
+    const resultContainer = document.querySelector('.result-image-container');
+    const badge = document.createElement('div');
+    badge.className = 'gemini-result-badge';
+    badge.innerHTML = `
+        <div class="gemini-result-icon">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+        </div>
+        <div class="gemini-result-text">
+            <span class="gemini-name">Gemini</span> で生成
+        </div>
+    `;
+    
+    // バッジを追加
+    resultContainer.parentNode.insertBefore(badge, resultContainer);
 }
 
 async function uploadPhotoToLambda(photo) {

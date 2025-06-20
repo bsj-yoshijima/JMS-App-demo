@@ -275,6 +275,18 @@
                         <div class="scan-option-description">カメラを使用してQRコードをスキャン</div>
                     </div>
                 </button>
+                <button onclick="showGeminiCameraModal()" class="scan-option w-full">
+                    <div class="icon">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M8 12h8M12 8v8"/>
+                        </svg>
+                    </div>
+                    <div class="scan-option-content">
+                        <div class="scan-option-title">Geminiでバーコード解析</div>
+                        <div class="scan-option-description">カメラで撮影しGeminiで解析</div>
+                    </div>
+                </button>
             </div>
             <button onclick="showTicketList()" class="tickets-button">
                 チケット一覧を見る
@@ -489,7 +501,20 @@
         </div>
     </div>
 
+    <!-- Geminiカメラモーダル -->
+    <div id="gemini-camera-modal" class="fixed inset-0 flex items-center justify-center z-50" style="background: rgba(0,0,0,0.5); display: none;">
+        <div class="bg-white rounded-2xl p-6 max-w-sm w-full flex flex-col items-center">
+            <video id="gemini-camera-video" autoplay playsinline class="rounded-lg w-full max-w-xs mb-4" style="background:#000;" width="320" height="240"></video>
+            <canvas id="gemini-camera-canvas" style="display:none;"></canvas>
+            <div class="flex w-full space-x-2">
+                <button onclick="captureGeminiPhoto()" class="flex-1 bg-blue-600 text-white py-2 rounded-lg font-semibold">撮影</button>
+                <button onclick="closeGeminiCameraModal()" class="flex-1 bg-gray-300 text-gray-700 py-2 rounded-lg font-semibold">キャンセル</button>
+            </div>
+        </div>
+    </div>
+
     <input type="file" id="file-input" accept="image/*" style="display: none" onchange="handleImageFile(this)">
+    <input type="file" id="gemini-file-input" accept="image/*" style="display: none" onchange="handleGeminiImageFile(this)">
 
     <script>
         let currentQR = '';
@@ -801,7 +826,7 @@
 
             listElement.innerHTML = tickets.map(ticket => `
             <div class="mb-6">
-    <label class="block text-sm font-medium text-gray-700 mb-2">バーコード情報</label>
+    <label class="block text-sm font-bold text-gray-700 mb-2">バーコード情報</label>
     <div class="p-3 bg-gray-50 rounded-lg">
         <p class="text-sm text-gray-600" id="barcode-info"></p>
     </div>
@@ -960,6 +985,168 @@
             showScanOptions();
             initializeImageFileInput();
         });
+
+        // Geminiカメラモーダル表示
+        function showGeminiCameraModal() {
+            const modal = document.getElementById('gemini-camera-modal');
+            modal.style.display = 'flex';
+            const video = document.getElementById('gemini-camera-video');
+            // カメラ起動
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+                .then(stream => {
+                    video.srcObject = stream;
+                })
+                .catch(err => {
+                    showErrorDialog('カメラの起動に失敗しました: ' + err.message);
+                    closeGeminiCameraModal();
+                });
+        }
+        // モーダル閉じる＋カメラ停止
+        function closeGeminiCameraModal() {
+            const modal = document.getElementById('gemini-camera-modal');
+            modal.style.display = 'none';
+            const video = document.getElementById('gemini-camera-video');
+            if (video.srcObject) {
+                video.srcObject.getTracks().forEach(track => track.stop());
+                video.srcObject = null;
+            }
+        }
+        // 撮影→Gemini送信
+        async function captureGeminiPhoto() {
+            const video = document.getElementById('gemini-camera-video');
+            const canvas = document.getElementById('gemini-camera-canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            // 画像Base64取得
+            const base64 = canvas.toDataURL('image/jpeg').split(',')[1];
+            closeGeminiCameraModal();
+            try {
+                showGeminiLoading();
+                const result = await analyzeBarcodeWithGemini(base64);
+                hideGeminiLoading();
+                showGeminiResultDialog(result);
+            } catch (error) {
+                hideGeminiLoading();
+                showErrorDialog('Gemini解析に失敗しました: ' + (error.message || error));
+            }
+        }
+
+        // Geminiローディング表示/非表示
+        function showGeminiLoading() {
+            if (document.getElementById('gemini-loading')) return;
+            const loading = document.createElement('div');
+            loading.id = 'gemini-loading';
+            loading.innerHTML = `<div class="fixed inset-0 flex items-center justify-center z-50" style="background: rgba(0,0,0,0.4);"><div class="bg-white rounded-2xl p-8 text-center"><div class="mb-4 animate-spin text-4xl">🔄</div><div>Geminiで解析中...</div></div></div>`;
+            document.body.appendChild(loading);
+        }
+        function hideGeminiLoading() {
+            const loading = document.getElementById('gemini-loading');
+            if (loading) loading.remove();
+        }
+
+        // Gemini API呼び出し
+        async function analyzeBarcodeWithGemini(base64Image) {
+            const endpoint = 'https://zgjdsu2h55mixnskwekldqyuwm0cjqkz.lambda-url.ap-northeast-1.on.aws/';
+            const requestData = {
+                prompt: 'この画像に含まれるバーコードまたはQRコードの内容をテキストで返してください。',
+                image: base64Image
+            };
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(requestData)
+            });
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Gemini APIエラー');
+            }
+            const data = await response.json();
+            // 返却値はAPI仕様に応じて調整
+            // resultとrawResponse両方返す
+            return data;
+        }
+
+        function showGeminiResultDialog(result) {
+            let extractedText = '';
+            let isValidCode = false;
+            
+            // Geminiのレスポンスからテキストを抽出
+            if (result && result.rawResponse && result.rawResponse.candidates && result.rawResponse.candidates[0]) {
+                const candidate = result.rawResponse.candidates[0];
+                if (candidate.content && candidate.content.parts && candidate.content.parts[0]) {
+                    extractedText = candidate.content.parts[0].text.trim();
+                }
+            } else if (result && result.result) {
+                extractedText = result.result.trim();
+            } else if (typeof result === 'string') {
+                extractedText = result.trim();
+            }
+
+            // バーコードの種類を判定
+            let codeType = 'テキスト';
+            if (/^[A-Za-z0-9]{13}$/.test(extractedText)) {
+                codeType = 'QRコード';
+                isValidCode = true;
+            } else if (/^\d{13}$/.test(extractedText)) {
+                codeType = 'JANコード';
+                isValidCode = true;
+            } else if (/^[A-Za-z0-9-_]{8,}$/.test(extractedText)) {
+                codeType = 'バーコード';
+                isValidCode = true;
+            }
+
+            const dialogHtml = `
+                <div class="fixed inset-0 flex items-center justify-center z-50" style="background: rgba(0, 0, 0, 0.6);">
+                    <div class="bg-white rounded-2xl w-[calc(100%-32px)] max-w-md mx-auto p-6 transform transition-all shadow-2xl">
+                        <div class="text-center">
+                            <div class="mb-6">
+                                <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <path d="M8 12h8M12 8v8"/>
+                                    </svg>
+                                </div>
+                                <h3 class="text-2xl font-bold text-gray-800">Gemini解析結果</h3>
+                            </div>
+                            
+                            <div class="mb-6 p-4 bg-gray-50 rounded-xl">
+                                <div class="text-sm text-gray-600 mb-2">検出されたコード</div>
+                                <div class="text-lg font-bold text-gray-800 mb-2" style="word-break: break-all; font-family: monospace;">
+                                    ${extractedText || '検出されませんでした'}
+                                </div>
+                                <div class="inline-block px-3 py-1 rounded-full text-sm font-semibold ${isValidCode ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}">
+                                    ${codeType}
+                                </div>
+                            </div>
+
+                            ${isValidCode ? `
+                            <div class="mb-6">
+                                <button onclick="registerFromGemini('${extractedText}')" class="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 rounded-xl font-semibold mb-3 hover:shadow-lg transition-all">
+                                    このコードでチケット登録
+                                </button>
+                            </div>
+                            ` : ''}
+                            
+                            <button onclick="closeGeminiResultDialog()" class="w-full bg-gray-200 text-gray-700 py-3 rounded-xl font-semibold hover:bg-gray-300 transition-all">
+                                閉じる
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            const dialogElement = document.createElement('div');
+            dialogElement.id = 'gemini-result-dialog';
+            dialogElement.innerHTML = dialogHtml;
+            document.body.appendChild(dialogElement);
+        }
+
+        function closeGeminiResultDialog() {
+            const dialog = document.getElementById('gemini-result-dialog');
+            if (dialog) dialog.remove();
+        }
     </script>
 
     <!-- Progressive Web App (PWA) サポート -->
