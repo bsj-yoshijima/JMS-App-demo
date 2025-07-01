@@ -15,7 +15,8 @@
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background-color: transparent;
-            padding: 10px;
+            padding: 0;
+            margin: 0;
             min-height: 160px;
             overflow: hidden;
         }
@@ -24,7 +25,7 @@
             width: 100%;
             overflow: hidden;
             position: relative;
-            border-radius: 8px;
+            border-radius: 0;
             background-color: white;
         }
         
@@ -33,13 +34,14 @@
             width: max-content;
             position: relative;
             left: 0;
+            transition: transform 0.6s ease-in-out;
         }
         
         .banner {
             flex: 0 0 auto;
-            width: 280px;
+            width: calc(100vw - 20px);
             height: 140px;
-            margin: 10px;
+            margin: 7px 10px;
             border-radius: 8px;
             overflow: hidden;
             position: relative;
@@ -170,7 +172,10 @@
                 bannerTrack = document.getElementById('bannerTrack');
                 if (bannerTrack) {
                     initBanners();
-                    startAnimation();
+                    // 少し遅延を入れてからアニメーション開始
+                    setTimeout(() => {
+                        startAnimation();
+                    }, 100);
                 } else {
                     // DOMがまだ準備できていない場合は再試行
                     setTimeout(checkAndInitialize, 50);
@@ -185,12 +190,13 @@
 
                 console.log('Initializing banners');
 
-                // 最初のセット
+                // 無限スクロール用に2セット作成
+                // 1つ目のセット（メインセット）
                 shuffledBanners.forEach(banner => {
                     bannerTrack.appendChild(createBanner(banner));
                 });
 
-                // 二つ目のセット
+                // 2つ目のセット（ループ用の複製）
                 shuffledBanners.forEach(banner => {
                     bannerTrack.appendChild(createBanner(banner));
                 });
@@ -203,29 +209,56 @@
                 }
 
                 console.log('Starting animation');
+                console.log(`Banner width: ${window.innerWidth}px, Total banners: ${shuffledBanners.length}`);
                 animationActive = true;
 
+                const bannerWidth = window.innerWidth; // 画面幅いっぱい
+                const totalBanners = shuffledBanners.length;
+                const intervalDuration = 5000; // 5秒ごとに移動
+                
+                // 最初から開始
+                let currentIndex = 0;
                 let position = 0;
-                const speed = 1; // 移動速度（px/フレーム）
-                const bannerWidth = bannerTrack.firstChild ? bannerTrack.firstChild.offsetWidth + 20 : 300; // バナー幅+マージン
-                const totalWidth = bannerWidth * shuffledBanners.length;
+                
+                // 初期位置をセット（トランジションなし）
+                bannerTrack.style.transition = 'none';
+                bannerTrack.style.transform = `translateX(${position}px)`;
+                
+                // 次のフレームでトランジションを有効にする
+                requestAnimationFrame(() => {
+                    bannerTrack.style.transition = 'transform 0.6s ease-in-out';
+                });
 
-                function animate() {
-                    position -= speed;
+                function moveToNext() {
+                    currentIndex++;
+                    position = -(currentIndex * bannerWidth);
+                    
+                    console.log(`Moving to index: ${currentIndex}, position: ${position}px`);
 
                     // 前半のバナーセットが完全に見えなくなったら位置をリセット
-                    if (position <= -totalWidth) {
+                    if (currentIndex >= totalBanners) {
+                        console.log('Resetting to first banner');
+                        // トランジションを一時的に無効にして瞬時にリセット
+                        bannerTrack.style.transition = 'none';
+                        currentIndex = 0;
                         position = 0;
+                        bannerTrack.style.transform = `translateX(${position}px)`;
+                        
+                        // 次のフレームでトランジションを再度有効にする
+                        requestAnimationFrame(() => {
+                            bannerTrack.style.transition = 'transform 0.6s ease-in-out';
+                        });
+                    } else {
+                        bannerTrack.style.transform = `translateX(${position}px)`;
                     }
-
-                    bannerTrack.style.transform = `translateX(${position}px)`;
-
-                    // アニメーションループ
-                    requestAnimationFrame(animate);
                 }
 
                 // アニメーションスタート
-                animate();
+                console.log(`Starting interval with ${intervalDuration}ms duration`);
+                const animationInterval = setInterval(moveToNext, intervalDuration);
+
+                // クリーンアップ用に interval ID を保存（必要に応じて）
+                bannerTrack.animationInterval = animationInterval;
             }
 
             // 初期化処理開始
