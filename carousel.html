@@ -17,16 +17,18 @@
             background-color: transparent;
             padding: 0;
             margin: 0;
-            min-height: 160px;
+            min-height: 200px;
             overflow: hidden;
         }
         
         .carousel-container {
             width: 100%;
+            height: 160px;
             overflow: hidden;
             position: relative;
             border-radius: 0;
             background-color: white;
+            touch-action: pan-y;
         }
         
         .banner-track {
@@ -77,13 +79,82 @@
             text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
             z-index: 2;
         }
+        
+        .carousel-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-right: 16px;
+            padding-left: 12px;
+            z-index: 3;
+        }
+        
+        .carousel-indicators {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .carousel-indicator {
+            width: 9px;
+            height: 9px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .carousel-indicator.active {
+            width: 27px;
+            height: 9px;
+            border-radius: 6px;
+        }
+        
+        .carousel-next-button {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: linear-gradient(216deg, #4A90E2 0%, #4A90E2 50%, #357ABD 50%, #357ABD 100%);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 4;
+            transition: transform 0.2s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .carousel-next-button:hover {
+            background: linear-gradient(90deg, #357ABD 0%, #357ABD 50%, #2E6A9E 50%, #2E6A9E 100%);
+            transform: scale(1.05);
+        }
+        
+        .carousel-next-button:active {
+            transform: scale(0.95);
+        }
+        
+        .carousel-next-button svg {
+            width: 20px;
+            height: 20px;
+            fill: white;
+        }
     </style>
 </head>
 
 <body>
-    <div class="carousel-container">
+    <div class="carousel-container" id="carouselContainer">
         <div class="banner-track" id="bannerTrack">
             <!-- バナーはJavaScriptで動的に生成されます -->
+        </div>
+    </div>
+    <div class="carousel-controls">
+        <button class="carousel-next-button" id="carouselNextButton">
+            <svg viewBox="0 0 24 24">
+                <path d="M8.59,16.59L13.17,12L8.59,7.41L10,6l6,6l-6,6L8.59,16.59z"/>
+            </svg>
+        </button>
+        <div class="carousel-indicators" id="carouselIndicators">
+            <!-- インジケーターはJavaScriptで動的に生成されます -->
         </div>
     </div>
 
@@ -166,12 +237,24 @@
 
             // トラック要素の取得またはポーリングによる待機
             let bannerTrack = document.getElementById('bannerTrack');
+            let carouselContainer = document.getElementById('carouselContainer');
+            let carouselIndicators = document.getElementById('carouselIndicators');
             let animationActive = false;
+            let currentIndex = 0;
+            let autoSlideInterval = null;
+            let touchStartX = 0;
+            let touchStartY = 0;
+            let isSwipeDetected = false;
 
             function checkAndInitialize() {
                 bannerTrack = document.getElementById('bannerTrack');
-                if (bannerTrack) {
+                carouselContainer = document.getElementById('carouselContainer');
+                carouselIndicators = document.getElementById('carouselIndicators');
+                
+                if (bannerTrack && carouselContainer && carouselIndicators) {
                     initBanners();
+                    createIndicators();
+                    setupEventListeners();
                     // 少し遅延を入れてからアニメーション開始
                     setTimeout(() => {
                         startAnimation();
@@ -190,7 +273,7 @@
 
                 console.log('Initializing banners');
 
-                // 無限スクロール用に2セット作成
+                // 無限ループ用に2セット作成
                 // 1つ目のセット（メインセット）
                 shuffledBanners.forEach(banner => {
                     bannerTrack.appendChild(createBanner(banner));
@@ -200,6 +283,273 @@
                 shuffledBanners.forEach(banner => {
                     bannerTrack.appendChild(createBanner(banner));
                 });
+            }
+
+            // インジケーターの作成
+            function createIndicators() {
+                if (!carouselIndicators) return;
+
+                carouselIndicators.innerHTML = '';
+                
+                // カラフルなドットの色パレット
+                const colors = [
+                    '#FF6B6B', // 赤
+                    '#4ECDC4', // 青緑
+                    '#45B7D1', // 青
+                    '#FFA07A', // サーモンピンク
+                    '#98D8C8', // ミントグリーン
+                    '#F7DC6F', // 黄色
+                    '#BB8FCE', // 紫
+                    '#85C1E9', // 水色
+                    '#F8C471', // オレンジ
+                    '#82E0AA'  // 緑
+                ];
+                
+                for (let i = 0; i < shuffledBanners.length; i++) {
+                    const indicator = document.createElement('div');
+                    indicator.className = 'carousel-indicator';
+                    indicator.style.backgroundColor = colors[i % colors.length];
+                    if (i === 0) {
+                        indicator.classList.add('active');
+                    }
+                    indicator.addEventListener('click', () => goToSlide(i));
+                    carouselIndicators.appendChild(indicator);
+                }
+            }
+
+            // イベントリスナーの設定
+            function setupEventListeners() {
+                if (!carouselContainer) return;
+
+                // タッチイベント（スワイプ）
+                carouselContainer.addEventListener('touchstart', handleTouchStart, { passive: false });
+                carouselContainer.addEventListener('touchmove', handleTouchMove, { passive: false });
+                carouselContainer.addEventListener('touchend', handleTouchEnd, { passive: false });
+
+                // マウスイベント（デスクトップ）
+                carouselContainer.addEventListener('mousedown', handleMouseDown);
+                carouselContainer.addEventListener('mousemove', handleMouseMove);
+                carouselContainer.addEventListener('mouseup', handleMouseUp);
+                carouselContainer.addEventListener('mouseleave', handleMouseUp);
+
+                // クリックイベント
+                carouselContainer.addEventListener('click', handleClick);
+
+                // 次へボタンのクリックイベント
+                const nextButton = document.getElementById('carouselNextButton');
+                if (nextButton) {
+                    nextButton.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        clearAutoSlide();
+                        nextSlide();
+                        resetAutoSlide();
+                    });
+                }
+            }
+
+            // タッチイベントハンドラー
+            function handleTouchStart(e) {
+                touchStartX = e.touches[0].clientX;
+                touchStartY = e.touches[0].clientY;
+                isSwipeDetected = false;
+                clearAutoSlide();
+            }
+
+            function handleTouchMove(e) {
+                if (!touchStartX || !touchStartY) return;
+                
+                const touchEndX = e.touches[0].clientX;
+                const touchEndY = e.touches[0].clientY;
+                
+                const diffX = touchStartX - touchEndX;
+                const diffY = touchStartY - touchEndY;
+                
+                if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 10) {
+                    e.preventDefault();
+                    isSwipeDetected = true;
+                }
+            }
+
+            function handleTouchEnd(e) {
+                if (!touchStartX || !isSwipeDetected) {
+                    resetAutoSlide();
+                    return;
+                }
+                
+                const touchEndX = e.changedTouches[0].clientX;
+                const diff = touchStartX - touchEndX;
+                
+                if (Math.abs(diff) > 50) {
+                    if (diff > 0) {
+                        nextSlide();
+                    } else {
+                        prevSlide();
+                    }
+                }
+                
+                touchStartX = 0;
+                touchStartY = 0;
+                isSwipeDetected = false;
+                resetAutoSlide();
+            }
+
+            // マウスイベントハンドラー
+            function handleMouseDown(e) {
+                touchStartX = e.clientX;
+                isSwipeDetected = false;
+                clearAutoSlide();
+            }
+
+            function handleMouseMove(e) {
+                if (!touchStartX) return;
+                
+                const diff = Math.abs(touchStartX - e.clientX);
+                if (diff > 10) {
+                    isSwipeDetected = true;
+                }
+            }
+
+            function handleMouseUp(e) {
+                if (!touchStartX || !isSwipeDetected) {
+                    resetAutoSlide();
+                    return;
+                }
+                
+                const diff = touchStartX - e.clientX;
+                
+                if (Math.abs(diff) > 50) {
+                    if (diff > 0) {
+                        nextSlide();
+                    } else {
+                        prevSlide();
+                    }
+                }
+                
+                touchStartX = 0;
+                isSwipeDetected = false;
+                resetAutoSlide();
+            }
+
+            function handleClick(e) {
+                if (isSwipeDetected) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            }
+
+            // スライド制御関数
+            function goToSlide(index) {
+                clearAutoSlide();
+                
+                currentIndex = index;
+                updateSlidePosition();
+                updateIndicators();
+                
+                resetAutoSlide();
+            }
+
+            function nextSlide() {
+                currentIndex++;
+                
+                // 最初のセットを通り過ぎたら（複製セットに入った）、位置をリセット
+                if (currentIndex >= shuffledBanners.length) {
+                    console.log('Moving to duplicate set, will reset after transition');
+                    // 一度複製セットの最初のバナーに移動
+                    updateSlidePosition();
+                    
+                    // 少し遅れてリセット
+                    setTimeout(() => {
+                        // トランジションを無効にして瞬時にリセット
+                        bannerTrack.style.transition = 'none';
+                        currentIndex = 0;
+                        const bannerWidth = window.innerWidth;
+                        const position = -(currentIndex * bannerWidth);
+                        bannerTrack.style.transform = `translateX(${position}px)`;
+                        
+                        // 次のフレームでトランジションを再度有効にする
+                        requestAnimationFrame(() => {
+                            bannerTrack.style.transition = 'transform 0.6s ease-in-out';
+                        });
+                        
+                        updateIndicators();
+                    }, 600); // トランジション時間と同じ
+                } else {
+                    // 通常の移動
+                    updateSlidePosition();
+                    updateIndicators();
+                }
+            }
+
+            function prevSlide() {
+                currentIndex--;
+                
+                // 最初のバナーより前に行こうとしたら、最後のバナーに移動
+                if (currentIndex < 0) {
+                    console.log('Moving to end via duplicate set');
+                    // 一度複製セットの最後のバナーに移動
+                    currentIndex = shuffledBanners.length * 2 - 1;
+                    updateSlidePosition();
+                    
+                    // 少し遅れてリセット
+                    setTimeout(() => {
+                        // トランジションを無効にして瞬時にリセット
+                        bannerTrack.style.transition = 'none';
+                        currentIndex = shuffledBanners.length - 1;
+                        const bannerWidth = window.innerWidth;
+                        const position = -(currentIndex * bannerWidth);
+                        bannerTrack.style.transform = `translateX(${position}px)`;
+                        
+                        // 次のフレームでトランジションを再度有効にする
+                        requestAnimationFrame(() => {
+                            bannerTrack.style.transition = 'transform 0.6s ease-in-out';
+                        });
+                        
+                        updateIndicators();
+                    }, 600); // トランジション時間と同じ
+                } else {
+                    // 通常の移動
+                    updateSlidePosition();
+                    updateIndicators();
+                }
+            }
+
+            function updateSlidePosition() {
+                if (!bannerTrack) return;
+                
+                const bannerWidth = window.innerWidth;
+                const position = -(currentIndex * bannerWidth);
+                
+                bannerTrack.style.transition = 'transform 0.6s ease-in-out';
+                bannerTrack.style.transform = `translateX(${position}px)`;
+                
+                console.log(`Moving to index: ${currentIndex}, position: ${position}px`);
+            }
+
+            function updateIndicators() {
+                if (!carouselIndicators) return;
+                
+                const indicators = carouselIndicators.querySelectorAll('.carousel-indicator');
+                indicators.forEach((indicator, index) => {
+                    if (index === currentIndex) {
+                        indicator.classList.add('active');
+                    } else {
+                        indicator.classList.remove('active');
+                    }
+                });
+            }
+
+            function clearAutoSlide() {
+                if (autoSlideInterval) {
+                    clearInterval(autoSlideInterval);
+                    autoSlideInterval = null;
+                }
+            }
+
+            function resetAutoSlide() {
+                clearAutoSlide();
+                autoSlideInterval = setInterval(() => {
+                    nextSlide();
+                }, 5000);
             }
 
             // JavaScript駆動のアニメーション
@@ -212,53 +562,17 @@
                 console.log(`Banner width: ${window.innerWidth}px, Total banners: ${shuffledBanners.length}`);
                 animationActive = true;
 
-                const bannerWidth = window.innerWidth; // 画面幅いっぱい
-                const totalBanners = shuffledBanners.length;
-                const intervalDuration = 5000; // 5秒ごとに移動
-                
-                // 最初から開始
-                let currentIndex = 0;
-                let position = 0;
-                
                 // 初期位置をセット（トランジションなし）
                 bannerTrack.style.transition = 'none';
-                bannerTrack.style.transform = `translateX(${position}px)`;
+                bannerTrack.style.transform = `translateX(0px)`;
                 
                 // 次のフレームでトランジションを有効にする
                 requestAnimationFrame(() => {
                     bannerTrack.style.transition = 'transform 0.6s ease-in-out';
                 });
 
-                function moveToNext() {
-                    currentIndex++;
-                    position = -(currentIndex * bannerWidth);
-                    
-                    console.log(`Moving to index: ${currentIndex}, position: ${position}px`);
-
-                    // 前半のバナーセットが完全に見えなくなったら位置をリセット
-                    if (currentIndex >= totalBanners) {
-                        console.log('Resetting to first banner');
-                        // トランジションを一時的に無効にして瞬時にリセット
-                        bannerTrack.style.transition = 'none';
-                        currentIndex = 0;
-                        position = 0;
-                        bannerTrack.style.transform = `translateX(${position}px)`;
-                        
-                        // 次のフレームでトランジションを再度有効にする
-                        requestAnimationFrame(() => {
-                            bannerTrack.style.transition = 'transform 0.6s ease-in-out';
-                        });
-                    } else {
-                        bannerTrack.style.transform = `translateX(${position}px)`;
-                    }
-                }
-
-                // アニメーションスタート
-                console.log(`Starting interval with ${intervalDuration}ms duration`);
-                const animationInterval = setInterval(moveToNext, intervalDuration);
-
-                // クリーンアップ用に interval ID を保存（必要に応じて）
-                bannerTrack.animationInterval = animationInterval;
+                // 自動スライドを開始
+                resetAutoSlide();
             }
 
             // 初期化処理開始
